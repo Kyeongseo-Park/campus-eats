@@ -7,6 +7,7 @@ export default defineConfig({
   schema: "prisma/schema.prisma",
   migrations: {
     path: "prisma/migrations",
+    seed: "tsx prisma/seed.ts",
   },
   // Used by the Prisma CLI (migrate, studio, db pull/push) — point this at Neon's
   // *direct* (unpooled) connection string since migrations need a session-level
