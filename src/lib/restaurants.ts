@@ -2,6 +2,7 @@ import { Prisma } from "@/generated/prisma/client";
 import { prisma } from "@/lib/prisma";
 import { isPartnershipActive } from "@/lib/partnership";
 import { haversineDistanceKm, type Coordinates } from "@/lib/geo";
+import { calculateAverageRating } from "@/lib/reviews";
 import { SCHOOL_MAIN_GATE, type PriceRangeValue, type SortValue } from "@/lib/constants";
 
 export type RestaurantSearchParams = {
@@ -73,10 +74,7 @@ export async function searchRestaurants(params: RestaurantSearchParams): Promise
   const origin = params.origin ?? SCHOOL_MAIN_GATE;
 
   const items: RestaurantListItem[] = restaurants.map((r) => {
-    const avgRating =
-      r.reviews.length > 0
-        ? r.reviews.reduce((sum, review) => sum + review.rating, 0) / r.reviews.length
-        : null;
+    const avgRating = calculateAverageRating(r.reviews);
 
     return {
       id: r.id,

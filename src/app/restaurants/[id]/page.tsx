@@ -1,8 +1,11 @@
 import { notFound } from "next/navigation";
 
 import { Badge } from "@/components/ui/badge";
+import { ReviewSection } from "@/components/review-section";
+import { getCurrentUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { isPartnershipActive } from "@/lib/partnership";
+import { calculateAverageRating } from "@/lib/reviews";
 
 export default async function RestaurantDetailPage({
   params,
@@ -11,10 +14,15 @@ export default async function RestaurantDetailPage({
 }) {
   const { id } = await params;
 
-  const restaurant = await prisma.restaurant.findUnique({
-    where: { id },
-    include: { menus: true },
-  });
+  const [restaurant, reviews, currentUser] = await Promise.all([
+    prisma.restaurant.findUnique({ where: { id }, include: { menus: true } }),
+    prisma.review.findMany({
+      where: { restaurantId: id },
+      orderBy: { createdAt: "desc" },
+      include: { user: { select: { nickname: true } } },
+    }),
+    getCurrentUser(),
+  ]);
 
   if (!restaurant) {
     notFound();
@@ -24,6 +32,7 @@ export default async function RestaurantDetailPage({
     restaurant.partnershipStartDate,
     restaurant.partnershipEndDate
   );
+  const avgRating = calculateAverageRating(reviews);
 
   return (
     <main className="flex flex-1 flex-col gap-6 p-8">
@@ -34,6 +43,7 @@ export default async function RestaurantDetailPage({
         </div>
         <p className="mt-1 text-muted-foreground">
           {restaurant.zone} · {restaurant.category}
+          {avgRating !== null && ` · ★${avgRating.toFixed(1)} (${reviews.length})`}
         </p>
         <p className="text-muted-foreground">{restaurant.address}</p>
       </div>
@@ -68,7 +78,9 @@ export default async function RestaurantDetailPage({
 
       <section>
         <h2 className="text-lg font-medium">리뷰</h2>
-        <p className="mt-2 text-sm text-muted-foreground">리뷰 기능은 준비 중입니다.</p>
+        <div className="mt-2">
+          <ReviewSection restaurantId={restaurant.id} reviews={reviews} currentUserId={currentUser?.id ?? null} />
+        </div>
       </section>
     </main>
   );
