@@ -18,3 +18,20 @@ export const ZONE_CENTERS: Record<Zone, { latitude: number; longitude: number }>
 
 // 거리순 정렬에서 위치 권한이 거부된 사용자에게 대체 기준으로 사용된다 (PRD 6.1).
 export const SCHOOL_MAIN_GATE = ZONE_CENTERS.정문;
+
+// min_price 기준 4구간 (PRD 6.1).
+export const PRICE_RANGES = [
+  { value: "5000", label: "~5천원" },
+  { value: "10000", label: "5천~1만원" },
+  { value: "20000", label: "1~2만원" },
+  { value: "20000+", label: "2만원~" },
+] as const;
+export type PriceRangeValue = (typeof PRICE_RANGES)[number]["value"];
+
+export const SORT_OPTIONS = [
+  { value: "rating", label: "평점순" },
+  { value: "distance", label: "거리순" },
+  { value: "price", label: "가격순" },
+] as const;
+export type SortValue = (typeof SORT_OPTIONS)[number]["value"];
+
