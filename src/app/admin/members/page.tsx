@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { AdminPager } from "@/components/admin-pager";
 import { AdminResetPasswordButton } from "@/components/admin-reset-password-button";
+import { AdminRoleToggleButton } from "@/components/admin-role-toggle-button";
 import { requireAdmin } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { Prisma } from "@/generated/prisma/client";
@@ -21,7 +22,7 @@ export default async function AdminMembersPage({
 }: {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }) {
-  await requireAdmin();
+  const currentUser = await requireAdmin();
   const sp = await searchParams;
 
   const q = firstParam(sp.q) || "";
@@ -106,7 +107,16 @@ export default async function AdminMembersPage({
                     </td>
                     <td className="p-3 whitespace-nowrap">{member.createdAt.toLocaleDateString("ko-KR")}</td>
                     <td className="p-3">
-                      <AdminResetPasswordButton memberId={member.id} memberNickname={member.nickname} />
+                      <div className="flex flex-wrap items-center gap-1.5">
+                        <AdminResetPasswordButton memberId={member.id} memberNickname={member.nickname} />
+                        {member.id !== currentUser.id && (
+                          <AdminRoleToggleButton
+                            memberId={member.id}
+                            memberNickname={member.nickname}
+                            role={member.role}
+                          />
+                        )}
+                      </div>
                     </td>
                   </tr>
                 ))}
