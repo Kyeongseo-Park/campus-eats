@@ -39,6 +39,9 @@ export default async function MyPage() {
         <p className="mt-2 text-muted-foreground">
           {user.nickname}님 ({user.email})
         </p>
+        <Link href="/mypage/password" className="mt-1 inline-block text-sm text-primary hover:underline">
+          비밀번호 변경
+        </Link>
       </div>
 
       <section>
