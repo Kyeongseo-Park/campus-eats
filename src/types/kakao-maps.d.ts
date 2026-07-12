@@ -48,6 +48,21 @@ declare global {
     function load(callback: () => void): void;
   }
 
+  // 주소 → 좌표 변환(Geocoder)은 기본 SDK가 아니라 `&libraries=services`로 별도 로드해야 한다.
+  namespace kakao.maps.services {
+    interface AddressSearchResult {
+      address_name: string;
+      x: string;
+      y: string;
+    }
+
+    class Geocoder {
+      addressSearch(address: string, callback: (result: AddressSearchResult[], status: string) => void): void;
+    }
+
+    const Status: { OK: string; ZERO_RESULT: string; ERROR: string };
+  }
+
   interface Window {
     kakao: typeof kakao;
   }

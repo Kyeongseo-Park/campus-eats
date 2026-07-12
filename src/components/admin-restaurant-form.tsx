@@ -2,6 +2,7 @@
 
 import { useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
+import Script from "next/script";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -30,9 +31,20 @@ const EMPTY_MENU_ROW: MenuRow = { name: "", price: "" };
 const SELECT_CLASS =
   "h-8 w-full rounded-lg border border-input bg-transparent px-2.5 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 dark:bg-input/30";
 
-export function AdminRestaurantForm({ initialValues }: { initialValues?: AdminRestaurantFormValues }) {
+export function AdminRestaurantForm({
+  initialValues,
+  approveRequestId,
+  reportedMenuInfo,
+}: {
+  initialValues?: AdminRestaurantFormValues;
+  /** 제보 승인 모드: 지정되면 저장 시 이 제보를 승인 처리하며 식당을 함께 생성한다. */
+  approveRequestId?: string;
+  /** 제보자가 자유 입력한 메뉴 정보 — 구조화된 메뉴로 그대로 옮길 수 없어 참고용으로만 보여준다. */
+  reportedMenuInfo?: string | null;
+}) {
   const router = useRouter();
   const isEdit = !!initialValues?.id;
+  const isApprove = !!approveRequestId;
 
   const [name, setName] = useState(initialValues?.name ?? "");
   const [category, setCategory] = useState(initialValues?.category ?? "");
@@ -51,6 +63,38 @@ export function AdminRestaurantForm({ initialValues }: { initialValues?: AdminRe
 
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const [isGeocoderReady, setIsGeocoderReady] = useState(false);
+  const [isGeocoding, setIsGeocoding] = useState(false);
+  const [geocodeError, setGeocodeError] = useState<string | null>(null);
+  const kakaoAppKey = process.env.NEXT_PUBLIC_KAKAO_MAP_APP_KEY;
+
+  function handleFindCoordinates() {
+    if (!address.trim()) {
+      setGeocodeError("주소를 먼저 입력해주세요.");
+      return;
+    }
+    if (!isGeocoderReady) {
+      setGeocodeError("지도를 불러오는 중이에요. 잠시 후 다시 시도해주세요.");
+      return;
+    }
+
+    setGeocodeError(null);
+    setIsGeocoding(true);
+
+    const geocoder = new window.kakao.maps.services.Geocoder();
+    geocoder.addressSearch(address.trim(), (result, status) => {
+      setIsGeocoding(false);
+
+      if (status !== window.kakao.maps.services.Status.OK || result.length === 0) {
+        setGeocodeError("주소로 좌표를 찾지 못했어요. 카카오맵에서 직접 확인해주세요.");
+        return;
+      }
+
+      setLatitude(result[0].y);
+      setLongitude(result[0].x);
+    });
+  }
 
   function updateMenu(index: number, patch: Partial<MenuRow>) {
     setMenus((prev) => prev.map((m, i) => (i === index ? { ...m, ...patch } : m)));
@@ -80,6 +124,24 @@ export function AdminRestaurantForm({ initialValues }: { initialValues?: AdminRe
         longitude: Number(longitude),
         menus: menus.filter((m) => m.name.trim()).map((m) => ({ name: m.name.trim(), price: Number(m.price) })),
       };
+
+      if (isApprove) {
+        const res = await fetch(`/api/admin/restaurant-requests/${approveRequestId}`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ status: "승인", ...payload }),
+        });
+        const data = await res.json();
+
+        if (!res.ok) {
+          setError(data.error ?? "승인 처리에 실패했습니다.");
+          return;
+        }
+
+        router.push("/admin/requests");
+        router.refresh();
+        return;
+      }
 
       const url = isEdit ? `/api/admin/restaurants/${initialValues!.id}` : "/api/admin/restaurants";
       const res = await fetch(url, {
@@ -122,7 +184,15 @@ export function AdminRestaurantForm({ initialValues }: { initialValues?: AdminRe
   }
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+    <>
+      {kakaoAppKey && (
+        <Script
+          src={`https://dapi.kakao.com/v2/maps/sdk.js?appkey=${kakaoAppKey}&autoload=false&libraries=services`}
+          strategy="afterInteractive"
+          onReady={() => window.kakao.maps.load(() => setIsGeocoderReady(true))}
+        />
+      )}
+      <form onSubmit={handleSubmit} className="flex flex-col gap-4">
       <div className="flex flex-col gap-1.5">
         <Label htmlFor="name">식당명 *</Label>
         <Input id="name" value={name} onChange={(e) => setName(e.target.value)} required />
@@ -165,13 +235,43 @@ export function AdminRestaurantForm({ initialValues }: { initialValues?: AdminRe
 
       <div className="flex flex-col gap-1.5">
         <Label htmlFor="address">주소 *</Label>
-        <Input id="address" value={address} onChange={(e) => setAddress(e.target.value)} required />
+        <div className="flex gap-2">
+          <Input
+            id="address"
+            value={address}
+            onChange={(e) => setAddress(e.target.value)}
+            required
+            className="flex-1"
+          />
+          <Button
+            type="button"
+            size="sm"
+            variant="outline"
+            onClick={handleFindCoordinates}
+            disabled={isGeocoding}
+            className="shrink-0"
+          >
+            {isGeocoding ? "찾는 중..." : "좌표 자동 찾기"}
+          </Button>
+        </div>
+        {geocodeError && <p className="text-xs text-destructive">{geocodeError}</p>}
       </div>
 
       <div className="flex flex-col gap-1.5">
         <Label htmlFor="phone">전화번호</Label>
         <Input id="phone" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="02-1234-5678" />
       </div>
+
+      {address && (
+        <a
+          href={`https://map.kakao.com/?q=${encodeURIComponent(address)}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="w-fit text-xs text-primary underline-offset-4 hover:underline"
+        >
+          자동으로 안 찾아지면 카카오맵에서 직접 확인하기 →
+        </a>
+      )}
 
       <div className="grid grid-cols-2 gap-3">
         <div className="flex flex-col gap-1.5">
@@ -200,6 +300,11 @@ export function AdminRestaurantForm({ initialValues }: { initialValues?: AdminRe
 
       <div className="flex flex-col gap-2">
         <Label>메뉴 *</Label>
+        {reportedMenuInfo && (
+          <p className="rounded-lg bg-muted p-2 text-xs text-muted-foreground">
+            제보자가 입력한 메뉴 정보 (참고용, 아래에 직접 입력해주세요): {reportedMenuInfo}
+          </p>
+        )}
         {menus.map((menu, index) => (
           <div key={index} className="flex gap-2">
             <Input value={menu.name} onChange={(e) => updateMenu(index, { name: e.target.value })} placeholder="메뉴명" />
@@ -263,8 +368,9 @@ export function AdminRestaurantForm({ initialValues }: { initialValues?: AdminRe
 
       {error && <p className="text-sm text-destructive">{error}</p>}
       <Button type="submit" disabled={isSubmitting} className="w-fit">
-        {isSubmitting ? "저장 중..." : "저장"}
+        {isSubmitting ? "처리 중..." : isApprove ? "승인 처리" : "저장"}
       </Button>
-    </form>
+      </form>
+    </>
   );
 }

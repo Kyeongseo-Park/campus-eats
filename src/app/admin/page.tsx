@@ -7,16 +7,18 @@ import { prisma } from "@/lib/prisma";
 export default async function AdminDashboardPage() {
   const user = await requireAdmin();
 
-  const [restaurantCount, memberCount, reviewCount] = await Promise.all([
+  const [restaurantCount, memberCount, reviewCount, pendingRequestCount] = await Promise.all([
     prisma.restaurant.count(),
     prisma.user.count(),
     prisma.review.count(),
+    prisma.restaurantRequest.count({ where: { status: "대기" } }),
   ]);
 
   const sections = [
     { href: "/admin/restaurants", title: "식당 관리", description: "식당 등록·수정·삭제, 제휴이벤트", count: restaurantCount },
     { href: "/admin/members", title: "회원 관리", description: "회원 조회", count: memberCount },
     { href: "/admin/reviews", title: "리뷰 관리", description: "리뷰 조회·삭제", count: reviewCount },
+    { href: "/admin/requests", title: "식당 제보 관리", description: "승인 대기 중인 제보", count: pendingRequestCount },
   ];
 
   return (
@@ -26,7 +28,7 @@ export default async function AdminDashboardPage() {
         <p className="mt-2 text-muted-foreground">{user.nickname}님, 관리자 권한으로 접속했습니다.</p>
       </div>
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {sections.map((section) => (
           <Link key={section.href} href={section.href}>
             <Card className="h-full transition-colors hover:bg-muted/50">
