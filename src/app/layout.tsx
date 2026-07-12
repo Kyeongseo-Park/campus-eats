@@ -34,11 +34,11 @@ export default async function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
-        <header className="flex items-center justify-between border-b px-4 py-3">
+        <header className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1 border-b px-4 py-3">
           <Link href="/" className="font-semibold">
             학식 말고 뭐 먹지?
           </Link>
-          <nav className="flex items-center gap-3 text-sm">
+          <nav className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm">
             {user ? (
               <>
                 <span className="text-muted-foreground">{user.nickname}님</span>
