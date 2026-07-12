@@ -139,7 +139,8 @@ function RestaurantDetailCard({
           </div>
           <p className="mt-1 text-sm text-muted-foreground">
             {restaurant.zone} · {restaurant.category}
-            {restaurant.avgRating !== null && ` · ★${restaurant.avgRating.toFixed(1)}`}
+            {restaurant.avgRating !== null &&
+              ` · ⭐${restaurant.avgRating.toFixed(1)} (리뷰 ${restaurant.reviewCount}개)`}
           </p>
           <p className="text-sm text-muted-foreground">
             {restaurant.minPrice.toLocaleString()}원~

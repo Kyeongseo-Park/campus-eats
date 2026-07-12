@@ -25,6 +25,7 @@ export type RestaurantListItem = {
   longitude: number;
   isPartnershipActive: boolean;
   avgRating: number | null;
+  reviewCount: number;
   distanceKm: number;
 };
 
@@ -88,6 +89,7 @@ export async function searchRestaurants(params: RestaurantSearchParams): Promise
       longitude: r.longitude,
       isPartnershipActive: isPartnershipActive(r.partnershipStartDate, r.partnershipEndDate),
       avgRating,
+      reviewCount: r.reviews.length,
       distanceKm: haversineDistanceKm(origin, { latitude: r.latitude, longitude: r.longitude }),
     };
   });

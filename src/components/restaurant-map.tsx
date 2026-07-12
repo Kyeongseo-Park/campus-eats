@@ -29,7 +29,10 @@ export function RestaurantMap({
 }: {
   restaurants: RestaurantMapPoint[];
   selectedId: string | null;
-  onMarkerClick: (id: string) => void;
+  // 옵셔널: 서버 컴포넌트(예: 식당 상세 페이지의 위치 탭)에서 정적으로 렌더링할 때는
+  // 이벤트 핸들러를 클라이언트 컴포넌트로 넘길 수 없으므로 생략한다. 이 경우 기본값인
+  // 빈 함수는 이 클라이언트 컴포넌트 내부에서 정의되므로 서버→클라이언트 경계를 넘지 않는다.
+  onMarkerClick?: (id: string) => void;
   panOffsetPx?: number;
 }) {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -87,7 +90,7 @@ export function RestaurantMap({
 
       const el = document.createElement("div");
       el.className = restaurant.id === selectedIdRef.current ? PIN_SELECTED_CLASS : PIN_NORMAL_CLASS;
-      el.addEventListener("click", () => onMarkerClickRef.current(restaurant.id));
+      el.addEventListener("click", () => onMarkerClickRef.current?.(restaurant.id));
 
       const overlay = new window.kakao.maps.CustomOverlay({
         position,

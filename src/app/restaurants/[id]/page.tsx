@@ -1,11 +1,13 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { X } from "lucide-react";
+import { Navigation, Phone, X } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ReviewSection } from "@/components/review-section";
 import { FavoriteButton } from "@/components/favorite-button";
+import { RestaurantMap } from "@/components/restaurant-map";
 import { getCurrentUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { isPartnershipActive } from "@/lib/partnership";
@@ -83,24 +85,13 @@ export default async function RestaurantDetailPage({
           {restaurant.zone} · {restaurant.category}
           {avgRating !== null && ` · ★${avgRating.toFixed(1)} (${reviews.length})`}
         </p>
-        <p className="text-muted-foreground">{restaurant.address}</p>
-      </div>
-
-      <section>
-        <h2 className="text-lg font-medium">메뉴</h2>
-        {restaurant.menus.length === 0 ? (
-          <p className="mt-2 text-sm text-muted-foreground">등록된 메뉴가 없어요.</p>
-        ) : (
-          <ul className="mt-2 flex flex-col gap-1">
-            {restaurant.menus.map((menu) => (
-              <li key={menu.id} className="flex justify-between text-sm">
-                <span>{menu.name}</span>
-                <span className="text-muted-foreground">{menu.price.toLocaleString()}원</span>
-              </li>
-            ))}
-          </ul>
+        {restaurant.phone && (
+          <p className="mt-1 flex items-center gap-1 text-sm text-muted-foreground">
+            <Phone className="size-3.5" />
+            {restaurant.phone}
+          </p>
         )}
-      </section>
+      </div>
 
       {partnershipActive && (
         <section>
@@ -114,12 +105,64 @@ export default async function RestaurantDetailPage({
         </section>
       )}
 
-      <section>
-        <h2 className="text-lg font-medium">리뷰</h2>
-        <div className="mt-2">
+      <Tabs defaultValue="menu">
+        <TabsList>
+          <TabsTrigger value="menu">메뉴</TabsTrigger>
+          <TabsTrigger value="review">리뷰 ({reviews.length})</TabsTrigger>
+          <TabsTrigger value="location">위치</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="menu">
+          {restaurant.menus.length === 0 ? (
+            <p className="text-sm text-muted-foreground">등록된 메뉴가 없어요.</p>
+          ) : (
+            <ul className="flex flex-col gap-1">
+              {restaurant.menus.map((menu) => (
+                <li key={menu.id} className="flex justify-between text-sm">
+                  <span>{menu.name}</span>
+                  <span className="text-muted-foreground">{menu.price.toLocaleString()}원</span>
+                </li>
+              ))}
+            </ul>
+          )}
+        </TabsContent>
+
+        <TabsContent value="review">
           <ReviewSection restaurantId={restaurant.id} reviews={reviews} currentUserId={currentUser?.id ?? null} />
-        </div>
-      </section>
+        </TabsContent>
+
+        <TabsContent value="location" className="flex flex-col gap-3">
+          <div className="h-64 w-full overflow-hidden rounded-lg">
+            <RestaurantMap
+              restaurants={[
+                {
+                  id: restaurant.id,
+                  name: restaurant.name,
+                  latitude: restaurant.latitude,
+                  longitude: restaurant.longitude,
+                },
+              ]}
+              selectedId={restaurant.id}
+            />
+          </div>
+          <p className="text-sm">{restaurant.address}</p>
+          <Button
+            nativeButton={false}
+            render={
+              <a
+                href={`https://map.kakao.com/link/to/${encodeURIComponent(restaurant.name)},${restaurant.latitude},${restaurant.longitude}`}
+                target="_blank"
+                rel="noopener noreferrer"
+              />
+            }
+            variant="outline"
+            className="w-fit"
+          >
+            <Navigation className="size-4" />
+            카카오맵 길찾기
+          </Button>
+        </TabsContent>
+      </Tabs>
     </main>
   );
 }

@@ -36,6 +36,7 @@ model Restaurant {
   /// 정문 | 상대 | 예대 | 후문 | 공대쪽문
   zone      String
   address   String
+  phone     String?
   latitude  Float
   longitude Float
   /// Lowest menu price; drives the price-range filter/sort.
