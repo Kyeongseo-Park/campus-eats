@@ -5,23 +5,36 @@ import { priceRangeLabel } from "@/lib/format";
 import type { RestaurantListItem } from "@/lib/types";
 
 export function RestaurantCard({ restaurant }: { restaurant: RestaurantListItem }) {
-  return (
-    <Link
-      href={`/restaurants/${restaurant.id}`}
-      className="flex gap-3 border-b px-4 py-3 hover:bg-muted/50"
-    >
+  const content = (
+    <>
       <div className="flex size-16 shrink-0 items-center justify-center rounded-lg bg-muted text-muted-foreground">
         <ImageIcon className="size-6" />
       </div>
       <div className="min-w-0 flex-1">
         <p className="truncate font-semibold">{restaurant.name}</p>
         <p className="mt-1 text-sm text-muted-foreground">
-          카테고리: {restaurant.category} | 위치: {restaurant.zone}
+          카테고리: {restaurant.category}
+          {restaurant.zone && ` | 위치: ${restaurant.zone}`}
         </p>
         <p className="text-sm text-muted-foreground">
           평점: ★ {restaurant.avgRating.toFixed(1)} | 가격: {priceRangeLabel(restaurant.minPrice)}
         </p>
       </div>
+    </>
+  );
+  const className = "flex gap-3 border-b px-4 py-3 hover:bg-muted/50";
+
+  if (restaurant.placeUrl) {
+    return (
+      <a href={restaurant.placeUrl} target="_blank" rel="noopener noreferrer" className={className}>
+        {content}
+      </a>
+    );
+  }
+
+  return (
+    <Link href={`/restaurants/${restaurant.id}`} className={className}>
+      {content}
     </Link>
   );
 }

@@ -1,4 +1,6 @@
 // GET /api/restaurants 응답의 식당 항목 (src/app/api/restaurants/route.ts 참고).
+// GET /api/kakao/restaurants(src/app/api/kakao/restaurants/route.ts)도 DB 연결 전 임시 데이터 소스로
+// 같은 모양을 반환한다. 이 경우 zone은 빈 문자열이고, phone/placeUrl이 채워진다(카카오맵 상세 링크).
 export interface RestaurantListItem {
   id: string;
   name: string;
@@ -10,6 +12,8 @@ export interface RestaurantListItem {
   minPrice: number | null;
   avgRating: number;
   distanceKm: number;
+  phone?: string | null;
+  placeUrl?: string | null;
 }
 
 // GET /api/restaurants/[id] 응답 (src/app/api/restaurants/[id]/route.ts 참고).

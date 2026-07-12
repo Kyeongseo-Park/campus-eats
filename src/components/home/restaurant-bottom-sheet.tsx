@@ -24,7 +24,8 @@ export function RestaurantBottomSheet({ restaurant, onClose }: RestaurantBottomS
         <div className="min-w-0">
           <p className="truncate font-semibold">{restaurant.name}</p>
           <p className="mt-1 text-sm text-muted-foreground">
-            카테고리: {restaurant.category} | 위치: {restaurant.zone}
+            카테고리: {restaurant.category}
+            {restaurant.zone && ` | 위치: ${restaurant.zone}`}
           </p>
           <p className="text-sm text-muted-foreground">
             평점: ★ {restaurant.avgRating.toFixed(1)} | 가격: {priceRangeLabel(restaurant.minPrice)}
@@ -55,12 +56,23 @@ export function RestaurantBottomSheet({ restaurant, onClose }: RestaurantBottomS
           </button>
         </div>
       </div>
-      <Link
-        href={`/restaurants/${restaurant.id}`}
-        className={cn(buttonVariants({ size: "lg" }), "mt-3 w-full")}
-      >
-        상세 정보 보러가기 →
-      </Link>
+      {restaurant.placeUrl ? (
+        <a
+          href={restaurant.placeUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className={cn(buttonVariants({ size: "lg" }), "mt-3 w-full")}
+        >
+          카카오맵에서 메뉴·상세정보 보기 →
+        </a>
+      ) : (
+        <Link
+          href={`/restaurants/${restaurant.id}`}
+          className={cn(buttonVariants({ size: "lg" }), "mt-3 w-full")}
+        >
+          상세 정보 보러가기 →
+        </Link>
+      )}
     </div>
   );
 }
