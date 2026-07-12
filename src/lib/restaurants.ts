@@ -21,6 +21,8 @@ export type RestaurantListItem = {
   category: string;
   zone: string;
   minPrice: number;
+  latitude: number;
+  longitude: number;
   isPartnershipActive: boolean;
   avgRating: number | null;
   distanceKm: number;
@@ -82,6 +84,8 @@ export async function searchRestaurants(params: RestaurantSearchParams): Promise
       category: r.category,
       zone: r.zone,
       minPrice: r.minPrice,
+      latitude: r.latitude,
+      longitude: r.longitude,
       isPartnershipActive: isPartnershipActive(r.partnershipStartDate, r.partnershipEndDate),
       avgRating,
       distanceKm: haversineDistanceKm(origin, { latitude: r.latitude, longitude: r.longitude }),

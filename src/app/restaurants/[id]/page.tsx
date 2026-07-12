@@ -1,6 +1,9 @@
 import { notFound } from "next/navigation";
+import Link from "next/link";
+import { X } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { ReviewSection } from "@/components/review-section";
 import { FavoriteButton } from "@/components/favorite-button";
 import { getCurrentUser } from "@/lib/auth";
@@ -8,12 +11,24 @@ import { prisma } from "@/lib/prisma";
 import { isPartnershipActive } from "@/lib/partnership";
 import { calculateAverageRating } from "@/lib/reviews";
 
+// 지도+목록 화면(map-explorer.tsx)에서 "상세보기"로 넘어올 때 함께 전달되는
+// 복귀 URL(현재 필터 + 이 식당의 선택 상태 포함). 다른 경로 값이 섞이지 않도록
+// 같은 오리진의 절대 경로인지만 확인한다.
+function resolveBackHref(from: string | undefined): string {
+  if (from && from.startsWith("/") && !from.startsWith("//")) return from;
+  return "/";
+}
+
 export default async function RestaurantDetailPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ id: string }>;
+  searchParams: Promise<{ from?: string }>;
 }) {
   const { id } = await params;
+  const { from } = await searchParams;
+  const backHref = resolveBackHref(from);
 
   const [restaurant, reviews, currentUser] = await Promise.all([
     prisma.restaurant.findUnique({ where: { id }, include: { menus: true } }),
@@ -44,14 +59,25 @@ export default async function RestaurantDetailPage({
   return (
     <main className="flex flex-1 flex-col gap-6 p-8">
       <div>
-        <div className="flex items-center gap-2">
-          <h1 className="text-2xl font-semibold">{restaurant.name}</h1>
-          {partnershipActive && <Badge variant="secondary">제휴</Badge>}
-          <FavoriteButton
-            restaurantId={restaurant.id}
-            initialFavorited={favorite !== null}
-            isLoggedIn={!!currentUser}
-          />
+        <div className="flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2">
+            <h1 className="text-2xl font-semibold">{restaurant.name}</h1>
+            {partnershipActive && <Badge variant="secondary">제휴</Badge>}
+            <FavoriteButton
+              restaurantId={restaurant.id}
+              initialFavorited={favorite !== null}
+              isLoggedIn={!!currentUser}
+            />
+          </div>
+          <Button
+            nativeButton={false}
+            render={<Link href={backHref} />}
+            variant="ghost"
+            size="icon"
+            aria-label="닫기"
+          >
+            <X className="size-4" />
+          </Button>
         </div>
         <p className="mt-1 text-muted-foreground">
           {restaurant.zone} · {restaurant.category}
