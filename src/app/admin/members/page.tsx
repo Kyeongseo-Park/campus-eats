@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { AdminPager } from "@/components/admin-pager";
+import { AdminResetPasswordButton } from "@/components/admin-reset-password-button";
 import { requireAdmin } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { Prisma } from "@/generated/prisma/client";
@@ -88,6 +89,7 @@ export default async function AdminMembersPage({
                   <th className="p-3 font-medium">이메일</th>
                   <th className="p-3 font-medium">역할</th>
                   <th className="p-3 font-medium">가입일</th>
+                  <th className="p-3 font-medium">작업</th>
                 </tr>
               </thead>
               <tbody>
@@ -103,6 +105,9 @@ export default async function AdminMembersPage({
                       )}
                     </td>
                     <td className="p-3 whitespace-nowrap">{member.createdAt.toLocaleDateString("ko-KR")}</td>
+                    <td className="p-3">
+                      <AdminResetPasswordButton memberId={member.id} memberNickname={member.nickname} />
+                    </td>
                   </tr>
                 ))}
               </tbody>
