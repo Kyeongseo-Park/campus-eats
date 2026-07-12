@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>전남대 주변 음식점 찾기</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- 헤더 -->
+        <header class="app-header">
+            <h1 class="app-title">전남대 주변 음식점</h1>
+        </header>
+
+        <!-- 메인 컨텐츠 -->
+        <main class="app-main">
+            <!-- 사이드바: 검색 및 결과 -->
+            <aside class="search-sidebar">
+                <!-- 검색 섹션 -->
+                <section class="search-section">
+                    <h2 class="section-title">검색</h2>
+                    <div class="search-box">
+                        <input 
+                            type="text" 
+                            id="searchInput" 
+                            class="search-input" 
+                            placeholder="음식점 이름 입력..."
+                            aria-label="음식점 검색"
+                        >
+                        <button id="searchBtn" class="btn btn-primary">검색</button>
+                    </div>
+                </section>
+
+                <!-- 필터 섹션 -->
+                <section class="filter-section">
+                    <h2 class="section-title">필터</h2>
+                    
+                    <div class="filter-group">
+                        <label for="categoryFilter" class="filter-label">카테고리</label>
+                        <select id="categoryFilter" class="filter-select" aria-label="음식 카테고리 선택">
+                            <option value="">전체</option>
+                            <option value="한식">한식</option>
+                            <option value="양식">양식</option>
+                            <option value="일식">일식</option>
+                            <option value="중식">중식</option>
+                            <option value="카페">카페</option>
+                            <option value="치킨">치킨</option>
+                            <option value="피자">피자</option>
+                        </select>
+                    </div>
+
+                    <div class="filter-group">
+                        <label for="sortFilter" class="filter-label">정렬</label>
+                        <select id="sortFilter" class="filter-select" aria-label="정렬 방식 선택">
+                            <option value="distance">거리순</option>
+                            <option value="name">이름순</option>
+                        </select>
+                    </div>
+
+                    <div class="filter-group">
+                        <label for="radiusFilter" class="filter-label">검색 반경</label>
+                        <select id="radiusFilter" class="filter-select" aria-label="검색 반경 선택">
+                            <option value="500">500m</option>
+                            <option value="1000" selected>1km</option>
+                            <option value="2000">2km</option>
+                            <option value="5000">5km</option>
+                        </select>
+                    </div>
+                </section>
+
+                <!-- 결과 섹션 -->
+                <section class="results-section">
+                    <h2 class="section-title">결과</h2>
+                    <div id="resultsList" class="results-list" role="region" aria-label="검색 결과">
+                        <p class="results-loading">음식점을 검색 중입니다...</p>
+                    </div>
+                </section>
+            </aside>
+
+            <!-- 지도 -->
+            <section class="map-section">
+                <div id="map" class="map-container" role="region" aria-label="지도"></div>
+            </section>
+        </main>
+    </div>
+
+    <!-- 모달: 상세 정보 -->
+    <div id="detailModal" class="modal" role="dialog" aria-labelledby="modalTitle" aria-hidden="true">
+        <div class="modal-overlay"></div>
+        <div class="modal-content">
+            <button class="modal-close" aria-label="모달 닫기">&times;</button>
+            <div class="modal-body">
+                <h2 id="modalTitle" class="modal-title"></h2>
+                <ul class="modal-info-list">
+                    <li class="modal-info-item">
+                        <span class="modal-info-label">주소</span>
+                        <span id="modalAddress" class="modal-info-value"></span>
+                    </li>
+                    <li class="modal-info-item">
+                        <span class="modal-info-label">전화</span>
+                        <span id="modalPhone" class="modal-info-value"></span>
+                    </li>
+                    <li class="modal-info-item">
+                        <span class="modal-info-label">거리</span>
+                        <span id="modalDistance" class="modal-info-value"></span>
+                    </li>
+                </ul>
+                <a id="naverLink" href="#" target="_blank" class="btn btn-secondary" rel="noopener noreferrer">
+                    네이버 지도에서 보기
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- 카카오 맵 API (앞에 로드) -->
+    <script src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=371aa147c36c4ef75d871a1023a519cb&libraries=services"></script>
+    <!-- 우리 앱 스크립트 (뒤에 로드) -->
+    <script src="app.js"></script>
+</body>
+</html>
