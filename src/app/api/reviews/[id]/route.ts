@@ -56,7 +56,8 @@ export async function DELETE(_request: Request, { params }: { params: Promise<{ 
   if (!existing) {
     return NextResponse.json({ error: "존재하지 않는 리뷰입니다." }, { status: 404 });
   }
-  if (existing.userId !== user.id) {
+  // 관리자는 다른 사용자의 리뷰도 삭제할 수 있다 (관리자 리뷰 관리 기능).
+  if (existing.userId !== user.id && user.role !== "admin") {
     return NextResponse.json({ error: "본인이 작성한 리뷰만 삭제할 수 있습니다." }, { status: 403 });
   }
 
