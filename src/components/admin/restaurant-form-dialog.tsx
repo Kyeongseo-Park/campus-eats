@@ -18,6 +18,8 @@ interface RestaurantFormDialogProps {
     latitude: number;
     longitude: number;
     minPrice: number | null;
+    phone: string | null;
+    kakaoPlaceId: string | null;
   }) => Promise<{ error?: string } | void>;
 }
 

@@ -16,6 +16,7 @@ export function LocationTab({ restaurant }: { restaurant: RestaurantDetail }) {
     <div className="flex h-full flex-col">
       <div className="flex shrink-0 flex-col gap-1 p-4 text-sm">
         <p>📍 주소: {restaurant.address}</p>
+        {restaurant.phone && <p>📞 전화: {restaurant.phone}</p>}
         <p className="text-muted-foreground">
           🚶 {location.status === "granted" ? "내 위치에서" : "학교 정문 기준"} {distanceLabel(distanceKm)}
         </p>

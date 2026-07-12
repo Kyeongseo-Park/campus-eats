@@ -27,14 +27,16 @@ model User {
 }
 
 model Restaurant {
-  id        String  @id @default(uuid()) @db.Uuid
-  name      String
-  category  String // 한식 | 중식 | 일식 | 양식 | 분식 | 카페 (1개만)
-  zone      String // 정문 | 상대 | 예대 | 후문 | 공대쪽문
-  address   String
-  latitude  Float
-  longitude Float
-  minPrice  Int?    @map("min_price") // 메뉴 최저가, 가격대 필터·정렬에 사용
+  id           String  @id @default(uuid()) @db.Uuid
+  name         String
+  category     String // 한식 | 중식 | 일식 | 양식 | 분식 | 카페 (1개만)
+  zone         String // 정문 | 상대 | 예대 | 후문 | 공대쪽문
+  address      String
+  latitude     Float
+  longitude    Float
+  minPrice     Int?    @map("min_price") // 메뉴 최저가, 가격대 필터·정렬에 사용
+  phone        String? // 카카오 로컬 API 검색 결과에서 채워짐 (선택)
+  kakaoPlaceId String? @unique @map("kakao_place_id") // 카카오 로컬 API 장소 id. 기본 정보는 카카오에서, zone/minPrice 등은 관리자가 직접 보완.
 
   menus     Menu[]
   reviews   Review[]

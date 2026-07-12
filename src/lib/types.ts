@@ -22,6 +22,7 @@ export interface RestaurantDetail {
   latitude: number;
   longitude: number;
   minPrice: number | null;
+  phone: string | null;
   menus: { id: string; name: string; price: number }[];
 }
 
@@ -91,6 +92,8 @@ export interface AdminRestaurantItem {
   latitude: number;
   longitude: number;
   minPrice: number | null;
+  phone: string | null;
+  kakaoPlaceId: string | null;
 }
 
 // GET /api/admin/requests 응답 항목 (전체 사용자의 제보, 모든 상태 포함).

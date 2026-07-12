@@ -126,6 +126,8 @@ export default function AdminRestaurantsPage() {
                 latitude: String(editTarget.latitude),
                 longitude: String(editTarget.longitude),
                 minPrice: editTarget.minPrice != null ? String(editTarget.minPrice) : "",
+                phone: editTarget.phone ?? "",
+                kakaoPlaceId: editTarget.kakaoPlaceId ?? "",
               }
             : undefined
         }

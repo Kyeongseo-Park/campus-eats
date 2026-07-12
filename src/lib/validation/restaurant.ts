@@ -10,4 +10,6 @@ export const restaurantInputSchema = z.object({
   latitude: z.number({ message: "위도를 입력해주세요." }),
   longitude: z.number({ message: "경도를 입력해주세요." }),
   minPrice: z.number().int().nonnegative().nullable().optional(),
+  phone: z.string().trim().nullable().optional(),
+  kakaoPlaceId: z.string().trim().nullable().optional(),
 });

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
+import { Search } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -13,6 +14,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { CATEGORIES, ZONES, type Category, type Zone } from "@/lib/constants";
+import { guessCategory } from "@/lib/kakao-category";
 
 export interface RestaurantFormValues {
   name: string;
@@ -22,6 +24,8 @@ export interface RestaurantFormValues {
   latitude: string;
   longitude: string;
   minPrice: string;
+  phone: string;
+  kakaoPlaceId: string;
 }
 
 interface RestaurantFormSubmitValues {
@@ -32,6 +36,8 @@ interface RestaurantFormSubmitValues {
   latitude: number;
   longitude: number;
   minPrice: number | null;
+  phone: string | null;
+  kakaoPlaceId: string | null;
 }
 
 interface RestaurantFormProps {
@@ -39,6 +45,18 @@ interface RestaurantFormProps {
   submitLabel: string;
   onSubmit: (values: RestaurantFormSubmitValues) => Promise<{ error?: string } | void>;
   onCancel?: () => void;
+}
+
+interface KakaoPlaceResult {
+  kakaoPlaceId: string;
+  name: string;
+  category: string;
+  phone: string;
+  address: string;
+  roadAddress: string;
+  latitude: number;
+  longitude: number;
+  placeUrl: string;
 }
 
 export function RestaurantForm({
@@ -54,8 +72,49 @@ export function RestaurantForm({
   const [latitude, setLatitude] = useState(initialValues?.latitude ?? "");
   const [longitude, setLongitude] = useState(initialValues?.longitude ?? "");
   const [minPrice, setMinPrice] = useState(initialValues?.minPrice ?? "");
+  const [phone, setPhone] = useState(initialValues?.phone ?? "");
+  const [kakaoPlaceId, setKakaoPlaceId] = useState(initialValues?.kakaoPlaceId ?? "");
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+
+  const [kakaoQuery, setKakaoQuery] = useState(initialValues?.name ?? "");
+  const [kakaoResults, setKakaoResults] = useState<KakaoPlaceResult[] | null>(null);
+  const [kakaoSearching, setKakaoSearching] = useState(false);
+  const [kakaoError, setKakaoError] = useState<string | null>(null);
+
+  async function handleKakaoSearch(event: FormEvent) {
+    event.preventDefault();
+    if (!kakaoQuery.trim()) return;
+
+    setKakaoSearching(true);
+    setKakaoError(null);
+    try {
+      const res = await fetch(`/api/kakao/places?query=${encodeURIComponent(kakaoQuery.trim())}`);
+      const data = await res.json().catch(() => null);
+      if (!res.ok) {
+        setKakaoError(data?.error ?? "카카오 장소 검색에 실패했습니다.");
+        setKakaoResults(null);
+        return;
+      }
+      setKakaoResults(data.places ?? []);
+    } catch {
+      setKakaoError("네트워크 오류가 발생했습니다. 잠시 후 다시 시도해주세요.");
+    } finally {
+      setKakaoSearching(false);
+    }
+  }
+
+  function applyKakaoPlace(place: KakaoPlaceResult) {
+    setName(place.name);
+    setAddress(place.roadAddress || place.address);
+    setLatitude(String(place.latitude));
+    setLongitude(String(place.longitude));
+    setPhone(place.phone);
+    setKakaoPlaceId(place.kakaoPlaceId);
+    const guessed = guessCategory(place.category);
+    if (guessed) setCategory(guessed);
+    setKakaoResults(null);
+  }
 
   async function handleSubmit(event: FormEvent) {
     event.preventDefault();
@@ -82,6 +141,8 @@ export function RestaurantForm({
         latitude: lat,
         longitude: lng,
         minPrice: minPrice.trim() === "" ? null : Number(minPrice),
+        phone: phone.trim() === "" ? null : phone.trim(),
+        kakaoPlaceId: kakaoPlaceId.trim() === "" ? null : kakaoPlaceId.trim(),
       });
       if (result?.error) setError(result.error);
     } catch {
@@ -93,6 +154,55 @@ export function RestaurantForm({
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-3">
+      <div className="flex flex-col gap-1.5 rounded-md border border-dashed p-3">
+        <Label htmlFor="kakao-query">카카오에서 검색해 기본 정보 채우기</Label>
+        <div className="flex gap-2">
+          <Input
+            id="kakao-query"
+            placeholder="예: 학교앞 돈까스"
+            value={kakaoQuery}
+            onChange={(event) => setKakaoQuery(event.target.value)}
+            onKeyDown={(event) => {
+              if (event.key === "Enter") handleKakaoSearch(event);
+            }}
+          />
+          <Button
+            type="button"
+            variant="outline"
+            disabled={kakaoSearching || !kakaoQuery.trim()}
+            onClick={handleKakaoSearch}
+          >
+            <Search className="size-4" /> {kakaoSearching ? "검색 중..." : "검색"}
+          </Button>
+        </div>
+        {kakaoError && <p className="text-sm text-destructive">{kakaoError}</p>}
+        {kakaoResults && (
+          <ul className="mt-1 flex max-h-48 flex-col gap-1 overflow-y-auto">
+            {kakaoResults.length === 0 && (
+              <li className="p-2 text-sm text-muted-foreground">검색 결과가 없습니다.</li>
+            )}
+            {kakaoResults.map((place) => (
+              <li key={place.kakaoPlaceId}>
+                <button
+                  type="button"
+                  onClick={() => applyKakaoPlace(place)}
+                  className="w-full rounded-sm border px-2 py-1.5 text-left text-sm hover:bg-muted"
+                >
+                  <p className="font-medium">{place.name}</p>
+                  <p className="truncate text-xs text-muted-foreground">
+                    {place.roadAddress || place.address}
+                  </p>
+                </button>
+              </li>
+            ))}
+          </ul>
+        )}
+        <p className="text-xs text-muted-foreground">
+          검색 결과를 선택하면 식당명/주소/위도·경도/전화번호가 자동으로 채워져요. 구역·가격은 직접
+          입력해주세요.
+        </p>
+      </div>
+
       <div className="flex flex-col gap-1.5">
         <Label htmlFor="restaurant-name">식당명</Label>
         <Input
@@ -171,15 +281,26 @@ export function RestaurantForm({
         </div>
       </div>
 
-      <div className="flex flex-col gap-1.5">
-        <Label htmlFor="restaurant-min-price">메뉴 최저가 (선택, 원)</Label>
-        <Input
-          id="restaurant-min-price"
-          inputMode="numeric"
-          placeholder="8000"
-          value={minPrice}
-          onChange={(event) => setMinPrice(event.target.value)}
-        />
+      <div className="grid grid-cols-2 gap-3">
+        <div className="flex flex-col gap-1.5">
+          <Label htmlFor="restaurant-min-price">메뉴 최저가 (선택, 원)</Label>
+          <Input
+            id="restaurant-min-price"
+            inputMode="numeric"
+            placeholder="8000"
+            value={minPrice}
+            onChange={(event) => setMinPrice(event.target.value)}
+          />
+        </div>
+        <div className="flex flex-col gap-1.5">
+          <Label htmlFor="restaurant-phone">전화번호 (선택)</Label>
+          <Input
+            id="restaurant-phone"
+            placeholder="062-000-0000"
+            value={phone}
+            onChange={(event) => setPhone(event.target.value)}
+          />
+        </div>
       </div>
 
       {error && <p className="text-sm text-destructive">{error}</p>}
