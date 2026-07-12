@@ -66,7 +66,12 @@ export default async function RestaurantsPage({
 
   return (
     <main className="flex flex-1 flex-col gap-4 p-8">
-      <h1 className="text-2xl font-semibold">식당 목록</h1>
+      <div className="flex items-center justify-between">
+        <h1 className="text-2xl font-semibold">식당 목록</h1>
+        <Link href="/restaurant-requests/new" className="text-sm text-primary hover:underline">
+          식당 제보하기
+        </Link>
+      </div>
 
       <Suspense>
         <RestaurantFilters />
@@ -74,7 +79,16 @@ export default async function RestaurantsPage({
 
       {restaurants.length === 0 ? (
         <p className="text-muted-foreground">
-          {q ? "검색 결과가 없어요. 새로운 식당을 제보해보세요!" : "조건에 맞는 식당이 없어요."}
+          {q ? (
+            <>
+              검색 결과가 없어요. 새로운{" "}
+              <Link href="/restaurant-requests/new" className="text-primary underline-offset-4 hover:underline">
+                식당을 제보해보세요!
+              </Link>
+            </>
+          ) : (
+            "조건에 맞는 식당이 없어요."
+          )}
         </p>
       ) : (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
