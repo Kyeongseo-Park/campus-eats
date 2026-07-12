@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 
 import { Badge } from "@/components/ui/badge";
 import { ReviewSection } from "@/components/review-section";
+import { FavoriteButton } from "@/components/favorite-button";
 import { getCurrentUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { isPartnershipActive } from "@/lib/partnership";
@@ -28,6 +29,12 @@ export default async function RestaurantDetailPage({
     notFound();
   }
 
+  const favorite = currentUser
+    ? await prisma.favorite.findUnique({
+        where: { userId_restaurantId: { userId: currentUser.id, restaurantId: id } },
+      })
+    : null;
+
   const partnershipActive = isPartnershipActive(
     restaurant.partnershipStartDate,
     restaurant.partnershipEndDate
@@ -40,6 +47,11 @@ export default async function RestaurantDetailPage({
         <div className="flex items-center gap-2">
           <h1 className="text-2xl font-semibold">{restaurant.name}</h1>
           {partnershipActive && <Badge variant="secondary">제휴</Badge>}
+          <FavoriteButton
+            restaurantId={restaurant.id}
+            initialFavorited={favorite !== null}
+            isLoggedIn={!!currentUser}
+          />
         </div>
         <p className="mt-1 text-muted-foreground">
           {restaurant.zone} · {restaurant.category}
