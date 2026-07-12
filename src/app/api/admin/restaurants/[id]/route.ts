@@ -1,20 +1,47 @@
-import { NextRequest } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
-import { notImplemented } from "@/lib/api";
+import { requireAdmin } from "@/lib/auth";
+import { prisma } from "@/lib/prisma";
+import { restaurantInputSchema } from "@/lib/validation/restaurant";
 
 // 관리자 전용.
 export async function PUT(
-  _request: NextRequest,
+  request: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
+  const { response } = await requireAdmin(request);
+  if (response) return response;
+
   const { id } = await params;
-  return notImplemented(`PUT /admin/restaurants/${id}`);
+  const existing = await prisma.restaurant.findUnique({ where: { id } });
+  if (!existing) {
+    return NextResponse.json({ error: "존재하지 않는 식당입니다." }, { status: 404 });
+  }
+
+  const parsed = restaurantInputSchema.safeParse(await request.json());
+  if (!parsed.success) {
+    return NextResponse.json({ error: parsed.error.issues[0].message }, { status: 400 });
+  }
+
+  const restaurant = await prisma.restaurant.update({ where: { id }, data: parsed.data });
+
+  return NextResponse.json({ restaurant });
 }
 
 export async function DELETE(
-  _request: NextRequest,
+  request: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
+  const { response } = await requireAdmin(request);
+  if (response) return response;
+
   const { id } = await params;
-  return notImplemented(`DELETE /admin/restaurants/${id}`);
+  const existing = await prisma.restaurant.findUnique({ where: { id } });
+  if (!existing) {
+    return NextResponse.json({ error: "존재하지 않는 식당입니다." }, { status: 404 });
+  }
+
+  await prisma.restaurant.delete({ where: { id } });
+
+  return NextResponse.json({ ok: true });
 }
