@@ -35,3 +35,10 @@ export const SORT_OPTIONS = [
 ] as const;
 export type SortValue = (typeof SORT_OPTIONS)[number]["value"];
 
+// 식당 제보 상태별 뱃지 스타일 (마이페이지 요약/제보 관리 페이지에서 공용으로 사용).
+export const REQUEST_STATUS_BADGE_VARIANT: Record<string, "outline" | "secondary" | "destructive"> = {
+  대기: "outline",
+  승인: "secondary",
+  반려: "destructive",
+};
+
