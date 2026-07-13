@@ -72,7 +72,8 @@ export function useKakaoLoader(): KakaoLoaderStatus {
       .then(() => {
         if (!cancelled) setStatus("ready");
       })
-      .catch(() => {
+      .catch((error) => {
+        console.error("[kakao-loader]", error);
         if (!cancelled) setStatus("error");
       });
 
