@@ -26,7 +26,7 @@ export async function GET(request: NextRequest) {
       : await searchNearbyKakaoPlaces(userLocation);
 
     let items: RestaurantListItem[] = places.map((place) => ({
-      id: `kakao:${place.kakaoPlaceId}`,
+      id: `kakao-${place.kakaoPlaceId}`,
       name: place.name,
       category: guessCategory(place.category) ?? place.category.split(" > ").at(-1) ?? "기타",
       zone: "",

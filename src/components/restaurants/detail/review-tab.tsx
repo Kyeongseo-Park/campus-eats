@@ -13,10 +13,12 @@ export function ReviewTab({
   restaurantId,
   reviews,
   onReviewCreated,
+  writable = true,
 }: {
   restaurantId: string;
   reviews: ReviewWithAuthor[];
   onReviewCreated: () => void;
+  writable?: boolean;
 }) {
   const { status } = useSession();
   const [composerOpen, setComposerOpen] = useState(false);
@@ -38,7 +40,13 @@ export function ReviewTab({
   return (
     <div className="flex flex-col gap-3 p-4">
       <p className="text-sm font-semibold">■ 학생 리뷰 (평균: ★ {avgRating.toFixed(1)})</p>
-      <Button onClick={handleWriteClick}>✍️ 리뷰 작성하기</Button>
+      {writable ? (
+        <Button onClick={handleWriteClick}>✍️ 리뷰 작성하기</Button>
+      ) : (
+        <p className="text-xs text-muted-foreground">
+          CampusEats에 정식 등록된 식당만 리뷰를 작성할 수 있어요.
+        </p>
+      )}
 
       {reviews.length === 0 ? (
         <p className="py-8 text-center text-sm text-muted-foreground">

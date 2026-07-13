@@ -6,6 +6,7 @@ import { Heart, X } from "lucide-react";
 
 import { buttonVariants } from "@/components/ui/button";
 import { priceRangeLabel } from "@/lib/format";
+import { cacheKakaoRestaurant } from "@/lib/kakao-restaurant-cache";
 import type { RestaurantListItem } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
@@ -56,23 +57,13 @@ export function RestaurantBottomSheet({ restaurant, onClose }: RestaurantBottomS
           </button>
         </div>
       </div>
-      {restaurant.placeUrl ? (
-        <a
-          href={restaurant.placeUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          className={cn(buttonVariants({ size: "lg" }), "mt-3 w-full")}
-        >
-          카카오맵에서 메뉴·상세정보 보기 →
-        </a>
-      ) : (
-        <Link
-          href={`/restaurants/${restaurant.id}`}
-          className={cn(buttonVariants({ size: "lg" }), "mt-3 w-full")}
-        >
-          상세 정보 보러가기 →
-        </Link>
-      )}
+      <Link
+        href={`/restaurants/${restaurant.id}`}
+        onClick={() => cacheKakaoRestaurant(restaurant)}
+        className={cn(buttonVariants({ size: "lg" }), "mt-3 w-full")}
+      >
+        상세 정보 보러가기 →
+      </Link>
     </div>
   );
 }

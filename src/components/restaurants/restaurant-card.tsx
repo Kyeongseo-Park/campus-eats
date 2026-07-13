@@ -2,11 +2,16 @@ import Link from "next/link";
 import { ImageIcon } from "lucide-react";
 
 import { priceRangeLabel } from "@/lib/format";
+import { cacheKakaoRestaurant } from "@/lib/kakao-restaurant-cache";
 import type { RestaurantListItem } from "@/lib/types";
 
 export function RestaurantCard({ restaurant }: { restaurant: RestaurantListItem }) {
-  const content = (
-    <>
+  return (
+    <Link
+      href={`/restaurants/${restaurant.id}`}
+      onClick={() => cacheKakaoRestaurant(restaurant)}
+      className="flex gap-3 border-b px-4 py-3 hover:bg-muted/50"
+    >
       <div className="flex size-16 shrink-0 items-center justify-center rounded-lg bg-muted text-muted-foreground">
         <ImageIcon className="size-6" />
       </div>
@@ -20,21 +25,6 @@ export function RestaurantCard({ restaurant }: { restaurant: RestaurantListItem 
           평점: ★ {restaurant.avgRating.toFixed(1)} | 가격: {priceRangeLabel(restaurant.minPrice)}
         </p>
       </div>
-    </>
-  );
-  const className = "flex gap-3 border-b px-4 py-3 hover:bg-muted/50";
-
-  if (restaurant.placeUrl) {
-    return (
-      <a href={restaurant.placeUrl} target="_blank" rel="noopener noreferrer" className={className}>
-        {content}
-      </a>
-    );
-  }
-
-  return (
-    <Link href={`/restaurants/${restaurant.id}`} className={className}>
-      {content}
     </Link>
   );
 }

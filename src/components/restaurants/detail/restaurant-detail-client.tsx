@@ -8,10 +8,15 @@ import { DetailTabs, type DetailTab } from "@/components/restaurants/detail/deta
 import { LocationTab } from "@/components/restaurants/detail/location-tab";
 import { MenuTab } from "@/components/restaurants/detail/menu-tab";
 import { ReviewTab } from "@/components/restaurants/detail/review-tab";
+import { readCachedKakaoRestaurant } from "@/lib/kakao-restaurant-cache";
 import type { RestaurantDetail, ReviewWithAuthor } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
 type LoadState = "loading" | "not-found" | "loaded";
+
+function isKakaoSourced(id: string) {
+  return id.startsWith("kakao-");
+}
 
 async function loadReviews(restaurantId: string): Promise<ReviewWithAuthor[]> {
   const res = await fetch(`/api/restaurants/${restaurantId}/reviews`);
@@ -19,8 +24,16 @@ async function loadReviews(restaurantId: string): Promise<ReviewWithAuthor[]> {
   return data.reviews ?? [];
 }
 
+// 캐시 조회는 동기 작업이지만, 이펙트 안에서 setState를 직접 호출하지 않도록 fetch 계열과 동일하게
+// 비동기 함수로 감싸 .then() 콜백에서 상태를 갱신한다.
+async function loadCachedKakaoRestaurant(id: string): Promise<RestaurantDetail | null> {
+  const cached = readCachedKakaoRestaurant(id);
+  return cached ? { ...cached, phone: cached.phone ?? null, menus: [] } : null;
+}
+
 export function RestaurantDetailClient({ id }: { id: string }) {
   const router = useRouter();
+  const kakaoSourced = isKakaoSourced(id);
   const [loadState, setLoadState] = useState<LoadState>("loading");
   const [restaurant, setRestaurant] = useState<RestaurantDetail | null>(null);
   const [reviews, setReviews] = useState<ReviewWithAuthor[]>([]);
@@ -29,12 +42,28 @@ export function RestaurantDetailClient({ id }: { id: string }) {
   const [isFavorite, setIsFavorite] = useState(false);
 
   const refreshReviews = useCallback(() => {
+    if (kakaoSourced) return;
     loadReviews(id)
       .then(setReviews)
       .catch((error) => console.error(error));
-  }, [id]);
+  }, [id, kakaoSourced]);
 
   useEffect(() => {
+    // 카카오 검색 결과(DB 미등록)는 목록/지도에서 클릭할 때 캐싱해둔 데이터를 그대로 쓴다.
+    // DB에 없는 id라 /api/restaurants로 조회할 수 없고, 메뉴·리뷰도 아직 없다.
+    if (kakaoSourced) {
+      loadCachedKakaoRestaurant(id).then((cached) => {
+        if (!cached) {
+          setLoadState("not-found");
+          return;
+        }
+        setRestaurant(cached);
+        setReviews([]);
+        setLoadState("loaded");
+      });
+      return;
+    }
+
     const controller = new AbortController();
 
     fetch(`/api/restaurants/${id}`, { signal: controller.signal })
@@ -56,7 +85,7 @@ export function RestaurantDetailClient({ id }: { id: string }) {
       .catch((error) => console.error(error));
 
     return () => controller.abort();
-  }, [id]);
+  }, [id, kakaoSourced]);
 
   return (
     <div className="flex h-full flex-col">
@@ -89,7 +118,11 @@ export function RestaurantDetailClient({ id }: { id: string }) {
       )}
 
       {loadState === "not-found" && (
-        <p className="p-10 text-center text-sm text-muted-foreground">존재하지 않는 식당입니다.</p>
+        <p className="p-10 text-center text-sm text-muted-foreground">
+          {kakaoSourced
+            ? "식당 정보를 찾을 수 없어요. 목록에서 다시 선택해주세요."
+            : "존재하지 않는 식당입니다."}
+        </p>
       )}
 
       {loadState === "loaded" && restaurant && (
@@ -97,8 +130,14 @@ export function RestaurantDetailClient({ id }: { id: string }) {
           <div className="shrink-0 border-b px-4 py-3">
             <p className="text-lg font-semibold">{restaurant.name}</p>
             <p className="mt-1 text-sm text-muted-foreground">
-              카테고리: {restaurant.category} | 위치: {restaurant.zone}
+              카테고리: {restaurant.category}
+              {restaurant.zone && ` | 위치: ${restaurant.zone}`}
             </p>
+            {kakaoSourced && (
+              <p className="mt-1 text-xs text-muted-foreground">
+                카카오맵에서 가져온 정보예요. 메뉴·리뷰는 CampusEats에 정식 등록되면 볼 수 있어요.
+              </p>
+            )}
           </div>
 
           <DetailTabs value={tab} onChange={setTab} />
@@ -110,6 +149,7 @@ export function RestaurantDetailClient({ id }: { id: string }) {
                 restaurantId={restaurant.id}
                 reviews={reviews}
                 onReviewCreated={refreshReviews}
+                writable={!kakaoSourced}
               />
             )}
             {tab === "위치" && <LocationTab restaurant={restaurant} />}
