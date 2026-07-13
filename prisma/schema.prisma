@@ -112,6 +112,18 @@ model RestaurantRequest {
   @@map("restaurant_requests")
 }
 
+model PasswordResetRequest {
+  id    String @id @default(uuid()) @db.Uuid
+  email String
+  /// 대기 | 처리완료
+  status String @default("대기")
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@index([status])
+  @@map("password_requests")
+}
+
 model Favorite {
   id           String   @id @default(uuid()) @db.Uuid
   userId       String   @map("user_id") @db.Uuid

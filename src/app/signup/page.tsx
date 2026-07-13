@@ -76,6 +76,10 @@ export default function SignupPage() {
                 onChange={(e) => setEmail(e.target.value)}
                 required
               />
+              <p className="text-xs text-muted-foreground">
+                비밀번호 분실 시 이 이메일로 관리자가 새 비밀번호 안내를 드리니, 실제 사용하는 이메일 주소를 정확히
+                입력해주세요
+              </p>
             </div>
             <div className="flex flex-col gap-1.5">
               <Label htmlFor="password">비밀번호</Label>

@@ -7,18 +7,26 @@ import { prisma } from "@/lib/prisma";
 export default async function AdminDashboardPage() {
   const user = await requireAdmin();
 
-  const [restaurantCount, memberCount, reviewCount, pendingRequestCount] = await Promise.all([
-    prisma.restaurant.count(),
-    prisma.user.count(),
-    prisma.review.count(),
-    prisma.restaurantRequest.count({ where: { status: "대기" } }),
-  ]);
+  const [restaurantCount, memberCount, reviewCount, pendingRequestCount, pendingPasswordRequestCount] =
+    await Promise.all([
+      prisma.restaurant.count(),
+      prisma.user.count(),
+      prisma.review.count(),
+      prisma.restaurantRequest.count({ where: { status: "대기" } }),
+      prisma.passwordResetRequest.count({ where: { status: "대기" } }),
+    ]);
 
   const sections = [
     { href: "/admin/restaurants", title: "식당 관리", description: "식당 등록·수정·삭제, 제휴이벤트", count: restaurantCount },
     { href: "/admin/members", title: "회원 관리", description: "회원 조회", count: memberCount },
     { href: "/admin/reviews", title: "리뷰 관리", description: "리뷰 조회·삭제", count: reviewCount },
     { href: "/admin/requests", title: "식당 제보 관리", description: "승인 대기 중인 제보", count: pendingRequestCount },
+    {
+      href: "/admin/password-requests",
+      title: "문의 관리",
+      description: "비밀번호 재설정 문의",
+      count: pendingPasswordRequestCount,
+    },
   ];
 
   return (
