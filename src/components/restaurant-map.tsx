@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import Script from "next/script";
+import { LocateFixed } from "lucide-react";
 
 import { SCHOOL_MAIN_GATE } from "@/lib/constants";
 
@@ -26,6 +27,7 @@ export function RestaurantMap({
   selectedId,
   onMarkerClick,
   panOffsetPx = 140,
+  locateButtonBottomOffsetPx = 16,
 }: {
   restaurants: RestaurantMapPoint[];
   selectedId: string | null;
@@ -34,10 +36,14 @@ export function RestaurantMap({
   // 빈 함수는 이 클라이언트 컴포넌트 내부에서 정의되므로 서버→클라이언트 경계를 넘지 않는다.
   onMarkerClick?: (id: string) => void;
   panOffsetPx?: number;
+  // "내 위치로 돌아가기" 버튼의 하단 여백. 홈 화면에서는 바텀시트(peek 상태)에
+  // 가리지 않도록 호출부(map-explorer)에서 더 큰 값을 넘긴다.
+  locateButtonBottomOffsetPx?: number;
 }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapObjRef = useRef<kakao.maps.Map | null>(null);
   const overlaysRef = useRef<Map<string, OverlayEntry>>(new Map());
+  const myLocationMarkerRef = useRef<kakao.maps.Marker | null>(null);
   const selectedIdRef = useRef<string | null>(null);
   const onMarkerClickRef = useRef(onMarkerClick);
   useEffect(() => {
@@ -66,10 +72,30 @@ export function RestaurantMap({
       // 위치 권한이 없거나 실패하면 학교 정문 좌표를 기준으로 유지한다 (PRD 6.1).
       navigator.geolocation?.getCurrentPosition((pos) => {
         const position = new window.kakao.maps.LatLng(pos.coords.latitude, pos.coords.longitude);
-        new window.kakao.maps.Marker({ position, map });
+        myLocationMarkerRef.current = new window.kakao.maps.Marker({ position, map });
       });
     });
   }, [isSdkReady]);
+
+  // "내 위치로 돌아가기" 클릭 시마다 navigator.geolocation을 다시 호출해 최신 좌표로 갱신한다.
+  // getCurrentPosition 호출 자체가 브라우저의 위치 권한 요청 트리거이므로, 아직 응답한 적 없는
+  // 상태("prompt")라면 이 클릭으로 권한 팝업이 뜬다. 이미 거부된 상태("denied")라면 브라우저 정책상
+  // JS로 팝업을 다시 띄울 수 없어 곧바로 에러 콜백으로 빠진다.
+  function handleLocateClick() {
+    const map = mapObjRef.current;
+    if (!map || !navigator.geolocation) return;
+
+    navigator.geolocation.getCurrentPosition((pos) => {
+      const position = new window.kakao.maps.LatLng(pos.coords.latitude, pos.coords.longitude);
+      if (myLocationMarkerRef.current) {
+        myLocationMarkerRef.current.setPosition(position);
+      } else {
+        myLocationMarkerRef.current = new window.kakao.maps.Marker({ position, map });
+      }
+      // setLevel을 호출하지 않으므로 기존 확대/축소 레벨이 그대로 유지된다.
+      map.panTo(position);
+    });
+  }
 
   useEffect(() => {
     const map = mapObjRef.current;
@@ -149,13 +175,24 @@ export function RestaurantMap({
   }
 
   return (
-    <>
+    <div className="relative h-full w-full">
       <Script
         src={`https://dapi.kakao.com/v2/maps/sdk.js?appkey=${appKey}&autoload=false`}
         strategy="afterInteractive"
         onReady={() => setIsSdkReady(true)}
       />
       <div ref={containerRef} className="h-full w-full" />
-    </>
+      {isMapReady && (
+        <button
+          type="button"
+          onClick={handleLocateClick}
+          aria-label="현재 내 위치로 이동"
+          style={{ bottom: locateButtonBottomOffsetPx }}
+          className="absolute right-3 z-10 flex h-11 w-11 items-center justify-center rounded-full bg-background shadow-md ring-1 ring-foreground/10 transition-colors hover:bg-muted"
+        >
+          <LocateFixed className="size-5" />
+        </button>
+      )}
+    </div>
   );
 }

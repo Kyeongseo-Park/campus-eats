@@ -31,6 +31,7 @@ declare global {
     class Marker {
       constructor(options: { position: LatLng; map?: Map });
       setMap(map: Map | null): void;
+      setPosition(latlng: LatLng): void;
     }
 
     class CustomOverlay {

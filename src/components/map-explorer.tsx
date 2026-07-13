@@ -66,6 +66,7 @@ export function MapExplorer({
           selectedId={selectedRestaurant?.id ?? null}
           onMarkerClick={selectRestaurant}
           panOffsetPx={120}
+          locateButtonBottomOffsetPx={112}
         />
       </div>
 
