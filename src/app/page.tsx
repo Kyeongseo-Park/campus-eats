@@ -28,7 +28,7 @@ export default function HomePage() {
     }
 
     const controller = new AbortController();
-    fetch(`/api/kakao/restaurants?${params.toString()}`, { signal: controller.signal })
+    fetch(`/api/restaurants?${params.toString()}`, { signal: controller.signal })
       .then((res) => res.json())
       .then((data: { restaurants: RestaurantListItem[] }) => {
         setRestaurants(data.restaurants);
