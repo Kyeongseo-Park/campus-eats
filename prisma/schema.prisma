@@ -1,0 +1,102 @@
+// CampusEats — PRD_v2 section 11 (ERD) 기준 스키마
+// 컬럼 타입은 ERD를 그대로 따르며(zone/category/status 등은 VARCHAR),
+// 허용값 검증은 애플리케이션 레이어(zod)에서 수행한다. src/lib/constants.ts 참고.
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id           String   @id @default(uuid()) @db.Uuid
+  email        String   @unique
+  passwordHash String   @map("password_hash")
+  nickname     String
+  role         String   @default("user") // "user" | "admin"
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  reviews            Review[]
+  restaurantRequests RestaurantRequest[]
+  favorites          Favorite[]
+
+  @@map("users")
+}
+
+model Restaurant {
+  id           String  @id @default(uuid()) @db.Uuid
+  name         String
+  category     String // 한식 | 중식 | 일식 | 양식 | 분식 | 카페 (1개만)
+  zone         String // 정문 | 상대 | 예대 | 후문 | 공대쪽문
+  address      String
+  latitude     Float
+  longitude    Float
+  minPrice     Int?    @map("min_price") // 메뉴 최저가, 가격대 필터·정렬에 사용
+  phone        String? // 카카오 로컬 API 검색 결과에서 채워짐 (선택)
+  kakaoPlaceId String? @unique @map("kakao_place_id") // 카카오 로컬 API 장소 id. 기본 정보는 카카오에서, zone/minPrice 등은 관리자가 직접 보완.
+
+  menus     Menu[]
+  reviews   Review[]
+  favorites Favorite[]
+
+  @@map("restaurants")
+}
+
+model Menu {
+  id           String @id @default(uuid()) @db.Uuid
+  restaurantId String @map("restaurant_id") @db.Uuid
+  name         String
+  price        Int
+
+  restaurant Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+
+  @@map("menus")
+}
+
+model Review {
+  id           String   @id @default(uuid()) @db.Uuid
+  userId       String   @map("user_id") @db.Uuid
+  restaurantId String   @map("restaurant_id") @db.Uuid
+  rating       Int // 1~5 정수
+  content      String
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  user       User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  restaurant Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+
+  @@map("reviews")
+}
+
+model RestaurantRequest {
+  id             String   @id @default(uuid()) @db.Uuid
+  userId         String   @map("user_id") @db.Uuid
+  restaurantName String   @map("restaurant_name")
+  address        String
+  category       String // 제보자 입력값, 관리자 승인 시 수정 가능
+  menuInfo       String?  @map("menu_info") // 선택 입력
+  status         String   @default("대기") // 대기 | 승인 | 반려
+  createdAt      DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("restaurant_requests")
+}
+
+// PRD 5/9번의 즐겨찾기 기능 구현에 필요하나 11번 ERD 표에는 누락되어 있어 추가함.
+// 사용자당 동일 식당 중복 즐겨찾기를 막기 위해 (userId, restaurantId) 유니크 제약을 둔다.
+model Favorite {
+  id           String   @id @default(uuid()) @db.Uuid
+  userId       String   @map("user_id") @db.Uuid
+  restaurantId String   @map("restaurant_id") @db.Uuid
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  user       User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  restaurant Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, restaurantId])
+  @@map("favorites")
+}
