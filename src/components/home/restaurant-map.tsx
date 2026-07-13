@@ -5,12 +5,13 @@ import { useEffect, useRef } from "react";
 import { useKakaoLoader } from "@/hooks/use-kakao-loader";
 import { SCHOOL_MAIN_GATE } from "@/lib/constants";
 import type { RestaurantListItem } from "@/lib/types";
-import { KakaoMapFallback } from "@/components/map/kakao-map-fallback";
+import { kakaoMapFallbackText } from "@/components/map/kakao-map-fallback";
 import {
   RESTAURANT_MARKER,
   RESTAURANT_MARKER_SELECTED,
   USER_LOCATION_MARKER,
 } from "@/components/map/map-markers";
+import { RestaurantCard } from "@/components/restaurants/restaurant-card";
 
 interface RestaurantMapProps {
   restaurants: RestaurantListItem[];
@@ -126,7 +127,22 @@ export function RestaurantMap({
   }, []);
 
   if (status === "missing-key" || status === "error") {
-    return <KakaoMapFallback status={status} />;
+    return (
+      <div className="flex h-full flex-col">
+        <p className="shrink-0 bg-muted p-3 text-center text-xs text-muted-foreground">
+          {kakaoMapFallbackText(status)} 대신 목록으로 보여드릴게요.
+        </p>
+        <div className="min-h-0 flex-1 overflow-y-auto">
+          {restaurants.length === 0 ? (
+            <p className="p-10 text-center text-sm text-muted-foreground">표시할 식당이 없어요.</p>
+          ) : (
+            restaurants.map((restaurant) => (
+              <RestaurantCard key={restaurant.id} restaurant={restaurant} />
+            ))
+          )}
+        </div>
+      </div>
+    );
   }
 
   return <div ref={containerRef} className="h-full w-full" />;
