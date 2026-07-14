@@ -1,0 +1,68 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/client"
+}
+
+model User {
+  id                 String              @id @default(uuid())
+  email              String              @unique
+  passwordHash       String              @map("password_hash")
+  nickname           String
+  createdAt          DateTime            @default(now()) @map("created_at")
+  reviews            Review[]
+  restaurantRequests RestaurantRequest[]
+
+  @@map("users")
+}
+
+model Restaurant {
+  id        String   @id @default(uuid())
+  name      String
+  category  String
+  address   String
+  latitude  Float
+  longitude Float
+  menus     Menu[]
+  reviews   Review[]
+
+  @@map("restaurants")
+}
+
+model Menu {
+  id           String     @id @default(uuid())
+  restaurantId String     @map("restaurant_id")
+  restaurant   Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+  name         String
+  price        Int
+
+  @@map("menus")
+}
+
+model Review {
+  id           String     @id @default(uuid())
+  userId       String     @map("user_id")
+  user         User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  restaurantId String     @map("restaurant_id")
+  restaurant   Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+  rating       Int
+  content      String     @db.Text
+
+  @@map("reviews")
+}
+
+model RestaurantRequest {
+  id             String @id @default(uuid())
+  userId         String @map("user_id")
+  user           User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  restaurantName String @map("restaurant_name")
+  address        String
+  category       String
+  status         String @default("PENDING") // PENDING, APPROVED, REJECTED
+
+  @@map("restaurant_requests")
+}
