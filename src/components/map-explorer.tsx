@@ -16,7 +16,7 @@ import type { SortValue } from "@/lib/constants";
 
 // 바텀시트 기본(resting) 위치 — 지도 박스 높이와 동일한 값을 써서 시트 상단이 지도 박스 바로
 // 아래에 정확히 맞물리게 한다(지도가 화면의 이 비율만큼 보인다).
-const MAP_RESTING_VH = 38;
+const MAP_RESTING_VH = 50;
 
 export function MapExplorer({
   restaurants,
@@ -77,7 +77,7 @@ export function MapExplorer({
 
   return (
     <div className="relative h-full">
-      <div className="px-3 pt-3" style={{ height: `${MAP_RESTING_VH}dvh` }}>
+      <div className="px-3 pt-2" style={{ height: `${MAP_RESTING_VH}dvh` }}>
         <div className="h-full w-full overflow-hidden rounded-2xl ring-1 ring-foreground/10">
           <RestaurantMap
             restaurants={restaurants}
@@ -87,7 +87,7 @@ export function MapExplorer({
         </div>
       </div>
 
-      <div className="absolute inset-x-0 top-0 z-20 p-3">
+      <div className="absolute inset-x-0 top-0 z-20 px-2 pb-2">
         <div className="max-h-[60vh] overflow-y-auto rounded-xl bg-background/95 p-2 shadow-md backdrop-blur">
           {/* sheetMode가 바뀌면 리마운트되어 열려 있던 필터 패널이 자동으로 닫힌다. */}
           <Suspense>
