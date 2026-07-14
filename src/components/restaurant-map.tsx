@@ -26,7 +26,6 @@ export function RestaurantMap({
   restaurants,
   selectedId,
   onMarkerClick,
-  panOffsetPx = 140,
   locateButtonBottomOffsetPx = 16,
 }: {
   restaurants: RestaurantMapPoint[];
@@ -35,7 +34,6 @@ export function RestaurantMap({
   // 이벤트 핸들러를 클라이언트 컴포넌트로 넘길 수 없으므로 생략한다. 이 경우 기본값인
   // 빈 함수는 이 클라이언트 컴포넌트 내부에서 정의되므로 서버→클라이언트 경계를 넘지 않는다.
   onMarkerClick?: (id: string) => void;
-  panOffsetPx?: number;
   // "내 위치로 돌아가기" 버튼의 하단 여백.
   locateButtonBottomOffsetPx?: number;
 }) {
@@ -133,7 +131,8 @@ export function RestaurantMap({
         map.setCenter(new window.kakao.maps.LatLng(restaurants[0].latitude, restaurants[0].longitude));
         map.setLevel(4);
       } else {
-        map.setBounds(bounds, 24, 24, 24, 24);
+        // 지도 박스 위에 필터 바가 겹쳐 떠 있으므로 상단 여백을 더 준다.
+        map.setBounds(bounds, 90, 24, 24, 24);
       }
     }
     // restaurants 원본 배열이 아니라 id 구성 변화에만 반응한다 (위 주석 참고).
@@ -160,9 +159,9 @@ export function RestaurantMap({
     const restaurant = restaurants.find((r) => r.id === selectedId);
     if (!restaurant) return;
 
+    // 줌 레벨은 건드리지 않고 중심 좌표만 부드럽게 이동시켜 선택한 마커를 정중앙에 맞춘다.
     map.panTo(new window.kakao.maps.LatLng(restaurant.latitude, restaurant.longitude));
-    map.panBy(0, -panOffsetPx);
-  }, [selectedId, isMapReady, restaurants, panOffsetPx]);
+  }, [selectedId, isMapReady, restaurants]);
 
   if (!appKey) {
     return (

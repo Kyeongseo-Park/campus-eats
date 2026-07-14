@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useMemo, useState } from "react";
+import { Suspense, useLayoutEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { X } from "lucide-react";
 
@@ -9,9 +9,14 @@ import { Button } from "@/components/ui/button";
 import { RestaurantMap } from "@/components/restaurant-map";
 import { RestaurantFilters } from "@/components/restaurant-filters";
 import { RestaurantListPanel } from "@/components/restaurant-list-panel";
+import { BottomSheet } from "@/components/bottom-sheet";
 import { FavoriteButton } from "@/components/favorite-button";
 import type { RestaurantListItem } from "@/lib/restaurants";
 import type { SortValue } from "@/lib/constants";
+
+// 바텀시트 기본(resting) 위치 — 지도 박스 높이와 동일한 값을 써서 시트 상단이 지도 박스 바로
+// 아래에 정확히 맞물리게 한다(지도가 화면의 이 비율만큼 보인다).
+const MAP_RESTING_VH = 38;
 
 export function MapExplorer({
   restaurants,
@@ -34,6 +39,7 @@ export function MapExplorer({
 }) {
   const [selectedId, setSelectedId] = useState<string | null>(initialSelectedId ?? null);
   const [sheetMode, setSheetMode] = useState<"list" | "detail">(initialSelectedId ? "detail" : "list");
+  const [sheetExpanded, setSheetExpanded] = useState(false);
 
   const favoriteIdSet = useMemo(() => new Set(favoriteIds), [favoriteIds]);
 
@@ -44,9 +50,24 @@ export function MapExplorer({
   );
   const effectiveSheetMode: "list" | "detail" = sheetMode === "detail" && selectedRestaurant ? "detail" : "list";
 
+  // 목록 → 요약카드 전환 시 목록 스크롤 위치를 저장했다가, 카드를 닫으면 그 위치로 되돌린다.
+  const listScrollRef = useRef<HTMLDivElement>(null);
+  const savedListScrollTopRef = useRef(0);
+
+  useLayoutEffect(() => {
+    if (effectiveSheetMode === "list" && listScrollRef.current) {
+      listScrollRef.current.scrollTop = savedListScrollTopRef.current;
+    }
+  }, [effectiveSheetMode]);
+
   function selectRestaurant(id: string) {
+    if (effectiveSheetMode === "list" && listScrollRef.current) {
+      savedListScrollTopRef.current = listScrollRef.current.scrollTop;
+    }
     setSelectedId(id);
     setSheetMode("detail");
+    // 지도의 선택된 마커와 요약카드를 함께 볼 수 있도록 기본(resting) 위치로 되돌린다.
+    setSheetExpanded(false);
   }
 
   function handleCloseDetail() {
@@ -55,26 +76,32 @@ export function MapExplorer({
   }
 
   return (
-    <div className="flex h-full flex-col">
-      <div className="shrink-0 border-b p-3">
-        {/* sheetMode가 바뀌면 리마운트되어 열려 있던 필터 패널이 자동으로 닫힌다. */}
-        <Suspense>
-          <RestaurantFilters key={effectiveSheetMode} />
-        </Suspense>
-      </div>
-
-      <div className="h-[38vh] shrink-0 px-3 pt-3">
+    <div className="relative h-full">
+      <div className="px-3 pt-3" style={{ height: `${MAP_RESTING_VH}dvh` }}>
         <div className="h-full w-full overflow-hidden rounded-2xl ring-1 ring-foreground/10">
           <RestaurantMap
             restaurants={restaurants}
             selectedId={selectedRestaurant?.id ?? null}
             onMarkerClick={selectRestaurant}
-            panOffsetPx={0}
           />
         </div>
       </div>
 
-      <div className="min-h-0 flex-1 overflow-y-auto overscroll-y-contain px-3 pt-3 pb-3">
+      <div className="absolute inset-x-0 top-0 z-20 p-3">
+        <div className="max-h-[60vh] overflow-y-auto rounded-xl bg-background/95 p-2 shadow-md backdrop-blur">
+          {/* sheetMode가 바뀌면 리마운트되어 열려 있던 필터 패널이 자동으로 닫힌다. */}
+          <Suspense>
+            <RestaurantFilters key={effectiveSheetMode} />
+          </Suspense>
+        </div>
+      </div>
+
+      <BottomSheet
+        expanded={sheetExpanded}
+        onExpandedChange={setSheetExpanded}
+        restingOffsetVh={MAP_RESTING_VH}
+        contentRef={listScrollRef}
+      >
         {effectiveSheetMode === "detail" && selectedRestaurant ? (
           <RestaurantDetailCard
             restaurant={selectedRestaurant}
@@ -95,7 +122,7 @@ export function MapExplorer({
             onSelect={selectRestaurant}
           />
         )}
-      </div>
+      </BottomSheet>
     </div>
   );
 }
@@ -122,7 +149,7 @@ function RestaurantDetailCard({
   const detailHref = `/restaurants/${restaurant.id}?from=${encodeURIComponent(`/?${returnParams.toString()}`)}`;
 
   return (
-    <div className="flex flex-col gap-2 rounded-xl border p-3">
+    <div className="flex flex-col gap-2 pt-1">
       <div className="flex items-start justify-between gap-2">
         <div>
           <div className="flex items-center gap-2">
