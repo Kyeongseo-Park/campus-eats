@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Geist, Geist_Mono } from "next/font/google";
+import { UtensilsCrossed } from "lucide-react";
 import "./globals.css";
 
 import { getCurrentUser } from "@/lib/auth";
@@ -35,18 +36,21 @@ export default async function RootLayout({
     >
       <body className="flex h-dvh flex-col overflow-hidden">
         <header className="flex shrink-0 flex-wrap items-center justify-between gap-x-4 gap-y-1 border-b px-4 py-2">
-          <Link href="/" className="font-semibold">
-            학식 말고 뭐 먹지?
+          <Link href="/" className="flex items-center gap-2">
+            <span className="flex size-7 shrink-0 items-center justify-center rounded-lg bg-orange-500 text-white">
+              <UtensilsCrossed className="size-4" />
+            </span>
+            <span className="text-lg font-bold tracking-tight">학식 말고 뭐 먹지?</span>
           </Link>
-          <nav className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm">
+          <nav className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm">
             {user ? (
               <>
                 <span className="text-muted-foreground">{user.nickname}님</span>
-                <Link href="/mypage" className="hover:underline">
+                <Link href="/mypage" className="font-medium text-muted-foreground transition-colors hover:text-orange-500">
                   마이페이지
                 </Link>
                 {user.role === "admin" && (
-                  <Link href="/admin" className="hover:underline">
+                  <Link href="/admin" className="font-medium text-muted-foreground transition-colors hover:text-orange-500">
                     관리자
                   </Link>
                 )}
@@ -54,10 +58,10 @@ export default async function RootLayout({
               </>
             ) : (
               <>
-                <Link href="/login" className="hover:underline">
+                <Link href="/login" className="font-medium text-muted-foreground transition-colors hover:text-orange-500">
                   로그인
                 </Link>
-                <Link href="/signup" className="hover:underline">
+                <Link href="/signup" className="font-medium text-muted-foreground transition-colors hover:text-orange-500">
                   회원가입
                 </Link>
               </>

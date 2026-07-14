@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { Star } from "lucide-react";
 import type { KeyboardEvent } from "react";
 
 import { Badge } from "@/components/ui/badge";
@@ -63,19 +64,26 @@ export function RestaurantListPanel({
               onClick={() => onSelect(restaurant.id)}
               onKeyDown={(event) => handleKeyDown(event, restaurant.id)}
               className={cn(
-                "h-full cursor-pointer transition-colors hover:bg-muted/50",
-                selectedId === restaurant.id && "ring-2 ring-primary"
+                "h-full cursor-pointer rounded-2xl shadow-sm ring-1 ring-black/5 transition-all hover:-translate-y-0.5 hover:shadow-md",
+                selectedId === restaurant.id && "ring-2 ring-orange-500"
               )}
             >
               <CardHeader>
                 <CardTitle className="pr-8">{restaurant.name}</CardTitle>
-                <CardDescription>
-                  {restaurant.zone} · {restaurant.category}
-                  {restaurant.avgRating !== null && ` · ★${restaurant.avgRating.toFixed(1)}`}
+                <CardDescription className="flex flex-wrap items-center gap-x-1.5">
+                  <span className="font-medium text-orange-600">{restaurant.category}</span>
+                  <span>· {restaurant.zone}</span>
+                  {restaurant.avgRating !== null && (
+                    <span className="ml-auto flex items-center gap-0.5 font-semibold text-foreground">
+                      <Star className="size-3.5 fill-yellow-400 text-yellow-400" />
+                      {restaurant.avgRating.toFixed(1)}
+                      <span className="font-normal text-muted-foreground">({restaurant.reviewCount})</span>
+                    </span>
+                  )}
                 </CardDescription>
                 {restaurant.isPartnershipActive && (
                   <CardAction className="mr-8">
-                    <Badge variant="secondary">제휴</Badge>
+                    <Badge className="border-orange-200 bg-orange-50 text-orange-700">제휴</Badge>
                   </CardAction>
                 )}
               </CardHeader>

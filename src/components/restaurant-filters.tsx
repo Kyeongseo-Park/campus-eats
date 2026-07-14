@@ -119,6 +119,7 @@ export function RestaurantFilters() {
           <Checkbox
             checked={partnershipOnly}
             onCheckedChange={(checked) => navigate({ partnership_only: checked ? "true" : null })}
+            className="data-checked:border-orange-500 data-checked:bg-orange-500"
           />
           제휴이벤트 중인 식당만 보기
         </Label>
@@ -149,7 +150,7 @@ export function RestaurantFilters() {
         />
       )}
       {openPanel === "sort" && (
-        <div className="flex flex-wrap gap-1.5 rounded-lg border p-3">
+        <div className="flex flex-wrap gap-1.5 rounded-xl border border-border/60 bg-muted/20 p-3">
           {SORT_OPTIONS.map((option) => (
             <Button
               key={option.value}
@@ -157,6 +158,7 @@ export function RestaurantFilters() {
               size="sm"
               variant={currentSort === option.value ? "default" : "outline"}
               onClick={() => handleSortSelect(option.value)}
+              className="rounded-full"
             >
               {option.label}
             </Button>
@@ -179,7 +181,13 @@ function FilterMenuButton({
   onClick: () => void;
 }) {
   return (
-    <Button type="button" variant={isOpen ? "secondary" : "outline"} size="sm" onClick={onClick}>
+    <Button
+      type="button"
+      variant={isOpen ? "secondary" : "outline"}
+      size="sm"
+      onClick={onClick}
+      className={cn("rounded-full", !isOpen && !!count && "border-orange-300 text-orange-600")}
+    >
       {label}
       {!!count && ` (${count})`}
       <ChevronDownIcon className={cn("size-3.5 transition-transform", isOpen && "rotate-180")} />
@@ -199,19 +207,47 @@ function CheckboxPanel({
   onSelectAll?: () => void;
 }) {
   return (
-    <div className="flex flex-wrap gap-3 rounded-lg border p-3">
-      {onSelectAll && (
-        <Label className="flex items-center gap-1.5">
-          <Checkbox checked={selected.length === 0} onCheckedChange={onSelectAll} />
-          전체
-        </Label>
-      )}
+    <div className="flex flex-wrap gap-2 rounded-xl border border-border/60 bg-muted/20 p-3">
+      {onSelectAll && <FilterChip label="전체" checked={selected.length === 0} onCheckedChange={onSelectAll} />}
       {options.map((option) => (
-        <Label key={option.value} className="flex items-center gap-1.5">
-          <Checkbox checked={selected.includes(option.value)} onCheckedChange={() => onToggle(option.value)} />
-          {option.label}
-        </Label>
+        <FilterChip
+          key={option.value}
+          label={option.label}
+          checked={selected.includes(option.value)}
+          onCheckedChange={() => onToggle(option.value)}
+        />
       ))}
     </div>
+  );
+}
+
+function FilterChip({
+  label,
+  checked,
+  onCheckedChange,
+}: {
+  label: string;
+  checked: boolean;
+  onCheckedChange: () => void;
+}) {
+  return (
+    <Label
+      className={cn(
+        "cursor-pointer gap-1.5 rounded-full border px-3 py-1.5 text-xs font-medium transition-colors",
+        checked
+          ? "border-orange-500 bg-orange-500 text-white"
+          : "border-border bg-background text-muted-foreground hover:border-orange-200 hover:text-foreground"
+      )}
+    >
+      <Checkbox
+        checked={checked}
+        onCheckedChange={onCheckedChange}
+        className={cn(
+          "size-3.5",
+          checked && "border-white/70 bg-transparent data-checked:border-white data-checked:bg-white/90 data-checked:text-orange-500"
+        )}
+      />
+      {label}
+    </Label>
   );
 }

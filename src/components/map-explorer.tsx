@@ -2,7 +2,7 @@
 
 import { Suspense, useLayoutEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
-import { X } from "lucide-react";
+import { Star, X } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -154,12 +154,20 @@ function RestaurantDetailCard({
         <div>
           <div className="flex items-center gap-2">
             <h2 className="text-lg font-semibold">{restaurant.name}</h2>
-            {restaurant.isPartnershipActive && <Badge variant="secondary">제휴</Badge>}
+            {restaurant.isPartnershipActive && (
+              <Badge className="border-orange-200 bg-orange-50 text-orange-700">제휴</Badge>
+            )}
           </div>
-          <p className="mt-1 text-sm text-muted-foreground">
-            {restaurant.zone} · {restaurant.category}
-            {restaurant.avgRating !== null &&
-              ` · ⭐${restaurant.avgRating.toFixed(1)} (리뷰 ${restaurant.reviewCount}개)`}
+          <p className="mt-1 flex flex-wrap items-center gap-x-1.5 text-sm text-muted-foreground">
+            <span className="font-medium text-orange-600">{restaurant.category}</span>
+            <span>· {restaurant.zone}</span>
+            {restaurant.avgRating !== null && (
+              <span className="flex items-center gap-0.5 font-semibold text-foreground">
+                <Star className="size-3.5 fill-yellow-400 text-yellow-400" />
+                {restaurant.avgRating.toFixed(1)}
+                <span className="font-normal text-muted-foreground">(리뷰 {restaurant.reviewCount}개)</span>
+              </span>
+            )}
           </p>
           <p className="text-sm text-muted-foreground">
             {restaurant.minPrice.toLocaleString()}원~
