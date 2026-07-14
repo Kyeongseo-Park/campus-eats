@@ -67,7 +67,7 @@ export default async function Home({
   return (
     <>
       <IntroSplash />
-      <main className="flex-1 overflow-hidden">
+      <main className="h-full overflow-hidden">
         <MapExplorer
           restaurants={restaurants}
           currentUserId={currentUser?.id ?? null}

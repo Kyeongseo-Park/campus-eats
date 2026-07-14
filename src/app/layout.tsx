@@ -33,8 +33,8 @@ export default async function RootLayout({
       lang="ko"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">
-        <header className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1 border-b px-4 py-3">
+      <body className="flex h-dvh flex-col overflow-hidden">
+        <header className="flex shrink-0 flex-wrap items-center justify-between gap-x-4 gap-y-1 border-b px-4 py-3">
           <Link href="/" className="font-semibold">
             학식 말고 뭐 먹지?
           </Link>
@@ -64,7 +64,7 @@ export default async function RootLayout({
             )}
           </nav>
         </header>
-        {children}
+        <div className="min-h-0 flex-1 overflow-y-auto">{children}</div>
       </body>
     </html>
   );
