@@ -9,7 +9,6 @@ import { Button } from "@/components/ui/button";
 import { RestaurantMap } from "@/components/restaurant-map";
 import { RestaurantFilters } from "@/components/restaurant-filters";
 import { RestaurantListPanel } from "@/components/restaurant-list-panel";
-import { BottomSheet } from "@/components/bottom-sheet";
 import { FavoriteButton } from "@/components/favorite-button";
 import type { RestaurantListItem } from "@/lib/restaurants";
 import type { SortValue } from "@/lib/constants";
@@ -35,7 +34,6 @@ export function MapExplorer({
 }) {
   const [selectedId, setSelectedId] = useState<string | null>(initialSelectedId ?? null);
   const [sheetMode, setSheetMode] = useState<"list" | "detail">(initialSelectedId ? "detail" : "list");
-  const [sheetExpanded, setSheetExpanded] = useState(!!initialSelectedId);
 
   const favoriteIdSet = useMemo(() => new Set(favoriteIds), [favoriteIds]);
 
@@ -49,41 +47,34 @@ export function MapExplorer({
   function selectRestaurant(id: string) {
     setSelectedId(id);
     setSheetMode("detail");
-    setSheetExpanded(true);
   }
 
   function handleCloseDetail() {
     setSheetMode("list");
     setSelectedId(null);
-    setSheetExpanded(false);
   }
 
   return (
-    <>
-      <div className="absolute inset-0">
-        <RestaurantMap
-          restaurants={restaurants}
-          selectedId={selectedRestaurant?.id ?? null}
-          onMarkerClick={selectRestaurant}
-          panOffsetPx={120}
-          locateButtonBottomOffsetPx={112}
-        />
+    <div className="flex h-full flex-col">
+      <div className="shrink-0 border-b p-3">
+        {/* sheetMode가 바뀌면 리마운트되어 열려 있던 필터 패널이 자동으로 닫힌다. */}
+        <Suspense>
+          <RestaurantFilters key={effectiveSheetMode} />
+        </Suspense>
       </div>
 
-      <div className="absolute inset-x-0 top-0 z-20 p-3">
-        <div className="max-h-[60vh] overflow-y-auto rounded-xl bg-background/95 p-2 shadow-md backdrop-blur">
-          {/* sheetMode가 바뀌면 리마운트되어 열려 있던 필터 패널이 자동으로 닫힌다. */}
-          <Suspense>
-            <RestaurantFilters key={effectiveSheetMode} />
-          </Suspense>
+      <div className="h-[38vh] shrink-0 px-3 pt-3">
+        <div className="h-full w-full overflow-hidden rounded-2xl ring-1 ring-foreground/10">
+          <RestaurantMap
+            restaurants={restaurants}
+            selectedId={selectedRestaurant?.id ?? null}
+            onMarkerClick={selectRestaurant}
+            panOffsetPx={0}
+          />
         </div>
       </div>
 
-      <BottomSheet
-        expanded={sheetExpanded}
-        onExpandedChange={setSheetExpanded}
-        heightVh={effectiveSheetMode === "detail" ? 46 : 82}
-      >
+      <div className="min-h-0 flex-1 overflow-y-auto overscroll-y-contain px-3 pt-3 pb-3">
         {effectiveSheetMode === "detail" && selectedRestaurant ? (
           <RestaurantDetailCard
             restaurant={selectedRestaurant}
@@ -104,8 +95,8 @@ export function MapExplorer({
             onSelect={selectRestaurant}
           />
         )}
-      </BottomSheet>
-    </>
+      </div>
+    </div>
   );
 }
 
@@ -131,7 +122,7 @@ function RestaurantDetailCard({
   const detailHref = `/restaurants/${restaurant.id}?from=${encodeURIComponent(`/?${returnParams.toString()}`)}`;
 
   return (
-    <div className="flex flex-col gap-2 pt-1">
+    <div className="flex flex-col gap-2 rounded-xl border p-3">
       <div className="flex items-start justify-between gap-2">
         <div>
           <div className="flex items-center gap-2">

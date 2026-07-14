@@ -36,8 +36,7 @@ export function RestaurantMap({
   // 빈 함수는 이 클라이언트 컴포넌트 내부에서 정의되므로 서버→클라이언트 경계를 넘지 않는다.
   onMarkerClick?: (id: string) => void;
   panOffsetPx?: number;
-  // "내 위치로 돌아가기" 버튼의 하단 여백. 홈 화면에서는 바텀시트(peek 상태)에
-  // 가리지 않도록 호출부(map-explorer)에서 더 큰 값을 넘긴다.
+  // "내 위치로 돌아가기" 버튼의 하단 여백.
   locateButtonBottomOffsetPx?: number;
 }) {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -134,8 +133,7 @@ export function RestaurantMap({
         map.setCenter(new window.kakao.maps.LatLng(restaurants[0].latitude, restaurants[0].longitude));
         map.setLevel(4);
       } else {
-        // 상단 필터바/하단 바텀시트(peek 상태 기준)에 마커가 가려지지 않도록 여백을 둔다.
-        map.setBounds(bounds, 110, 24, 140, 24);
+        map.setBounds(bounds, 24, 24, 24, 24);
       }
     }
     // restaurants 원본 배열이 아니라 id 구성 변화에만 반응한다 (위 주석 참고).
