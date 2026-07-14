@@ -38,6 +38,11 @@ export type Review = $Result.DefaultSelection<Prisma.$ReviewPayload>
  * 
  */
 export type RestaurantRequest = $Result.DefaultSelection<Prisma.$RestaurantRequestPayload>
+/**
+ * Model Favorite
+ * 
+ */
+export type Favorite = $Result.DefaultSelection<Prisma.$FavoritePayload>
 
 /**
  * ##  Prisma Client ʲˢ
@@ -206,6 +211,16 @@ export class PrismaClient<
     * ```
     */
   get restaurantRequest(): Prisma.RestaurantRequestDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.favorite`: Exposes CRUD operations for the **Favorite** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more Favorites
+    * const favorites = await prisma.favorite.findMany()
+    * ```
+    */
+  get favorite(): Prisma.FavoriteDelegate<ExtArgs, ClientOptions>;
 }
 
 export namespace Prisma {
@@ -651,7 +666,8 @@ export namespace Prisma {
     Restaurant: 'Restaurant',
     Menu: 'Menu',
     Review: 'Review',
-    RestaurantRequest: 'RestaurantRequest'
+    RestaurantRequest: 'RestaurantRequest',
+    Favorite: 'Favorite'
   };
 
   export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -670,7 +686,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "user" | "restaurant" | "menu" | "review" | "restaurantRequest"
+      modelProps: "user" | "restaurant" | "menu" | "review" | "restaurantRequest" | "favorite"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -1044,6 +1060,80 @@ export namespace Prisma {
           }
         }
       }
+      Favorite: {
+        payload: Prisma.$FavoritePayload<ExtArgs>
+        fields: Prisma.FavoriteFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.FavoriteFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FavoritePayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.FavoriteFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FavoritePayload>
+          }
+          findFirst: {
+            args: Prisma.FavoriteFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FavoritePayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.FavoriteFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FavoritePayload>
+          }
+          findMany: {
+            args: Prisma.FavoriteFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FavoritePayload>[]
+          }
+          create: {
+            args: Prisma.FavoriteCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FavoritePayload>
+          }
+          createMany: {
+            args: Prisma.FavoriteCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.FavoriteCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FavoritePayload>[]
+          }
+          delete: {
+            args: Prisma.FavoriteDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FavoritePayload>
+          }
+          update: {
+            args: Prisma.FavoriteUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FavoritePayload>
+          }
+          deleteMany: {
+            args: Prisma.FavoriteDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.FavoriteUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.FavoriteUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FavoritePayload>[]
+          }
+          upsert: {
+            args: Prisma.FavoriteUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FavoritePayload>
+          }
+          aggregate: {
+            args: Prisma.FavoriteAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateFavorite>
+          }
+          groupBy: {
+            args: Prisma.FavoriteGroupByArgs<ExtArgs>
+            result: $Utils.Optional<FavoriteGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.FavoriteCountArgs<ExtArgs>
+            result: $Utils.Optional<FavoriteCountAggregateOutputType> | number
+          }
+        }
+      }
     }
   } & {
     other: {
@@ -1145,6 +1235,7 @@ export namespace Prisma {
     menu?: MenuOmit
     review?: ReviewOmit
     restaurantRequest?: RestaurantRequestOmit
+    favorite?: FavoriteOmit
   }
 
   /* Types for Logging */
@@ -1227,11 +1318,13 @@ export namespace Prisma {
   export type UserCountOutputType = {
     reviews: number
     restaurantRequests: number
+    favorites: number
   }
 
   export type UserCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     reviews?: boolean | UserCountOutputTypeCountReviewsArgs
     restaurantRequests?: boolean | UserCountOutputTypeCountRestaurantRequestsArgs
+    favorites?: boolean | UserCountOutputTypeCountFavoritesArgs
   }
 
   // Custom InputTypes
@@ -1259,6 +1352,13 @@ export namespace Prisma {
     where?: RestaurantRequestWhereInput
   }
 
+  /**
+   * UserCountOutputType without action
+   */
+  export type UserCountOutputTypeCountFavoritesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: FavoriteWhereInput
+  }
+
 
   /**
    * Count Type RestaurantCountOutputType
@@ -1267,11 +1367,13 @@ export namespace Prisma {
   export type RestaurantCountOutputType = {
     menus: number
     reviews: number
+    favorites: number
   }
 
   export type RestaurantCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     menus?: boolean | RestaurantCountOutputTypeCountMenusArgs
     reviews?: boolean | RestaurantCountOutputTypeCountReviewsArgs
+    favorites?: boolean | RestaurantCountOutputTypeCountFavoritesArgs
   }
 
   // Custom InputTypes
@@ -1299,6 +1401,13 @@ export namespace Prisma {
     where?: ReviewWhereInput
   }
 
+  /**
+   * RestaurantCountOutputType without action
+   */
+  export type RestaurantCountOutputTypeCountFavoritesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: FavoriteWhereInput
+  }
+
 
   /**
    * Models
@@ -1319,6 +1428,7 @@ export namespace Prisma {
     email: string | null
     passwordHash: string | null
     nickname: string | null
+    role: string | null
     createdAt: Date | null
   }
 
@@ -1327,6 +1437,7 @@ export namespace Prisma {
     email: string | null
     passwordHash: string | null
     nickname: string | null
+    role: string | null
     createdAt: Date | null
   }
 
@@ -1335,6 +1446,7 @@ export namespace Prisma {
     email: number
     passwordHash: number
     nickname: number
+    role: number
     createdAt: number
     _all: number
   }
@@ -1345,6 +1457,7 @@ export namespace Prisma {
     email?: true
     passwordHash?: true
     nickname?: true
+    role?: true
     createdAt?: true
   }
 
@@ -1353,6 +1466,7 @@ export namespace Prisma {
     email?: true
     passwordHash?: true
     nickname?: true
+    role?: true
     createdAt?: true
   }
 
@@ -1361,6 +1475,7 @@ export namespace Prisma {
     email?: true
     passwordHash?: true
     nickname?: true
+    role?: true
     createdAt?: true
     _all?: true
   }
@@ -1442,6 +1557,7 @@ export namespace Prisma {
     email: string
     passwordHash: string
     nickname: string
+    role: string
     createdAt: Date
     _count: UserCountAggregateOutputType | null
     _min: UserMinAggregateOutputType | null
@@ -1467,9 +1583,11 @@ export namespace Prisma {
     email?: boolean
     passwordHash?: boolean
     nickname?: boolean
+    role?: boolean
     createdAt?: boolean
     reviews?: boolean | User$reviewsArgs<ExtArgs>
     restaurantRequests?: boolean | User$restaurantRequestsArgs<ExtArgs>
+    favorites?: boolean | User$favoritesArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["user"]>
 
@@ -1478,6 +1596,7 @@ export namespace Prisma {
     email?: boolean
     passwordHash?: boolean
     nickname?: boolean
+    role?: boolean
     createdAt?: boolean
   }, ExtArgs["result"]["user"]>
 
@@ -1486,6 +1605,7 @@ export namespace Prisma {
     email?: boolean
     passwordHash?: boolean
     nickname?: boolean
+    role?: boolean
     createdAt?: boolean
   }, ExtArgs["result"]["user"]>
 
@@ -1494,13 +1614,15 @@ export namespace Prisma {
     email?: boolean
     passwordHash?: boolean
     nickname?: boolean
+    role?: boolean
     createdAt?: boolean
   }
 
-  export type UserOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "email" | "passwordHash" | "nickname" | "createdAt", ExtArgs["result"]["user"]>
+  export type UserOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "email" | "passwordHash" | "nickname" | "role" | "createdAt", ExtArgs["result"]["user"]>
   export type UserInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     reviews?: boolean | User$reviewsArgs<ExtArgs>
     restaurantRequests?: boolean | User$restaurantRequestsArgs<ExtArgs>
+    favorites?: boolean | User$favoritesArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type UserIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
@@ -1511,12 +1633,14 @@ export namespace Prisma {
     objects: {
       reviews: Prisma.$ReviewPayload<ExtArgs>[]
       restaurantRequests: Prisma.$RestaurantRequestPayload<ExtArgs>[]
+      favorites: Prisma.$FavoritePayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
       email: string
       passwordHash: string
       nickname: string
+      role: string
       createdAt: Date
     }, ExtArgs["result"]["user"]>
     composites: {}
@@ -1914,6 +2038,7 @@ export namespace Prisma {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     reviews<T extends User$reviewsArgs<ExtArgs> = {}>(args?: Subset<T, User$reviewsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ReviewPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     restaurantRequests<T extends User$restaurantRequestsArgs<ExtArgs> = {}>(args?: Subset<T, User$restaurantRequestsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$RestaurantRequestPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    favorites<T extends User$favoritesArgs<ExtArgs> = {}>(args?: Subset<T, User$favoritesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$FavoritePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1947,6 +2072,7 @@ export namespace Prisma {
     readonly email: FieldRef<"User", 'String'>
     readonly passwordHash: FieldRef<"User", 'String'>
     readonly nickname: FieldRef<"User", 'String'>
+    readonly role: FieldRef<"User", 'String'>
     readonly createdAt: FieldRef<"User", 'DateTime'>
   }
     
@@ -2177,7 +2303,6 @@ export namespace Prisma {
      * The data used to create many Users.
      */
     data: UserCreateManyInput | UserCreateManyInput[]
-    skipDuplicates?: boolean
   }
 
   /**
@@ -2196,7 +2321,6 @@ export namespace Prisma {
      * The data used to create many Users.
      */
     data: UserCreateManyInput | UserCreateManyInput[]
-    skipDuplicates?: boolean
   }
 
   /**
@@ -2384,6 +2508,30 @@ export namespace Prisma {
   }
 
   /**
+   * User.favorites
+   */
+  export type User$favoritesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Favorite
+     */
+    select?: FavoriteSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Favorite
+     */
+    omit?: FavoriteOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FavoriteInclude<ExtArgs> | null
+    where?: FavoriteWhereInput
+    orderBy?: FavoriteOrderByWithRelationInput | FavoriteOrderByWithRelationInput[]
+    cursor?: FavoriteWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: FavoriteScalarFieldEnum | FavoriteScalarFieldEnum[]
+  }
+
+  /**
    * User without action
    */
   export type UserDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -2417,38 +2565,55 @@ export namespace Prisma {
   export type RestaurantAvgAggregateOutputType = {
     latitude: number | null
     longitude: number | null
+    minPrice: number | null
   }
 
   export type RestaurantSumAggregateOutputType = {
     latitude: number | null
     longitude: number | null
+    minPrice: number | null
   }
 
   export type RestaurantMinAggregateOutputType = {
     id: string | null
     name: string | null
     category: string | null
+    zone: string | null
     address: string | null
     latitude: number | null
     longitude: number | null
+    minPrice: number | null
+    partnershipStartDate: Date | null
+    partnershipEndDate: Date | null
+    partnershipInfo: string | null
   }
 
   export type RestaurantMaxAggregateOutputType = {
     id: string | null
     name: string | null
     category: string | null
+    zone: string | null
     address: string | null
     latitude: number | null
     longitude: number | null
+    minPrice: number | null
+    partnershipStartDate: Date | null
+    partnershipEndDate: Date | null
+    partnershipInfo: string | null
   }
 
   export type RestaurantCountAggregateOutputType = {
     id: number
     name: number
     category: number
+    zone: number
     address: number
     latitude: number
     longitude: number
+    minPrice: number
+    partnershipStartDate: number
+    partnershipEndDate: number
+    partnershipInfo: number
     _all: number
   }
 
@@ -2456,38 +2621,55 @@ export namespace Prisma {
   export type RestaurantAvgAggregateInputType = {
     latitude?: true
     longitude?: true
+    minPrice?: true
   }
 
   export type RestaurantSumAggregateInputType = {
     latitude?: true
     longitude?: true
+    minPrice?: true
   }
 
   export type RestaurantMinAggregateInputType = {
     id?: true
     name?: true
     category?: true
+    zone?: true
     address?: true
     latitude?: true
     longitude?: true
+    minPrice?: true
+    partnershipStartDate?: true
+    partnershipEndDate?: true
+    partnershipInfo?: true
   }
 
   export type RestaurantMaxAggregateInputType = {
     id?: true
     name?: true
     category?: true
+    zone?: true
     address?: true
     latitude?: true
     longitude?: true
+    minPrice?: true
+    partnershipStartDate?: true
+    partnershipEndDate?: true
+    partnershipInfo?: true
   }
 
   export type RestaurantCountAggregateInputType = {
     id?: true
     name?: true
     category?: true
+    zone?: true
     address?: true
     latitude?: true
     longitude?: true
+    minPrice?: true
+    partnershipStartDate?: true
+    partnershipEndDate?: true
+    partnershipInfo?: true
     _all?: true
   }
 
@@ -2581,9 +2763,14 @@ export namespace Prisma {
     id: string
     name: string
     category: string
+    zone: string
     address: string
     latitude: number
     longitude: number
+    minPrice: number
+    partnershipStartDate: Date | null
+    partnershipEndDate: Date | null
+    partnershipInfo: string | null
     _count: RestaurantCountAggregateOutputType | null
     _avg: RestaurantAvgAggregateOutputType | null
     _sum: RestaurantSumAggregateOutputType | null
@@ -2609,11 +2796,17 @@ export namespace Prisma {
     id?: boolean
     name?: boolean
     category?: boolean
+    zone?: boolean
     address?: boolean
     latitude?: boolean
     longitude?: boolean
+    minPrice?: boolean
+    partnershipStartDate?: boolean
+    partnershipEndDate?: boolean
+    partnershipInfo?: boolean
     menus?: boolean | Restaurant$menusArgs<ExtArgs>
     reviews?: boolean | Restaurant$reviewsArgs<ExtArgs>
+    favorites?: boolean | Restaurant$favoritesArgs<ExtArgs>
     _count?: boolean | RestaurantCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["restaurant"]>
 
@@ -2621,33 +2814,49 @@ export namespace Prisma {
     id?: boolean
     name?: boolean
     category?: boolean
+    zone?: boolean
     address?: boolean
     latitude?: boolean
     longitude?: boolean
+    minPrice?: boolean
+    partnershipStartDate?: boolean
+    partnershipEndDate?: boolean
+    partnershipInfo?: boolean
   }, ExtArgs["result"]["restaurant"]>
 
   export type RestaurantSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     name?: boolean
     category?: boolean
+    zone?: boolean
     address?: boolean
     latitude?: boolean
     longitude?: boolean
+    minPrice?: boolean
+    partnershipStartDate?: boolean
+    partnershipEndDate?: boolean
+    partnershipInfo?: boolean
   }, ExtArgs["result"]["restaurant"]>
 
   export type RestaurantSelectScalar = {
     id?: boolean
     name?: boolean
     category?: boolean
+    zone?: boolean
     address?: boolean
     latitude?: boolean
     longitude?: boolean
+    minPrice?: boolean
+    partnershipStartDate?: boolean
+    partnershipEndDate?: boolean
+    partnershipInfo?: boolean
   }
 
-  export type RestaurantOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "category" | "address" | "latitude" | "longitude", ExtArgs["result"]["restaurant"]>
+  export type RestaurantOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "category" | "zone" | "address" | "latitude" | "longitude" | "minPrice" | "partnershipStartDate" | "partnershipEndDate" | "partnershipInfo", ExtArgs["result"]["restaurant"]>
   export type RestaurantInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     menus?: boolean | Restaurant$menusArgs<ExtArgs>
     reviews?: boolean | Restaurant$reviewsArgs<ExtArgs>
+    favorites?: boolean | Restaurant$favoritesArgs<ExtArgs>
     _count?: boolean | RestaurantCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type RestaurantIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
@@ -2658,14 +2867,20 @@ export namespace Prisma {
     objects: {
       menus: Prisma.$MenuPayload<ExtArgs>[]
       reviews: Prisma.$ReviewPayload<ExtArgs>[]
+      favorites: Prisma.$FavoritePayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
       name: string
       category: string
+      zone: string
       address: string
       latitude: number
       longitude: number
+      minPrice: number
+      partnershipStartDate: Date | null
+      partnershipEndDate: Date | null
+      partnershipInfo: string | null
     }, ExtArgs["result"]["restaurant"]>
     composites: {}
   }
@@ -3062,6 +3277,7 @@ export namespace Prisma {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     menus<T extends Restaurant$menusArgs<ExtArgs> = {}>(args?: Subset<T, Restaurant$menusArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MenuPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     reviews<T extends Restaurant$reviewsArgs<ExtArgs> = {}>(args?: Subset<T, Restaurant$reviewsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ReviewPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    favorites<T extends Restaurant$favoritesArgs<ExtArgs> = {}>(args?: Subset<T, Restaurant$favoritesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$FavoritePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -3094,9 +3310,14 @@ export namespace Prisma {
     readonly id: FieldRef<"Restaurant", 'String'>
     readonly name: FieldRef<"Restaurant", 'String'>
     readonly category: FieldRef<"Restaurant", 'String'>
+    readonly zone: FieldRef<"Restaurant", 'String'>
     readonly address: FieldRef<"Restaurant", 'String'>
     readonly latitude: FieldRef<"Restaurant", 'Float'>
     readonly longitude: FieldRef<"Restaurant", 'Float'>
+    readonly minPrice: FieldRef<"Restaurant", 'Int'>
+    readonly partnershipStartDate: FieldRef<"Restaurant", 'DateTime'>
+    readonly partnershipEndDate: FieldRef<"Restaurant", 'DateTime'>
+    readonly partnershipInfo: FieldRef<"Restaurant", 'String'>
   }
     
 
@@ -3326,7 +3547,6 @@ export namespace Prisma {
      * The data used to create many Restaurants.
      */
     data: RestaurantCreateManyInput | RestaurantCreateManyInput[]
-    skipDuplicates?: boolean
   }
 
   /**
@@ -3345,7 +3565,6 @@ export namespace Prisma {
      * The data used to create many Restaurants.
      */
     data: RestaurantCreateManyInput | RestaurantCreateManyInput[]
-    skipDuplicates?: boolean
   }
 
   /**
@@ -3530,6 +3749,30 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: ReviewScalarFieldEnum | ReviewScalarFieldEnum[]
+  }
+
+  /**
+   * Restaurant.favorites
+   */
+  export type Restaurant$favoritesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Favorite
+     */
+    select?: FavoriteSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Favorite
+     */
+    omit?: FavoriteOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FavoriteInclude<ExtArgs> | null
+    where?: FavoriteWhereInput
+    orderBy?: FavoriteOrderByWithRelationInput | FavoriteOrderByWithRelationInput[]
+    cursor?: FavoriteWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: FavoriteScalarFieldEnum | FavoriteScalarFieldEnum[]
   }
 
   /**
@@ -4445,7 +4688,6 @@ export namespace Prisma {
      * The data used to create many Menus.
      */
     data: MenuCreateManyInput | MenuCreateManyInput[]
-    skipDuplicates?: boolean
   }
 
   /**
@@ -4464,7 +4706,6 @@ export namespace Prisma {
      * The data used to create many Menus.
      */
     data: MenuCreateManyInput | MenuCreateManyInput[]
-    skipDuplicates?: boolean
     /**
      * Choose, which related nodes to fetch as well
      */
@@ -4656,6 +4897,8 @@ export namespace Prisma {
     restaurantId: string | null
     rating: number | null
     content: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
   }
 
   export type ReviewMaxAggregateOutputType = {
@@ -4664,6 +4907,8 @@ export namespace Prisma {
     restaurantId: string | null
     rating: number | null
     content: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
   }
 
   export type ReviewCountAggregateOutputType = {
@@ -4672,6 +4917,8 @@ export namespace Prisma {
     restaurantId: number
     rating: number
     content: number
+    createdAt: number
+    updatedAt: number
     _all: number
   }
 
@@ -4690,6 +4937,8 @@ export namespace Prisma {
     restaurantId?: true
     rating?: true
     content?: true
+    createdAt?: true
+    updatedAt?: true
   }
 
   export type ReviewMaxAggregateInputType = {
@@ -4698,6 +4947,8 @@ export namespace Prisma {
     restaurantId?: true
     rating?: true
     content?: true
+    createdAt?: true
+    updatedAt?: true
   }
 
   export type ReviewCountAggregateInputType = {
@@ -4706,6 +4957,8 @@ export namespace Prisma {
     restaurantId?: true
     rating?: true
     content?: true
+    createdAt?: true
+    updatedAt?: true
     _all?: true
   }
 
@@ -4801,6 +5054,8 @@ export namespace Prisma {
     restaurantId: string
     rating: number
     content: string
+    createdAt: Date
+    updatedAt: Date
     _count: ReviewCountAggregateOutputType | null
     _avg: ReviewAvgAggregateOutputType | null
     _sum: ReviewSumAggregateOutputType | null
@@ -4828,6 +5083,8 @@ export namespace Prisma {
     restaurantId?: boolean
     rating?: boolean
     content?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
     user?: boolean | UserDefaultArgs<ExtArgs>
     restaurant?: boolean | RestaurantDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["review"]>
@@ -4838,6 +5095,8 @@ export namespace Prisma {
     restaurantId?: boolean
     rating?: boolean
     content?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
     user?: boolean | UserDefaultArgs<ExtArgs>
     restaurant?: boolean | RestaurantDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["review"]>
@@ -4848,6 +5107,8 @@ export namespace Prisma {
     restaurantId?: boolean
     rating?: boolean
     content?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
     user?: boolean | UserDefaultArgs<ExtArgs>
     restaurant?: boolean | RestaurantDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["review"]>
@@ -4858,9 +5119,11 @@ export namespace Prisma {
     restaurantId?: boolean
     rating?: boolean
     content?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
   }
 
-  export type ReviewOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "restaurantId" | "rating" | "content", ExtArgs["result"]["review"]>
+  export type ReviewOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "restaurantId" | "rating" | "content" | "createdAt" | "updatedAt", ExtArgs["result"]["review"]>
   export type ReviewInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     user?: boolean | UserDefaultArgs<ExtArgs>
     restaurant?: boolean | RestaurantDefaultArgs<ExtArgs>
@@ -4886,6 +5149,8 @@ export namespace Prisma {
       restaurantId: string
       rating: number
       content: string
+      createdAt: Date
+      updatedAt: Date
     }, ExtArgs["result"]["review"]>
     composites: {}
   }
@@ -5316,6 +5581,8 @@ export namespace Prisma {
     readonly restaurantId: FieldRef<"Review", 'String'>
     readonly rating: FieldRef<"Review", 'Int'>
     readonly content: FieldRef<"Review", 'String'>
+    readonly createdAt: FieldRef<"Review", 'DateTime'>
+    readonly updatedAt: FieldRef<"Review", 'DateTime'>
   }
     
 
@@ -5545,7 +5812,6 @@ export namespace Prisma {
      * The data used to create many Reviews.
      */
     data: ReviewCreateManyInput | ReviewCreateManyInput[]
-    skipDuplicates?: boolean
   }
 
   /**
@@ -5564,7 +5830,6 @@ export namespace Prisma {
      * The data used to create many Reviews.
      */
     data: ReviewCreateManyInput | ReviewCreateManyInput[]
-    skipDuplicates?: boolean
     /**
      * Choose, which related nodes to fetch as well
      */
@@ -5746,7 +6011,9 @@ export namespace Prisma {
     restaurantName: string | null
     address: string | null
     category: string | null
+    menuInfo: string | null
     status: string | null
+    createdAt: Date | null
   }
 
   export type RestaurantRequestMaxAggregateOutputType = {
@@ -5755,7 +6022,9 @@ export namespace Prisma {
     restaurantName: string | null
     address: string | null
     category: string | null
+    menuInfo: string | null
     status: string | null
+    createdAt: Date | null
   }
 
   export type RestaurantRequestCountAggregateOutputType = {
@@ -5764,7 +6033,9 @@ export namespace Prisma {
     restaurantName: number
     address: number
     category: number
+    menuInfo: number
     status: number
+    createdAt: number
     _all: number
   }
 
@@ -5775,7 +6046,9 @@ export namespace Prisma {
     restaurantName?: true
     address?: true
     category?: true
+    menuInfo?: true
     status?: true
+    createdAt?: true
   }
 
   export type RestaurantRequestMaxAggregateInputType = {
@@ -5784,7 +6057,9 @@ export namespace Prisma {
     restaurantName?: true
     address?: true
     category?: true
+    menuInfo?: true
     status?: true
+    createdAt?: true
   }
 
   export type RestaurantRequestCountAggregateInputType = {
@@ -5793,7 +6068,9 @@ export namespace Prisma {
     restaurantName?: true
     address?: true
     category?: true
+    menuInfo?: true
     status?: true
+    createdAt?: true
     _all?: true
   }
 
@@ -5875,7 +6152,9 @@ export namespace Prisma {
     restaurantName: string
     address: string
     category: string
+    menuInfo: string | null
     status: string
+    createdAt: Date
     _count: RestaurantRequestCountAggregateOutputType | null
     _min: RestaurantRequestMinAggregateOutputType | null
     _max: RestaurantRequestMaxAggregateOutputType | null
@@ -5901,7 +6180,9 @@ export namespace Prisma {
     restaurantName?: boolean
     address?: boolean
     category?: boolean
+    menuInfo?: boolean
     status?: boolean
+    createdAt?: boolean
     user?: boolean | UserDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["restaurantRequest"]>
 
@@ -5911,7 +6192,9 @@ export namespace Prisma {
     restaurantName?: boolean
     address?: boolean
     category?: boolean
+    menuInfo?: boolean
     status?: boolean
+    createdAt?: boolean
     user?: boolean | UserDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["restaurantRequest"]>
 
@@ -5921,7 +6204,9 @@ export namespace Prisma {
     restaurantName?: boolean
     address?: boolean
     category?: boolean
+    menuInfo?: boolean
     status?: boolean
+    createdAt?: boolean
     user?: boolean | UserDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["restaurantRequest"]>
 
@@ -5931,10 +6216,12 @@ export namespace Prisma {
     restaurantName?: boolean
     address?: boolean
     category?: boolean
+    menuInfo?: boolean
     status?: boolean
+    createdAt?: boolean
   }
 
-  export type RestaurantRequestOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "restaurantName" | "address" | "category" | "status", ExtArgs["result"]["restaurantRequest"]>
+  export type RestaurantRequestOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "restaurantName" | "address" | "category" | "menuInfo" | "status" | "createdAt", ExtArgs["result"]["restaurantRequest"]>
   export type RestaurantRequestInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     user?: boolean | UserDefaultArgs<ExtArgs>
   }
@@ -5956,7 +6243,9 @@ export namespace Prisma {
       restaurantName: string
       address: string
       category: string
+      menuInfo: string | null
       status: string
+      createdAt: Date
     }, ExtArgs["result"]["restaurantRequest"]>
     composites: {}
   }
@@ -6386,7 +6675,9 @@ export namespace Prisma {
     readonly restaurantName: FieldRef<"RestaurantRequest", 'String'>
     readonly address: FieldRef<"RestaurantRequest", 'String'>
     readonly category: FieldRef<"RestaurantRequest", 'String'>
+    readonly menuInfo: FieldRef<"RestaurantRequest", 'String'>
     readonly status: FieldRef<"RestaurantRequest", 'String'>
+    readonly createdAt: FieldRef<"RestaurantRequest", 'DateTime'>
   }
     
 
@@ -6616,7 +6907,6 @@ export namespace Prisma {
      * The data used to create many RestaurantRequests.
      */
     data: RestaurantRequestCreateManyInput | RestaurantRequestCreateManyInput[]
-    skipDuplicates?: boolean
   }
 
   /**
@@ -6635,7 +6925,6 @@ export namespace Prisma {
      * The data used to create many RestaurantRequests.
      */
     data: RestaurantRequestCreateManyInput | RestaurantRequestCreateManyInput[]
-    skipDuplicates?: boolean
     /**
      * Choose, which related nodes to fetch as well
      */
@@ -6802,13 +7091,1048 @@ export namespace Prisma {
 
 
   /**
+   * Model Favorite
+   */
+
+  export type AggregateFavorite = {
+    _count: FavoriteCountAggregateOutputType | null
+    _min: FavoriteMinAggregateOutputType | null
+    _max: FavoriteMaxAggregateOutputType | null
+  }
+
+  export type FavoriteMinAggregateOutputType = {
+    id: string | null
+    userId: string | null
+    restaurantId: string | null
+  }
+
+  export type FavoriteMaxAggregateOutputType = {
+    id: string | null
+    userId: string | null
+    restaurantId: string | null
+  }
+
+  export type FavoriteCountAggregateOutputType = {
+    id: number
+    userId: number
+    restaurantId: number
+    _all: number
+  }
+
+
+  export type FavoriteMinAggregateInputType = {
+    id?: true
+    userId?: true
+    restaurantId?: true
+  }
+
+  export type FavoriteMaxAggregateInputType = {
+    id?: true
+    userId?: true
+    restaurantId?: true
+  }
+
+  export type FavoriteCountAggregateInputType = {
+    id?: true
+    userId?: true
+    restaurantId?: true
+    _all?: true
+  }
+
+  export type FavoriteAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Favorite to aggregate.
+     */
+    where?: FavoriteWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Favorites to fetch.
+     */
+    orderBy?: FavoriteOrderByWithRelationInput | FavoriteOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: FavoriteWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Favorites from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Favorites.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned Favorites
+    **/
+    _count?: true | FavoriteCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: FavoriteMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: FavoriteMaxAggregateInputType
+  }
+
+  export type GetFavoriteAggregateType<T extends FavoriteAggregateArgs> = {
+        [P in keyof T & keyof AggregateFavorite]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateFavorite[P]>
+      : GetScalarType<T[P], AggregateFavorite[P]>
+  }
+
+
+
+
+  export type FavoriteGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: FavoriteWhereInput
+    orderBy?: FavoriteOrderByWithAggregationInput | FavoriteOrderByWithAggregationInput[]
+    by: FavoriteScalarFieldEnum[] | FavoriteScalarFieldEnum
+    having?: FavoriteScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: FavoriteCountAggregateInputType | true
+    _min?: FavoriteMinAggregateInputType
+    _max?: FavoriteMaxAggregateInputType
+  }
+
+  export type FavoriteGroupByOutputType = {
+    id: string
+    userId: string
+    restaurantId: string
+    _count: FavoriteCountAggregateOutputType | null
+    _min: FavoriteMinAggregateOutputType | null
+    _max: FavoriteMaxAggregateOutputType | null
+  }
+
+  type GetFavoriteGroupByPayload<T extends FavoriteGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<FavoriteGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof FavoriteGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], FavoriteGroupByOutputType[P]>
+            : GetScalarType<T[P], FavoriteGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type FavoriteSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    userId?: boolean
+    restaurantId?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+    restaurant?: boolean | RestaurantDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["favorite"]>
+
+  export type FavoriteSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    userId?: boolean
+    restaurantId?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+    restaurant?: boolean | RestaurantDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["favorite"]>
+
+  export type FavoriteSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    userId?: boolean
+    restaurantId?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+    restaurant?: boolean | RestaurantDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["favorite"]>
+
+  export type FavoriteSelectScalar = {
+    id?: boolean
+    userId?: boolean
+    restaurantId?: boolean
+  }
+
+  export type FavoriteOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "restaurantId", ExtArgs["result"]["favorite"]>
+  export type FavoriteInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+    restaurant?: boolean | RestaurantDefaultArgs<ExtArgs>
+  }
+  export type FavoriteIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+    restaurant?: boolean | RestaurantDefaultArgs<ExtArgs>
+  }
+  export type FavoriteIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+    restaurant?: boolean | RestaurantDefaultArgs<ExtArgs>
+  }
+
+  export type $FavoritePayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "Favorite"
+    objects: {
+      user: Prisma.$UserPayload<ExtArgs>
+      restaurant: Prisma.$RestaurantPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      userId: string
+      restaurantId: string
+    }, ExtArgs["result"]["favorite"]>
+    composites: {}
+  }
+
+  type FavoriteGetPayload<S extends boolean | null | undefined | FavoriteDefaultArgs> = $Result.GetResult<Prisma.$FavoritePayload, S>
+
+  type FavoriteCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<FavoriteFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: FavoriteCountAggregateInputType | true
+    }
+
+  export interface FavoriteDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['Favorite'], meta: { name: 'Favorite' } }
+    /**
+     * Find zero or one Favorite that matches the filter.
+     * @param {FavoriteFindUniqueArgs} args - Arguments to find a Favorite
+     * @example
+     * // Get one Favorite
+     * const favorite = await prisma.favorite.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends FavoriteFindUniqueArgs>(args: SelectSubset<T, FavoriteFindUniqueArgs<ExtArgs>>): Prisma__FavoriteClient<$Result.GetResult<Prisma.$FavoritePayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one Favorite that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {FavoriteFindUniqueOrThrowArgs} args - Arguments to find a Favorite
+     * @example
+     * // Get one Favorite
+     * const favorite = await prisma.favorite.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends FavoriteFindUniqueOrThrowArgs>(args: SelectSubset<T, FavoriteFindUniqueOrThrowArgs<ExtArgs>>): Prisma__FavoriteClient<$Result.GetResult<Prisma.$FavoritePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first Favorite that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {FavoriteFindFirstArgs} args - Arguments to find a Favorite
+     * @example
+     * // Get one Favorite
+     * const favorite = await prisma.favorite.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends FavoriteFindFirstArgs>(args?: SelectSubset<T, FavoriteFindFirstArgs<ExtArgs>>): Prisma__FavoriteClient<$Result.GetResult<Prisma.$FavoritePayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first Favorite that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {FavoriteFindFirstOrThrowArgs} args - Arguments to find a Favorite
+     * @example
+     * // Get one Favorite
+     * const favorite = await prisma.favorite.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends FavoriteFindFirstOrThrowArgs>(args?: SelectSubset<T, FavoriteFindFirstOrThrowArgs<ExtArgs>>): Prisma__FavoriteClient<$Result.GetResult<Prisma.$FavoritePayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more Favorites that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {FavoriteFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all Favorites
+     * const favorites = await prisma.favorite.findMany()
+     * 
+     * // Get first 10 Favorites
+     * const favorites = await prisma.favorite.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const favoriteWithIdOnly = await prisma.favorite.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends FavoriteFindManyArgs>(args?: SelectSubset<T, FavoriteFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$FavoritePayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a Favorite.
+     * @param {FavoriteCreateArgs} args - Arguments to create a Favorite.
+     * @example
+     * // Create one Favorite
+     * const Favorite = await prisma.favorite.create({
+     *   data: {
+     *     // ... data to create a Favorite
+     *   }
+     * })
+     * 
+     */
+    create<T extends FavoriteCreateArgs>(args: SelectSubset<T, FavoriteCreateArgs<ExtArgs>>): Prisma__FavoriteClient<$Result.GetResult<Prisma.$FavoritePayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many Favorites.
+     * @param {FavoriteCreateManyArgs} args - Arguments to create many Favorites.
+     * @example
+     * // Create many Favorites
+     * const favorite = await prisma.favorite.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends FavoriteCreateManyArgs>(args?: SelectSubset<T, FavoriteCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many Favorites and returns the data saved in the database.
+     * @param {FavoriteCreateManyAndReturnArgs} args - Arguments to create many Favorites.
+     * @example
+     * // Create many Favorites
+     * const favorite = await prisma.favorite.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many Favorites and only return the `id`
+     * const favoriteWithIdOnly = await prisma.favorite.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends FavoriteCreateManyAndReturnArgs>(args?: SelectSubset<T, FavoriteCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$FavoritePayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a Favorite.
+     * @param {FavoriteDeleteArgs} args - Arguments to delete one Favorite.
+     * @example
+     * // Delete one Favorite
+     * const Favorite = await prisma.favorite.delete({
+     *   where: {
+     *     // ... filter to delete one Favorite
+     *   }
+     * })
+     * 
+     */
+    delete<T extends FavoriteDeleteArgs>(args: SelectSubset<T, FavoriteDeleteArgs<ExtArgs>>): Prisma__FavoriteClient<$Result.GetResult<Prisma.$FavoritePayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one Favorite.
+     * @param {FavoriteUpdateArgs} args - Arguments to update one Favorite.
+     * @example
+     * // Update one Favorite
+     * const favorite = await prisma.favorite.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends FavoriteUpdateArgs>(args: SelectSubset<T, FavoriteUpdateArgs<ExtArgs>>): Prisma__FavoriteClient<$Result.GetResult<Prisma.$FavoritePayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more Favorites.
+     * @param {FavoriteDeleteManyArgs} args - Arguments to filter Favorites to delete.
+     * @example
+     * // Delete a few Favorites
+     * const { count } = await prisma.favorite.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends FavoriteDeleteManyArgs>(args?: SelectSubset<T, FavoriteDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Favorites.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {FavoriteUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many Favorites
+     * const favorite = await prisma.favorite.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends FavoriteUpdateManyArgs>(args: SelectSubset<T, FavoriteUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Favorites and returns the data updated in the database.
+     * @param {FavoriteUpdateManyAndReturnArgs} args - Arguments to update many Favorites.
+     * @example
+     * // Update many Favorites
+     * const favorite = await prisma.favorite.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more Favorites and only return the `id`
+     * const favoriteWithIdOnly = await prisma.favorite.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends FavoriteUpdateManyAndReturnArgs>(args: SelectSubset<T, FavoriteUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$FavoritePayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one Favorite.
+     * @param {FavoriteUpsertArgs} args - Arguments to update or create a Favorite.
+     * @example
+     * // Update or create a Favorite
+     * const favorite = await prisma.favorite.upsert({
+     *   create: {
+     *     // ... data to create a Favorite
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the Favorite we want to update
+     *   }
+     * })
+     */
+    upsert<T extends FavoriteUpsertArgs>(args: SelectSubset<T, FavoriteUpsertArgs<ExtArgs>>): Prisma__FavoriteClient<$Result.GetResult<Prisma.$FavoritePayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of Favorites.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {FavoriteCountArgs} args - Arguments to filter Favorites to count.
+     * @example
+     * // Count the number of Favorites
+     * const count = await prisma.favorite.count({
+     *   where: {
+     *     // ... the filter for the Favorites we want to count
+     *   }
+     * })
+    **/
+    count<T extends FavoriteCountArgs>(
+      args?: Subset<T, FavoriteCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], FavoriteCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a Favorite.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {FavoriteAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends FavoriteAggregateArgs>(args: Subset<T, FavoriteAggregateArgs>): Prisma.PrismaPromise<GetFavoriteAggregateType<T>>
+
+    /**
+     * Group by Favorite.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {FavoriteGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends FavoriteGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: FavoriteGroupByArgs['orderBy'] }
+        : { orderBy?: FavoriteGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, FavoriteGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetFavoriteGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the Favorite model
+   */
+  readonly fields: FavoriteFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for Favorite.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__FavoriteClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    user<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    restaurant<T extends RestaurantDefaultArgs<ExtArgs> = {}>(args?: Subset<T, RestaurantDefaultArgs<ExtArgs>>): Prisma__RestaurantClient<$Result.GetResult<Prisma.$RestaurantPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the Favorite model
+   */
+  interface FavoriteFieldRefs {
+    readonly id: FieldRef<"Favorite", 'String'>
+    readonly userId: FieldRef<"Favorite", 'String'>
+    readonly restaurantId: FieldRef<"Favorite", 'String'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * Favorite findUnique
+   */
+  export type FavoriteFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Favorite
+     */
+    select?: FavoriteSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Favorite
+     */
+    omit?: FavoriteOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FavoriteInclude<ExtArgs> | null
+    /**
+     * Filter, which Favorite to fetch.
+     */
+    where: FavoriteWhereUniqueInput
+  }
+
+  /**
+   * Favorite findUniqueOrThrow
+   */
+  export type FavoriteFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Favorite
+     */
+    select?: FavoriteSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Favorite
+     */
+    omit?: FavoriteOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FavoriteInclude<ExtArgs> | null
+    /**
+     * Filter, which Favorite to fetch.
+     */
+    where: FavoriteWhereUniqueInput
+  }
+
+  /**
+   * Favorite findFirst
+   */
+  export type FavoriteFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Favorite
+     */
+    select?: FavoriteSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Favorite
+     */
+    omit?: FavoriteOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FavoriteInclude<ExtArgs> | null
+    /**
+     * Filter, which Favorite to fetch.
+     */
+    where?: FavoriteWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Favorites to fetch.
+     */
+    orderBy?: FavoriteOrderByWithRelationInput | FavoriteOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Favorites.
+     */
+    cursor?: FavoriteWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Favorites from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Favorites.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Favorites.
+     */
+    distinct?: FavoriteScalarFieldEnum | FavoriteScalarFieldEnum[]
+  }
+
+  /**
+   * Favorite findFirstOrThrow
+   */
+  export type FavoriteFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Favorite
+     */
+    select?: FavoriteSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Favorite
+     */
+    omit?: FavoriteOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FavoriteInclude<ExtArgs> | null
+    /**
+     * Filter, which Favorite to fetch.
+     */
+    where?: FavoriteWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Favorites to fetch.
+     */
+    orderBy?: FavoriteOrderByWithRelationInput | FavoriteOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Favorites.
+     */
+    cursor?: FavoriteWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Favorites from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Favorites.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Favorites.
+     */
+    distinct?: FavoriteScalarFieldEnum | FavoriteScalarFieldEnum[]
+  }
+
+  /**
+   * Favorite findMany
+   */
+  export type FavoriteFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Favorite
+     */
+    select?: FavoriteSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Favorite
+     */
+    omit?: FavoriteOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FavoriteInclude<ExtArgs> | null
+    /**
+     * Filter, which Favorites to fetch.
+     */
+    where?: FavoriteWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Favorites to fetch.
+     */
+    orderBy?: FavoriteOrderByWithRelationInput | FavoriteOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing Favorites.
+     */
+    cursor?: FavoriteWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Favorites from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Favorites.
+     */
+    skip?: number
+    distinct?: FavoriteScalarFieldEnum | FavoriteScalarFieldEnum[]
+  }
+
+  /**
+   * Favorite create
+   */
+  export type FavoriteCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Favorite
+     */
+    select?: FavoriteSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Favorite
+     */
+    omit?: FavoriteOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FavoriteInclude<ExtArgs> | null
+    /**
+     * The data needed to create a Favorite.
+     */
+    data: XOR<FavoriteCreateInput, FavoriteUncheckedCreateInput>
+  }
+
+  /**
+   * Favorite createMany
+   */
+  export type FavoriteCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many Favorites.
+     */
+    data: FavoriteCreateManyInput | FavoriteCreateManyInput[]
+  }
+
+  /**
+   * Favorite createManyAndReturn
+   */
+  export type FavoriteCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Favorite
+     */
+    select?: FavoriteSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the Favorite
+     */
+    omit?: FavoriteOmit<ExtArgs> | null
+    /**
+     * The data used to create many Favorites.
+     */
+    data: FavoriteCreateManyInput | FavoriteCreateManyInput[]
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FavoriteIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * Favorite update
+   */
+  export type FavoriteUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Favorite
+     */
+    select?: FavoriteSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Favorite
+     */
+    omit?: FavoriteOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FavoriteInclude<ExtArgs> | null
+    /**
+     * The data needed to update a Favorite.
+     */
+    data: XOR<FavoriteUpdateInput, FavoriteUncheckedUpdateInput>
+    /**
+     * Choose, which Favorite to update.
+     */
+    where: FavoriteWhereUniqueInput
+  }
+
+  /**
+   * Favorite updateMany
+   */
+  export type FavoriteUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update Favorites.
+     */
+    data: XOR<FavoriteUpdateManyMutationInput, FavoriteUncheckedUpdateManyInput>
+    /**
+     * Filter which Favorites to update
+     */
+    where?: FavoriteWhereInput
+    /**
+     * Limit how many Favorites to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * Favorite updateManyAndReturn
+   */
+  export type FavoriteUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Favorite
+     */
+    select?: FavoriteSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the Favorite
+     */
+    omit?: FavoriteOmit<ExtArgs> | null
+    /**
+     * The data used to update Favorites.
+     */
+    data: XOR<FavoriteUpdateManyMutationInput, FavoriteUncheckedUpdateManyInput>
+    /**
+     * Filter which Favorites to update
+     */
+    where?: FavoriteWhereInput
+    /**
+     * Limit how many Favorites to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FavoriteIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * Favorite upsert
+   */
+  export type FavoriteUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Favorite
+     */
+    select?: FavoriteSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Favorite
+     */
+    omit?: FavoriteOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FavoriteInclude<ExtArgs> | null
+    /**
+     * The filter to search for the Favorite to update in case it exists.
+     */
+    where: FavoriteWhereUniqueInput
+    /**
+     * In case the Favorite found by the `where` argument doesn't exist, create a new Favorite with this data.
+     */
+    create: XOR<FavoriteCreateInput, FavoriteUncheckedCreateInput>
+    /**
+     * In case the Favorite was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<FavoriteUpdateInput, FavoriteUncheckedUpdateInput>
+  }
+
+  /**
+   * Favorite delete
+   */
+  export type FavoriteDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Favorite
+     */
+    select?: FavoriteSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Favorite
+     */
+    omit?: FavoriteOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FavoriteInclude<ExtArgs> | null
+    /**
+     * Filter which Favorite to delete.
+     */
+    where: FavoriteWhereUniqueInput
+  }
+
+  /**
+   * Favorite deleteMany
+   */
+  export type FavoriteDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Favorites to delete
+     */
+    where?: FavoriteWhereInput
+    /**
+     * Limit how many Favorites to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * Favorite without action
+   */
+  export type FavoriteDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Favorite
+     */
+    select?: FavoriteSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Favorite
+     */
+    omit?: FavoriteOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FavoriteInclude<ExtArgs> | null
+  }
+
+
+  /**
    * Enums
    */
 
   export const TransactionIsolationLevel: {
-    ReadUncommitted: 'ReadUncommitted',
-    ReadCommitted: 'ReadCommitted',
-    RepeatableRead: 'RepeatableRead',
     Serializable: 'Serializable'
   };
 
@@ -6820,6 +8144,7 @@ export namespace Prisma {
     email: 'email',
     passwordHash: 'passwordHash',
     nickname: 'nickname',
+    role: 'role',
     createdAt: 'createdAt'
   };
 
@@ -6830,9 +8155,14 @@ export namespace Prisma {
     id: 'id',
     name: 'name',
     category: 'category',
+    zone: 'zone',
     address: 'address',
     latitude: 'latitude',
-    longitude: 'longitude'
+    longitude: 'longitude',
+    minPrice: 'minPrice',
+    partnershipStartDate: 'partnershipStartDate',
+    partnershipEndDate: 'partnershipEndDate',
+    partnershipInfo: 'partnershipInfo'
   };
 
   export type RestaurantScalarFieldEnum = (typeof RestaurantScalarFieldEnum)[keyof typeof RestaurantScalarFieldEnum]
@@ -6853,7 +8183,9 @@ export namespace Prisma {
     userId: 'userId',
     restaurantId: 'restaurantId',
     rating: 'rating',
-    content: 'content'
+    content: 'content',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
   };
 
   export type ReviewScalarFieldEnum = (typeof ReviewScalarFieldEnum)[keyof typeof ReviewScalarFieldEnum]
@@ -6865,10 +8197,21 @@ export namespace Prisma {
     restaurantName: 'restaurantName',
     address: 'address',
     category: 'category',
-    status: 'status'
+    menuInfo: 'menuInfo',
+    status: 'status',
+    createdAt: 'createdAt'
   };
 
   export type RestaurantRequestScalarFieldEnum = (typeof RestaurantRequestScalarFieldEnum)[keyof typeof RestaurantRequestScalarFieldEnum]
+
+
+  export const FavoriteScalarFieldEnum: {
+    id: 'id',
+    userId: 'userId',
+    restaurantId: 'restaurantId'
+  };
+
+  export type FavoriteScalarFieldEnum = (typeof FavoriteScalarFieldEnum)[keyof typeof FavoriteScalarFieldEnum]
 
 
   export const SortOrder: {
@@ -6879,12 +8222,12 @@ export namespace Prisma {
   export type SortOrder = (typeof SortOrder)[keyof typeof SortOrder]
 
 
-  export const QueryMode: {
-    default: 'default',
-    insensitive: 'insensitive'
+  export const NullsOrder: {
+    first: 'first',
+    last: 'last'
   };
 
-  export type QueryMode = (typeof QueryMode)[keyof typeof QueryMode]
+  export type NullsOrder = (typeof NullsOrder)[keyof typeof NullsOrder]
 
 
   /**
@@ -6900,23 +8243,9 @@ export namespace Prisma {
 
 
   /**
-   * Reference to a field of type 'String[]'
-   */
-  export type ListStringFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'String[]'>
-    
-
-
-  /**
    * Reference to a field of type 'DateTime'
    */
   export type DateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DateTime'>
-    
-
-
-  /**
-   * Reference to a field of type 'DateTime[]'
-   */
-  export type ListDateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DateTime[]'>
     
 
 
@@ -6928,23 +8257,9 @@ export namespace Prisma {
 
 
   /**
-   * Reference to a field of type 'Float[]'
-   */
-  export type ListFloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float[]'>
-    
-
-
-  /**
    * Reference to a field of type 'Int'
    */
   export type IntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int'>
-    
-
-
-  /**
-   * Reference to a field of type 'Int[]'
-   */
-  export type ListIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int[]'>
     
   /**
    * Deep Input Types
@@ -6959,9 +8274,11 @@ export namespace Prisma {
     email?: StringFilter<"User"> | string
     passwordHash?: StringFilter<"User"> | string
     nickname?: StringFilter<"User"> | string
+    role?: StringFilter<"User"> | string
     createdAt?: DateTimeFilter<"User"> | Date | string
     reviews?: ReviewListRelationFilter
     restaurantRequests?: RestaurantRequestListRelationFilter
+    favorites?: FavoriteListRelationFilter
   }
 
   export type UserOrderByWithRelationInput = {
@@ -6969,9 +8286,11 @@ export namespace Prisma {
     email?: SortOrder
     passwordHash?: SortOrder
     nickname?: SortOrder
+    role?: SortOrder
     createdAt?: SortOrder
     reviews?: ReviewOrderByRelationAggregateInput
     restaurantRequests?: RestaurantRequestOrderByRelationAggregateInput
+    favorites?: FavoriteOrderByRelationAggregateInput
   }
 
   export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -6982,9 +8301,11 @@ export namespace Prisma {
     NOT?: UserWhereInput | UserWhereInput[]
     passwordHash?: StringFilter<"User"> | string
     nickname?: StringFilter<"User"> | string
+    role?: StringFilter<"User"> | string
     createdAt?: DateTimeFilter<"User"> | Date | string
     reviews?: ReviewListRelationFilter
     restaurantRequests?: RestaurantRequestListRelationFilter
+    favorites?: FavoriteListRelationFilter
   }, "id" | "email">
 
   export type UserOrderByWithAggregationInput = {
@@ -6992,6 +8313,7 @@ export namespace Prisma {
     email?: SortOrder
     passwordHash?: SortOrder
     nickname?: SortOrder
+    role?: SortOrder
     createdAt?: SortOrder
     _count?: UserCountOrderByAggregateInput
     _max?: UserMaxOrderByAggregateInput
@@ -7006,6 +8328,7 @@ export namespace Prisma {
     email?: StringWithAggregatesFilter<"User"> | string
     passwordHash?: StringWithAggregatesFilter<"User"> | string
     nickname?: StringWithAggregatesFilter<"User"> | string
+    role?: StringWithAggregatesFilter<"User"> | string
     createdAt?: DateTimeWithAggregatesFilter<"User"> | Date | string
   }
 
@@ -7016,22 +8339,34 @@ export namespace Prisma {
     id?: StringFilter<"Restaurant"> | string
     name?: StringFilter<"Restaurant"> | string
     category?: StringFilter<"Restaurant"> | string
+    zone?: StringFilter<"Restaurant"> | string
     address?: StringFilter<"Restaurant"> | string
     latitude?: FloatFilter<"Restaurant"> | number
     longitude?: FloatFilter<"Restaurant"> | number
+    minPrice?: IntFilter<"Restaurant"> | number
+    partnershipStartDate?: DateTimeNullableFilter<"Restaurant"> | Date | string | null
+    partnershipEndDate?: DateTimeNullableFilter<"Restaurant"> | Date | string | null
+    partnershipInfo?: StringNullableFilter<"Restaurant"> | string | null
     menus?: MenuListRelationFilter
     reviews?: ReviewListRelationFilter
+    favorites?: FavoriteListRelationFilter
   }
 
   export type RestaurantOrderByWithRelationInput = {
     id?: SortOrder
     name?: SortOrder
     category?: SortOrder
+    zone?: SortOrder
     address?: SortOrder
     latitude?: SortOrder
     longitude?: SortOrder
+    minPrice?: SortOrder
+    partnershipStartDate?: SortOrderInput | SortOrder
+    partnershipEndDate?: SortOrderInput | SortOrder
+    partnershipInfo?: SortOrderInput | SortOrder
     menus?: MenuOrderByRelationAggregateInput
     reviews?: ReviewOrderByRelationAggregateInput
+    favorites?: FavoriteOrderByRelationAggregateInput
   }
 
   export type RestaurantWhereUniqueInput = Prisma.AtLeast<{
@@ -7041,20 +8376,31 @@ export namespace Prisma {
     NOT?: RestaurantWhereInput | RestaurantWhereInput[]
     name?: StringFilter<"Restaurant"> | string
     category?: StringFilter<"Restaurant"> | string
+    zone?: StringFilter<"Restaurant"> | string
     address?: StringFilter<"Restaurant"> | string
     latitude?: FloatFilter<"Restaurant"> | number
     longitude?: FloatFilter<"Restaurant"> | number
+    minPrice?: IntFilter<"Restaurant"> | number
+    partnershipStartDate?: DateTimeNullableFilter<"Restaurant"> | Date | string | null
+    partnershipEndDate?: DateTimeNullableFilter<"Restaurant"> | Date | string | null
+    partnershipInfo?: StringNullableFilter<"Restaurant"> | string | null
     menus?: MenuListRelationFilter
     reviews?: ReviewListRelationFilter
+    favorites?: FavoriteListRelationFilter
   }, "id">
 
   export type RestaurantOrderByWithAggregationInput = {
     id?: SortOrder
     name?: SortOrder
     category?: SortOrder
+    zone?: SortOrder
     address?: SortOrder
     latitude?: SortOrder
     longitude?: SortOrder
+    minPrice?: SortOrder
+    partnershipStartDate?: SortOrderInput | SortOrder
+    partnershipEndDate?: SortOrderInput | SortOrder
+    partnershipInfo?: SortOrderInput | SortOrder
     _count?: RestaurantCountOrderByAggregateInput
     _avg?: RestaurantAvgOrderByAggregateInput
     _max?: RestaurantMaxOrderByAggregateInput
@@ -7069,9 +8415,14 @@ export namespace Prisma {
     id?: StringWithAggregatesFilter<"Restaurant"> | string
     name?: StringWithAggregatesFilter<"Restaurant"> | string
     category?: StringWithAggregatesFilter<"Restaurant"> | string
+    zone?: StringWithAggregatesFilter<"Restaurant"> | string
     address?: StringWithAggregatesFilter<"Restaurant"> | string
     latitude?: FloatWithAggregatesFilter<"Restaurant"> | number
     longitude?: FloatWithAggregatesFilter<"Restaurant"> | number
+    minPrice?: IntWithAggregatesFilter<"Restaurant"> | number
+    partnershipStartDate?: DateTimeNullableWithAggregatesFilter<"Restaurant"> | Date | string | null
+    partnershipEndDate?: DateTimeNullableWithAggregatesFilter<"Restaurant"> | Date | string | null
+    partnershipInfo?: StringNullableWithAggregatesFilter<"Restaurant"> | string | null
   }
 
   export type MenuWhereInput = {
@@ -7135,6 +8486,8 @@ export namespace Prisma {
     restaurantId?: StringFilter<"Review"> | string
     rating?: IntFilter<"Review"> | number
     content?: StringFilter<"Review"> | string
+    createdAt?: DateTimeFilter<"Review"> | Date | string
+    updatedAt?: DateTimeFilter<"Review"> | Date | string
     user?: XOR<UserScalarRelationFilter, UserWhereInput>
     restaurant?: XOR<RestaurantScalarRelationFilter, RestaurantWhereInput>
   }
@@ -7145,6 +8498,8 @@ export namespace Prisma {
     restaurantId?: SortOrder
     rating?: SortOrder
     content?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
     user?: UserOrderByWithRelationInput
     restaurant?: RestaurantOrderByWithRelationInput
   }
@@ -7158,6 +8513,8 @@ export namespace Prisma {
     restaurantId?: StringFilter<"Review"> | string
     rating?: IntFilter<"Review"> | number
     content?: StringFilter<"Review"> | string
+    createdAt?: DateTimeFilter<"Review"> | Date | string
+    updatedAt?: DateTimeFilter<"Review"> | Date | string
     user?: XOR<UserScalarRelationFilter, UserWhereInput>
     restaurant?: XOR<RestaurantScalarRelationFilter, RestaurantWhereInput>
   }, "id">
@@ -7168,6 +8525,8 @@ export namespace Prisma {
     restaurantId?: SortOrder
     rating?: SortOrder
     content?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
     _count?: ReviewCountOrderByAggregateInput
     _avg?: ReviewAvgOrderByAggregateInput
     _max?: ReviewMaxOrderByAggregateInput
@@ -7184,6 +8543,8 @@ export namespace Prisma {
     restaurantId?: StringWithAggregatesFilter<"Review"> | string
     rating?: IntWithAggregatesFilter<"Review"> | number
     content?: StringWithAggregatesFilter<"Review"> | string
+    createdAt?: DateTimeWithAggregatesFilter<"Review"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"Review"> | Date | string
   }
 
   export type RestaurantRequestWhereInput = {
@@ -7195,7 +8556,9 @@ export namespace Prisma {
     restaurantName?: StringFilter<"RestaurantRequest"> | string
     address?: StringFilter<"RestaurantRequest"> | string
     category?: StringFilter<"RestaurantRequest"> | string
+    menuInfo?: StringNullableFilter<"RestaurantRequest"> | string | null
     status?: StringFilter<"RestaurantRequest"> | string
+    createdAt?: DateTimeFilter<"RestaurantRequest"> | Date | string
     user?: XOR<UserScalarRelationFilter, UserWhereInput>
   }
 
@@ -7205,7 +8568,9 @@ export namespace Prisma {
     restaurantName?: SortOrder
     address?: SortOrder
     category?: SortOrder
+    menuInfo?: SortOrderInput | SortOrder
     status?: SortOrder
+    createdAt?: SortOrder
     user?: UserOrderByWithRelationInput
   }
 
@@ -7218,7 +8583,9 @@ export namespace Prisma {
     restaurantName?: StringFilter<"RestaurantRequest"> | string
     address?: StringFilter<"RestaurantRequest"> | string
     category?: StringFilter<"RestaurantRequest"> | string
+    menuInfo?: StringNullableFilter<"RestaurantRequest"> | string | null
     status?: StringFilter<"RestaurantRequest"> | string
+    createdAt?: DateTimeFilter<"RestaurantRequest"> | Date | string
     user?: XOR<UserScalarRelationFilter, UserWhereInput>
   }, "id">
 
@@ -7228,7 +8595,9 @@ export namespace Prisma {
     restaurantName?: SortOrder
     address?: SortOrder
     category?: SortOrder
+    menuInfo?: SortOrderInput | SortOrder
     status?: SortOrder
+    createdAt?: SortOrder
     _count?: RestaurantRequestCountOrderByAggregateInput
     _max?: RestaurantRequestMaxOrderByAggregateInput
     _min?: RestaurantRequestMinOrderByAggregateInput
@@ -7243,7 +8612,58 @@ export namespace Prisma {
     restaurantName?: StringWithAggregatesFilter<"RestaurantRequest"> | string
     address?: StringWithAggregatesFilter<"RestaurantRequest"> | string
     category?: StringWithAggregatesFilter<"RestaurantRequest"> | string
+    menuInfo?: StringNullableWithAggregatesFilter<"RestaurantRequest"> | string | null
     status?: StringWithAggregatesFilter<"RestaurantRequest"> | string
+    createdAt?: DateTimeWithAggregatesFilter<"RestaurantRequest"> | Date | string
+  }
+
+  export type FavoriteWhereInput = {
+    AND?: FavoriteWhereInput | FavoriteWhereInput[]
+    OR?: FavoriteWhereInput[]
+    NOT?: FavoriteWhereInput | FavoriteWhereInput[]
+    id?: StringFilter<"Favorite"> | string
+    userId?: StringFilter<"Favorite"> | string
+    restaurantId?: StringFilter<"Favorite"> | string
+    user?: XOR<UserScalarRelationFilter, UserWhereInput>
+    restaurant?: XOR<RestaurantScalarRelationFilter, RestaurantWhereInput>
+  }
+
+  export type FavoriteOrderByWithRelationInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    restaurantId?: SortOrder
+    user?: UserOrderByWithRelationInput
+    restaurant?: RestaurantOrderByWithRelationInput
+  }
+
+  export type FavoriteWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    userId_restaurantId?: FavoriteUserIdRestaurantIdCompoundUniqueInput
+    AND?: FavoriteWhereInput | FavoriteWhereInput[]
+    OR?: FavoriteWhereInput[]
+    NOT?: FavoriteWhereInput | FavoriteWhereInput[]
+    userId?: StringFilter<"Favorite"> | string
+    restaurantId?: StringFilter<"Favorite"> | string
+    user?: XOR<UserScalarRelationFilter, UserWhereInput>
+    restaurant?: XOR<RestaurantScalarRelationFilter, RestaurantWhereInput>
+  }, "id" | "userId_restaurantId">
+
+  export type FavoriteOrderByWithAggregationInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    restaurantId?: SortOrder
+    _count?: FavoriteCountOrderByAggregateInput
+    _max?: FavoriteMaxOrderByAggregateInput
+    _min?: FavoriteMinOrderByAggregateInput
+  }
+
+  export type FavoriteScalarWhereWithAggregatesInput = {
+    AND?: FavoriteScalarWhereWithAggregatesInput | FavoriteScalarWhereWithAggregatesInput[]
+    OR?: FavoriteScalarWhereWithAggregatesInput[]
+    NOT?: FavoriteScalarWhereWithAggregatesInput | FavoriteScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"Favorite"> | string
+    userId?: StringWithAggregatesFilter<"Favorite"> | string
+    restaurantId?: StringWithAggregatesFilter<"Favorite"> | string
   }
 
   export type UserCreateInput = {
@@ -7251,9 +8671,11 @@ export namespace Prisma {
     email: string
     passwordHash: string
     nickname: string
+    role?: string
     createdAt?: Date | string
     reviews?: ReviewCreateNestedManyWithoutUserInput
     restaurantRequests?: RestaurantRequestCreateNestedManyWithoutUserInput
+    favorites?: FavoriteCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateInput = {
@@ -7261,9 +8683,11 @@ export namespace Prisma {
     email: string
     passwordHash: string
     nickname: string
+    role?: string
     createdAt?: Date | string
     reviews?: ReviewUncheckedCreateNestedManyWithoutUserInput
     restaurantRequests?: RestaurantRequestUncheckedCreateNestedManyWithoutUserInput
+    favorites?: FavoriteUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserUpdateInput = {
@@ -7271,9 +8695,11 @@ export namespace Prisma {
     email?: StringFieldUpdateOperationsInput | string
     passwordHash?: StringFieldUpdateOperationsInput | string
     nickname?: StringFieldUpdateOperationsInput | string
+    role?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     reviews?: ReviewUpdateManyWithoutUserNestedInput
     restaurantRequests?: RestaurantRequestUpdateManyWithoutUserNestedInput
+    favorites?: FavoriteUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateInput = {
@@ -7281,9 +8707,11 @@ export namespace Prisma {
     email?: StringFieldUpdateOperationsInput | string
     passwordHash?: StringFieldUpdateOperationsInput | string
     nickname?: StringFieldUpdateOperationsInput | string
+    role?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     reviews?: ReviewUncheckedUpdateManyWithoutUserNestedInput
     restaurantRequests?: RestaurantRequestUncheckedUpdateManyWithoutUserNestedInput
+    favorites?: FavoriteUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateManyInput = {
@@ -7291,6 +8719,7 @@ export namespace Prisma {
     email: string
     passwordHash: string
     nickname: string
+    role?: string
     createdAt?: Date | string
   }
 
@@ -7299,6 +8728,7 @@ export namespace Prisma {
     email?: StringFieldUpdateOperationsInput | string
     passwordHash?: StringFieldUpdateOperationsInput | string
     nickname?: StringFieldUpdateOperationsInput | string
+    role?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -7307,6 +8737,7 @@ export namespace Prisma {
     email?: StringFieldUpdateOperationsInput | string
     passwordHash?: StringFieldUpdateOperationsInput | string
     nickname?: StringFieldUpdateOperationsInput | string
+    role?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -7314,71 +8745,110 @@ export namespace Prisma {
     id?: string
     name: string
     category: string
+    zone: string
     address: string
     latitude: number
     longitude: number
+    minPrice?: number
+    partnershipStartDate?: Date | string | null
+    partnershipEndDate?: Date | string | null
+    partnershipInfo?: string | null
     menus?: MenuCreateNestedManyWithoutRestaurantInput
     reviews?: ReviewCreateNestedManyWithoutRestaurantInput
+    favorites?: FavoriteCreateNestedManyWithoutRestaurantInput
   }
 
   export type RestaurantUncheckedCreateInput = {
     id?: string
     name: string
     category: string
+    zone: string
     address: string
     latitude: number
     longitude: number
+    minPrice?: number
+    partnershipStartDate?: Date | string | null
+    partnershipEndDate?: Date | string | null
+    partnershipInfo?: string | null
     menus?: MenuUncheckedCreateNestedManyWithoutRestaurantInput
     reviews?: ReviewUncheckedCreateNestedManyWithoutRestaurantInput
+    favorites?: FavoriteUncheckedCreateNestedManyWithoutRestaurantInput
   }
 
   export type RestaurantUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     category?: StringFieldUpdateOperationsInput | string
+    zone?: StringFieldUpdateOperationsInput | string
     address?: StringFieldUpdateOperationsInput | string
     latitude?: FloatFieldUpdateOperationsInput | number
     longitude?: FloatFieldUpdateOperationsInput | number
+    minPrice?: IntFieldUpdateOperationsInput | number
+    partnershipStartDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    partnershipEndDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    partnershipInfo?: NullableStringFieldUpdateOperationsInput | string | null
     menus?: MenuUpdateManyWithoutRestaurantNestedInput
     reviews?: ReviewUpdateManyWithoutRestaurantNestedInput
+    favorites?: FavoriteUpdateManyWithoutRestaurantNestedInput
   }
 
   export type RestaurantUncheckedUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     category?: StringFieldUpdateOperationsInput | string
+    zone?: StringFieldUpdateOperationsInput | string
     address?: StringFieldUpdateOperationsInput | string
     latitude?: FloatFieldUpdateOperationsInput | number
     longitude?: FloatFieldUpdateOperationsInput | number
+    minPrice?: IntFieldUpdateOperationsInput | number
+    partnershipStartDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    partnershipEndDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    partnershipInfo?: NullableStringFieldUpdateOperationsInput | string | null
     menus?: MenuUncheckedUpdateManyWithoutRestaurantNestedInput
     reviews?: ReviewUncheckedUpdateManyWithoutRestaurantNestedInput
+    favorites?: FavoriteUncheckedUpdateManyWithoutRestaurantNestedInput
   }
 
   export type RestaurantCreateManyInput = {
     id?: string
     name: string
     category: string
+    zone: string
     address: string
     latitude: number
     longitude: number
+    minPrice?: number
+    partnershipStartDate?: Date | string | null
+    partnershipEndDate?: Date | string | null
+    partnershipInfo?: string | null
   }
 
   export type RestaurantUpdateManyMutationInput = {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     category?: StringFieldUpdateOperationsInput | string
+    zone?: StringFieldUpdateOperationsInput | string
     address?: StringFieldUpdateOperationsInput | string
     latitude?: FloatFieldUpdateOperationsInput | number
     longitude?: FloatFieldUpdateOperationsInput | number
+    minPrice?: IntFieldUpdateOperationsInput | number
+    partnershipStartDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    partnershipEndDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    partnershipInfo?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type RestaurantUncheckedUpdateManyInput = {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     category?: StringFieldUpdateOperationsInput | string
+    zone?: StringFieldUpdateOperationsInput | string
     address?: StringFieldUpdateOperationsInput | string
     latitude?: FloatFieldUpdateOperationsInput | number
     longitude?: FloatFieldUpdateOperationsInput | number
+    minPrice?: IntFieldUpdateOperationsInput | number
+    partnershipStartDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    partnershipEndDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    partnershipInfo?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type MenuCreateInput = {
@@ -7433,6 +8903,8 @@ export namespace Prisma {
     id?: string
     rating: number
     content: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
     user: UserCreateNestedOneWithoutReviewsInput
     restaurant: RestaurantCreateNestedOneWithoutReviewsInput
   }
@@ -7443,12 +8915,16 @@ export namespace Prisma {
     restaurantId: string
     rating: number
     content: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
   }
 
   export type ReviewUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     rating?: IntFieldUpdateOperationsInput | number
     content?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     user?: UserUpdateOneRequiredWithoutReviewsNestedInput
     restaurant?: RestaurantUpdateOneRequiredWithoutReviewsNestedInput
   }
@@ -7459,6 +8935,8 @@ export namespace Prisma {
     restaurantId?: StringFieldUpdateOperationsInput | string
     rating?: IntFieldUpdateOperationsInput | number
     content?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type ReviewCreateManyInput = {
@@ -7467,12 +8945,16 @@ export namespace Prisma {
     restaurantId: string
     rating: number
     content: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
   }
 
   export type ReviewUpdateManyMutationInput = {
     id?: StringFieldUpdateOperationsInput | string
     rating?: IntFieldUpdateOperationsInput | number
     content?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type ReviewUncheckedUpdateManyInput = {
@@ -7481,6 +8963,8 @@ export namespace Prisma {
     restaurantId?: StringFieldUpdateOperationsInput | string
     rating?: IntFieldUpdateOperationsInput | number
     content?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type RestaurantRequestCreateInput = {
@@ -7488,7 +8972,9 @@ export namespace Prisma {
     restaurantName: string
     address: string
     category: string
+    menuInfo?: string | null
     status?: string
+    createdAt?: Date | string
     user: UserCreateNestedOneWithoutRestaurantRequestsInput
   }
 
@@ -7498,7 +8984,9 @@ export namespace Prisma {
     restaurantName: string
     address: string
     category: string
+    menuInfo?: string | null
     status?: string
+    createdAt?: Date | string
   }
 
   export type RestaurantRequestUpdateInput = {
@@ -7506,7 +8994,9 @@ export namespace Prisma {
     restaurantName?: StringFieldUpdateOperationsInput | string
     address?: StringFieldUpdateOperationsInput | string
     category?: StringFieldUpdateOperationsInput | string
+    menuInfo?: NullableStringFieldUpdateOperationsInput | string | null
     status?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     user?: UserUpdateOneRequiredWithoutRestaurantRequestsNestedInput
   }
 
@@ -7516,7 +9006,9 @@ export namespace Prisma {
     restaurantName?: StringFieldUpdateOperationsInput | string
     address?: StringFieldUpdateOperationsInput | string
     category?: StringFieldUpdateOperationsInput | string
+    menuInfo?: NullableStringFieldUpdateOperationsInput | string | null
     status?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type RestaurantRequestCreateManyInput = {
@@ -7525,7 +9017,9 @@ export namespace Prisma {
     restaurantName: string
     address: string
     category: string
+    menuInfo?: string | null
     status?: string
+    createdAt?: Date | string
   }
 
   export type RestaurantRequestUpdateManyMutationInput = {
@@ -7533,7 +9027,9 @@ export namespace Prisma {
     restaurantName?: StringFieldUpdateOperationsInput | string
     address?: StringFieldUpdateOperationsInput | string
     category?: StringFieldUpdateOperationsInput | string
+    menuInfo?: NullableStringFieldUpdateOperationsInput | string | null
     status?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type RestaurantRequestUncheckedUpdateManyInput = {
@@ -7542,13 +9038,55 @@ export namespace Prisma {
     restaurantName?: StringFieldUpdateOperationsInput | string
     address?: StringFieldUpdateOperationsInput | string
     category?: StringFieldUpdateOperationsInput | string
+    menuInfo?: NullableStringFieldUpdateOperationsInput | string | null
     status?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type FavoriteCreateInput = {
+    id?: string
+    user: UserCreateNestedOneWithoutFavoritesInput
+    restaurant: RestaurantCreateNestedOneWithoutFavoritesInput
+  }
+
+  export type FavoriteUncheckedCreateInput = {
+    id?: string
+    userId: string
+    restaurantId: string
+  }
+
+  export type FavoriteUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    user?: UserUpdateOneRequiredWithoutFavoritesNestedInput
+    restaurant?: RestaurantUpdateOneRequiredWithoutFavoritesNestedInput
+  }
+
+  export type FavoriteUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    restaurantId?: StringFieldUpdateOperationsInput | string
+  }
+
+  export type FavoriteCreateManyInput = {
+    id?: string
+    userId: string
+    restaurantId: string
+  }
+
+  export type FavoriteUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+  }
+
+  export type FavoriteUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    restaurantId?: StringFieldUpdateOperationsInput | string
   }
 
   export type StringFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
-    in?: string[] | ListStringFieldRefInput<$PrismaModel>
-    notIn?: string[] | ListStringFieldRefInput<$PrismaModel>
+    in?: string[]
+    notIn?: string[]
     lt?: string | StringFieldRefInput<$PrismaModel>
     lte?: string | StringFieldRefInput<$PrismaModel>
     gt?: string | StringFieldRefInput<$PrismaModel>
@@ -7556,14 +9094,13 @@ export namespace Prisma {
     contains?: string | StringFieldRefInput<$PrismaModel>
     startsWith?: string | StringFieldRefInput<$PrismaModel>
     endsWith?: string | StringFieldRefInput<$PrismaModel>
-    mode?: QueryMode
     not?: NestedStringFilter<$PrismaModel> | string
   }
 
   export type DateTimeFilter<$PrismaModel = never> = {
     equals?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
-    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
+    in?: Date[] | string[]
+    notIn?: Date[] | string[]
     lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
@@ -7583,6 +9120,12 @@ export namespace Prisma {
     none?: RestaurantRequestWhereInput
   }
 
+  export type FavoriteListRelationFilter = {
+    every?: FavoriteWhereInput
+    some?: FavoriteWhereInput
+    none?: FavoriteWhereInput
+  }
+
   export type ReviewOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
@@ -7591,11 +9134,16 @@ export namespace Prisma {
     _count?: SortOrder
   }
 
+  export type FavoriteOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
   export type UserCountOrderByAggregateInput = {
     id?: SortOrder
     email?: SortOrder
     passwordHash?: SortOrder
     nickname?: SortOrder
+    role?: SortOrder
     createdAt?: SortOrder
   }
 
@@ -7604,6 +9152,7 @@ export namespace Prisma {
     email?: SortOrder
     passwordHash?: SortOrder
     nickname?: SortOrder
+    role?: SortOrder
     createdAt?: SortOrder
   }
 
@@ -7612,13 +9161,14 @@ export namespace Prisma {
     email?: SortOrder
     passwordHash?: SortOrder
     nickname?: SortOrder
+    role?: SortOrder
     createdAt?: SortOrder
   }
 
   export type StringWithAggregatesFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
-    in?: string[] | ListStringFieldRefInput<$PrismaModel>
-    notIn?: string[] | ListStringFieldRefInput<$PrismaModel>
+    in?: string[]
+    notIn?: string[]
     lt?: string | StringFieldRefInput<$PrismaModel>
     lte?: string | StringFieldRefInput<$PrismaModel>
     gt?: string | StringFieldRefInput<$PrismaModel>
@@ -7626,7 +9176,6 @@ export namespace Prisma {
     contains?: string | StringFieldRefInput<$PrismaModel>
     startsWith?: string | StringFieldRefInput<$PrismaModel>
     endsWith?: string | StringFieldRefInput<$PrismaModel>
-    mode?: QueryMode
     not?: NestedStringWithAggregatesFilter<$PrismaModel> | string
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedStringFilter<$PrismaModel>
@@ -7635,8 +9184,8 @@ export namespace Prisma {
 
   export type DateTimeWithAggregatesFilter<$PrismaModel = never> = {
     equals?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
-    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
+    in?: Date[] | string[]
+    notIn?: Date[] | string[]
     lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
@@ -7649,8 +9198,8 @@ export namespace Prisma {
 
   export type FloatFilter<$PrismaModel = never> = {
     equals?: number | FloatFieldRefInput<$PrismaModel>
-    in?: number[] | ListFloatFieldRefInput<$PrismaModel>
-    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel>
+    in?: number[]
+    notIn?: number[]
     lt?: number | FloatFieldRefInput<$PrismaModel>
     lte?: number | FloatFieldRefInput<$PrismaModel>
     gt?: number | FloatFieldRefInput<$PrismaModel>
@@ -7658,10 +9207,51 @@ export namespace Prisma {
     not?: NestedFloatFilter<$PrismaModel> | number
   }
 
+  export type IntFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel>
+    in?: number[]
+    notIn?: number[]
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntFilter<$PrismaModel> | number
+  }
+
+  export type DateTimeNullableFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
+    in?: Date[] | string[] | null
+    notIn?: Date[] | string[] | null
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeNullableFilter<$PrismaModel> | Date | string | null
+  }
+
+  export type StringNullableFilter<$PrismaModel = never> = {
+    equals?: string | StringFieldRefInput<$PrismaModel> | null
+    in?: string[] | null
+    notIn?: string[] | null
+    lt?: string | StringFieldRefInput<$PrismaModel>
+    lte?: string | StringFieldRefInput<$PrismaModel>
+    gt?: string | StringFieldRefInput<$PrismaModel>
+    gte?: string | StringFieldRefInput<$PrismaModel>
+    contains?: string | StringFieldRefInput<$PrismaModel>
+    startsWith?: string | StringFieldRefInput<$PrismaModel>
+    endsWith?: string | StringFieldRefInput<$PrismaModel>
+    not?: NestedStringNullableFilter<$PrismaModel> | string | null
+  }
+
   export type MenuListRelationFilter = {
     every?: MenuWhereInput
     some?: MenuWhereInput
     none?: MenuWhereInput
+  }
+
+  export type SortOrderInput = {
+    sort: SortOrder
+    nulls?: NullsOrder
   }
 
   export type MenuOrderByRelationAggregateInput = {
@@ -7672,43 +9262,60 @@ export namespace Prisma {
     id?: SortOrder
     name?: SortOrder
     category?: SortOrder
+    zone?: SortOrder
     address?: SortOrder
     latitude?: SortOrder
     longitude?: SortOrder
+    minPrice?: SortOrder
+    partnershipStartDate?: SortOrder
+    partnershipEndDate?: SortOrder
+    partnershipInfo?: SortOrder
   }
 
   export type RestaurantAvgOrderByAggregateInput = {
     latitude?: SortOrder
     longitude?: SortOrder
+    minPrice?: SortOrder
   }
 
   export type RestaurantMaxOrderByAggregateInput = {
     id?: SortOrder
     name?: SortOrder
     category?: SortOrder
+    zone?: SortOrder
     address?: SortOrder
     latitude?: SortOrder
     longitude?: SortOrder
+    minPrice?: SortOrder
+    partnershipStartDate?: SortOrder
+    partnershipEndDate?: SortOrder
+    partnershipInfo?: SortOrder
   }
 
   export type RestaurantMinOrderByAggregateInput = {
     id?: SortOrder
     name?: SortOrder
     category?: SortOrder
+    zone?: SortOrder
     address?: SortOrder
     latitude?: SortOrder
     longitude?: SortOrder
+    minPrice?: SortOrder
+    partnershipStartDate?: SortOrder
+    partnershipEndDate?: SortOrder
+    partnershipInfo?: SortOrder
   }
 
   export type RestaurantSumOrderByAggregateInput = {
     latitude?: SortOrder
     longitude?: SortOrder
+    minPrice?: SortOrder
   }
 
   export type FloatWithAggregatesFilter<$PrismaModel = never> = {
     equals?: number | FloatFieldRefInput<$PrismaModel>
-    in?: number[] | ListFloatFieldRefInput<$PrismaModel>
-    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel>
+    in?: number[]
+    notIn?: number[]
     lt?: number | FloatFieldRefInput<$PrismaModel>
     lte?: number | FloatFieldRefInput<$PrismaModel>
     gt?: number | FloatFieldRefInput<$PrismaModel>
@@ -7721,15 +9328,51 @@ export namespace Prisma {
     _max?: NestedFloatFilter<$PrismaModel>
   }
 
-  export type IntFilter<$PrismaModel = never> = {
+  export type IntWithAggregatesFilter<$PrismaModel = never> = {
     equals?: number | IntFieldRefInput<$PrismaModel>
-    in?: number[] | ListIntFieldRefInput<$PrismaModel>
-    notIn?: number[] | ListIntFieldRefInput<$PrismaModel>
+    in?: number[]
+    notIn?: number[]
     lt?: number | IntFieldRefInput<$PrismaModel>
     lte?: number | IntFieldRefInput<$PrismaModel>
     gt?: number | IntFieldRefInput<$PrismaModel>
     gte?: number | IntFieldRefInput<$PrismaModel>
-    not?: NestedIntFilter<$PrismaModel> | number
+    not?: NestedIntWithAggregatesFilter<$PrismaModel> | number
+    _count?: NestedIntFilter<$PrismaModel>
+    _avg?: NestedFloatFilter<$PrismaModel>
+    _sum?: NestedIntFilter<$PrismaModel>
+    _min?: NestedIntFilter<$PrismaModel>
+    _max?: NestedIntFilter<$PrismaModel>
+  }
+
+  export type DateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
+    in?: Date[] | string[] | null
+    notIn?: Date[] | string[] | null
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeNullableWithAggregatesFilter<$PrismaModel> | Date | string | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedDateTimeNullableFilter<$PrismaModel>
+    _max?: NestedDateTimeNullableFilter<$PrismaModel>
+  }
+
+  export type StringNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: string | StringFieldRefInput<$PrismaModel> | null
+    in?: string[] | null
+    notIn?: string[] | null
+    lt?: string | StringFieldRefInput<$PrismaModel>
+    lte?: string | StringFieldRefInput<$PrismaModel>
+    gt?: string | StringFieldRefInput<$PrismaModel>
+    gte?: string | StringFieldRefInput<$PrismaModel>
+    contains?: string | StringFieldRefInput<$PrismaModel>
+    startsWith?: string | StringFieldRefInput<$PrismaModel>
+    endsWith?: string | StringFieldRefInput<$PrismaModel>
+    not?: NestedStringNullableWithAggregatesFilter<$PrismaModel> | string | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedStringNullableFilter<$PrismaModel>
+    _max?: NestedStringNullableFilter<$PrismaModel>
   }
 
   export type RestaurantScalarRelationFilter = {
@@ -7766,22 +9409,6 @@ export namespace Prisma {
     price?: SortOrder
   }
 
-  export type IntWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: number | IntFieldRefInput<$PrismaModel>
-    in?: number[] | ListIntFieldRefInput<$PrismaModel>
-    notIn?: number[] | ListIntFieldRefInput<$PrismaModel>
-    lt?: number | IntFieldRefInput<$PrismaModel>
-    lte?: number | IntFieldRefInput<$PrismaModel>
-    gt?: number | IntFieldRefInput<$PrismaModel>
-    gte?: number | IntFieldRefInput<$PrismaModel>
-    not?: NestedIntWithAggregatesFilter<$PrismaModel> | number
-    _count?: NestedIntFilter<$PrismaModel>
-    _avg?: NestedFloatFilter<$PrismaModel>
-    _sum?: NestedIntFilter<$PrismaModel>
-    _min?: NestedIntFilter<$PrismaModel>
-    _max?: NestedIntFilter<$PrismaModel>
-  }
-
   export type UserScalarRelationFilter = {
     is?: UserWhereInput
     isNot?: UserWhereInput
@@ -7793,6 +9420,8 @@ export namespace Prisma {
     restaurantId?: SortOrder
     rating?: SortOrder
     content?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
   }
 
   export type ReviewAvgOrderByAggregateInput = {
@@ -7805,6 +9434,8 @@ export namespace Prisma {
     restaurantId?: SortOrder
     rating?: SortOrder
     content?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
   }
 
   export type ReviewMinOrderByAggregateInput = {
@@ -7813,6 +9444,8 @@ export namespace Prisma {
     restaurantId?: SortOrder
     rating?: SortOrder
     content?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
   }
 
   export type ReviewSumOrderByAggregateInput = {
@@ -7825,7 +9458,9 @@ export namespace Prisma {
     restaurantName?: SortOrder
     address?: SortOrder
     category?: SortOrder
+    menuInfo?: SortOrder
     status?: SortOrder
+    createdAt?: SortOrder
   }
 
   export type RestaurantRequestMaxOrderByAggregateInput = {
@@ -7834,7 +9469,9 @@ export namespace Prisma {
     restaurantName?: SortOrder
     address?: SortOrder
     category?: SortOrder
+    menuInfo?: SortOrder
     status?: SortOrder
+    createdAt?: SortOrder
   }
 
   export type RestaurantRequestMinOrderByAggregateInput = {
@@ -7843,7 +9480,32 @@ export namespace Prisma {
     restaurantName?: SortOrder
     address?: SortOrder
     category?: SortOrder
+    menuInfo?: SortOrder
     status?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type FavoriteUserIdRestaurantIdCompoundUniqueInput = {
+    userId: string
+    restaurantId: string
+  }
+
+  export type FavoriteCountOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    restaurantId?: SortOrder
+  }
+
+  export type FavoriteMaxOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    restaurantId?: SortOrder
+  }
+
+  export type FavoriteMinOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    restaurantId?: SortOrder
   }
 
   export type ReviewCreateNestedManyWithoutUserInput = {
@@ -7860,6 +9522,13 @@ export namespace Prisma {
     connect?: RestaurantRequestWhereUniqueInput | RestaurantRequestWhereUniqueInput[]
   }
 
+  export type FavoriteCreateNestedManyWithoutUserInput = {
+    create?: XOR<FavoriteCreateWithoutUserInput, FavoriteUncheckedCreateWithoutUserInput> | FavoriteCreateWithoutUserInput[] | FavoriteUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: FavoriteCreateOrConnectWithoutUserInput | FavoriteCreateOrConnectWithoutUserInput[]
+    createMany?: FavoriteCreateManyUserInputEnvelope
+    connect?: FavoriteWhereUniqueInput | FavoriteWhereUniqueInput[]
+  }
+
   export type ReviewUncheckedCreateNestedManyWithoutUserInput = {
     create?: XOR<ReviewCreateWithoutUserInput, ReviewUncheckedCreateWithoutUserInput> | ReviewCreateWithoutUserInput[] | ReviewUncheckedCreateWithoutUserInput[]
     connectOrCreate?: ReviewCreateOrConnectWithoutUserInput | ReviewCreateOrConnectWithoutUserInput[]
@@ -7872,6 +9541,13 @@ export namespace Prisma {
     connectOrCreate?: RestaurantRequestCreateOrConnectWithoutUserInput | RestaurantRequestCreateOrConnectWithoutUserInput[]
     createMany?: RestaurantRequestCreateManyUserInputEnvelope
     connect?: RestaurantRequestWhereUniqueInput | RestaurantRequestWhereUniqueInput[]
+  }
+
+  export type FavoriteUncheckedCreateNestedManyWithoutUserInput = {
+    create?: XOR<FavoriteCreateWithoutUserInput, FavoriteUncheckedCreateWithoutUserInput> | FavoriteCreateWithoutUserInput[] | FavoriteUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: FavoriteCreateOrConnectWithoutUserInput | FavoriteCreateOrConnectWithoutUserInput[]
+    createMany?: FavoriteCreateManyUserInputEnvelope
+    connect?: FavoriteWhereUniqueInput | FavoriteWhereUniqueInput[]
   }
 
   export type StringFieldUpdateOperationsInput = {
@@ -7910,6 +9586,20 @@ export namespace Prisma {
     deleteMany?: RestaurantRequestScalarWhereInput | RestaurantRequestScalarWhereInput[]
   }
 
+  export type FavoriteUpdateManyWithoutUserNestedInput = {
+    create?: XOR<FavoriteCreateWithoutUserInput, FavoriteUncheckedCreateWithoutUserInput> | FavoriteCreateWithoutUserInput[] | FavoriteUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: FavoriteCreateOrConnectWithoutUserInput | FavoriteCreateOrConnectWithoutUserInput[]
+    upsert?: FavoriteUpsertWithWhereUniqueWithoutUserInput | FavoriteUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: FavoriteCreateManyUserInputEnvelope
+    set?: FavoriteWhereUniqueInput | FavoriteWhereUniqueInput[]
+    disconnect?: FavoriteWhereUniqueInput | FavoriteWhereUniqueInput[]
+    delete?: FavoriteWhereUniqueInput | FavoriteWhereUniqueInput[]
+    connect?: FavoriteWhereUniqueInput | FavoriteWhereUniqueInput[]
+    update?: FavoriteUpdateWithWhereUniqueWithoutUserInput | FavoriteUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: FavoriteUpdateManyWithWhereWithoutUserInput | FavoriteUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: FavoriteScalarWhereInput | FavoriteScalarWhereInput[]
+  }
+
   export type ReviewUncheckedUpdateManyWithoutUserNestedInput = {
     create?: XOR<ReviewCreateWithoutUserInput, ReviewUncheckedCreateWithoutUserInput> | ReviewCreateWithoutUserInput[] | ReviewUncheckedCreateWithoutUserInput[]
     connectOrCreate?: ReviewCreateOrConnectWithoutUserInput | ReviewCreateOrConnectWithoutUserInput[]
@@ -7938,6 +9628,20 @@ export namespace Prisma {
     deleteMany?: RestaurantRequestScalarWhereInput | RestaurantRequestScalarWhereInput[]
   }
 
+  export type FavoriteUncheckedUpdateManyWithoutUserNestedInput = {
+    create?: XOR<FavoriteCreateWithoutUserInput, FavoriteUncheckedCreateWithoutUserInput> | FavoriteCreateWithoutUserInput[] | FavoriteUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: FavoriteCreateOrConnectWithoutUserInput | FavoriteCreateOrConnectWithoutUserInput[]
+    upsert?: FavoriteUpsertWithWhereUniqueWithoutUserInput | FavoriteUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: FavoriteCreateManyUserInputEnvelope
+    set?: FavoriteWhereUniqueInput | FavoriteWhereUniqueInput[]
+    disconnect?: FavoriteWhereUniqueInput | FavoriteWhereUniqueInput[]
+    delete?: FavoriteWhereUniqueInput | FavoriteWhereUniqueInput[]
+    connect?: FavoriteWhereUniqueInput | FavoriteWhereUniqueInput[]
+    update?: FavoriteUpdateWithWhereUniqueWithoutUserInput | FavoriteUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: FavoriteUpdateManyWithWhereWithoutUserInput | FavoriteUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: FavoriteScalarWhereInput | FavoriteScalarWhereInput[]
+  }
+
   export type MenuCreateNestedManyWithoutRestaurantInput = {
     create?: XOR<MenuCreateWithoutRestaurantInput, MenuUncheckedCreateWithoutRestaurantInput> | MenuCreateWithoutRestaurantInput[] | MenuUncheckedCreateWithoutRestaurantInput[]
     connectOrCreate?: MenuCreateOrConnectWithoutRestaurantInput | MenuCreateOrConnectWithoutRestaurantInput[]
@@ -7950,6 +9654,13 @@ export namespace Prisma {
     connectOrCreate?: ReviewCreateOrConnectWithoutRestaurantInput | ReviewCreateOrConnectWithoutRestaurantInput[]
     createMany?: ReviewCreateManyRestaurantInputEnvelope
     connect?: ReviewWhereUniqueInput | ReviewWhereUniqueInput[]
+  }
+
+  export type FavoriteCreateNestedManyWithoutRestaurantInput = {
+    create?: XOR<FavoriteCreateWithoutRestaurantInput, FavoriteUncheckedCreateWithoutRestaurantInput> | FavoriteCreateWithoutRestaurantInput[] | FavoriteUncheckedCreateWithoutRestaurantInput[]
+    connectOrCreate?: FavoriteCreateOrConnectWithoutRestaurantInput | FavoriteCreateOrConnectWithoutRestaurantInput[]
+    createMany?: FavoriteCreateManyRestaurantInputEnvelope
+    connect?: FavoriteWhereUniqueInput | FavoriteWhereUniqueInput[]
   }
 
   export type MenuUncheckedCreateNestedManyWithoutRestaurantInput = {
@@ -7966,12 +9677,35 @@ export namespace Prisma {
     connect?: ReviewWhereUniqueInput | ReviewWhereUniqueInput[]
   }
 
+  export type FavoriteUncheckedCreateNestedManyWithoutRestaurantInput = {
+    create?: XOR<FavoriteCreateWithoutRestaurantInput, FavoriteUncheckedCreateWithoutRestaurantInput> | FavoriteCreateWithoutRestaurantInput[] | FavoriteUncheckedCreateWithoutRestaurantInput[]
+    connectOrCreate?: FavoriteCreateOrConnectWithoutRestaurantInput | FavoriteCreateOrConnectWithoutRestaurantInput[]
+    createMany?: FavoriteCreateManyRestaurantInputEnvelope
+    connect?: FavoriteWhereUniqueInput | FavoriteWhereUniqueInput[]
+  }
+
   export type FloatFieldUpdateOperationsInput = {
     set?: number
     increment?: number
     decrement?: number
     multiply?: number
     divide?: number
+  }
+
+  export type IntFieldUpdateOperationsInput = {
+    set?: number
+    increment?: number
+    decrement?: number
+    multiply?: number
+    divide?: number
+  }
+
+  export type NullableDateTimeFieldUpdateOperationsInput = {
+    set?: Date | string | null
+  }
+
+  export type NullableStringFieldUpdateOperationsInput = {
+    set?: string | null
   }
 
   export type MenuUpdateManyWithoutRestaurantNestedInput = {
@@ -8002,6 +9736,20 @@ export namespace Prisma {
     deleteMany?: ReviewScalarWhereInput | ReviewScalarWhereInput[]
   }
 
+  export type FavoriteUpdateManyWithoutRestaurantNestedInput = {
+    create?: XOR<FavoriteCreateWithoutRestaurantInput, FavoriteUncheckedCreateWithoutRestaurantInput> | FavoriteCreateWithoutRestaurantInput[] | FavoriteUncheckedCreateWithoutRestaurantInput[]
+    connectOrCreate?: FavoriteCreateOrConnectWithoutRestaurantInput | FavoriteCreateOrConnectWithoutRestaurantInput[]
+    upsert?: FavoriteUpsertWithWhereUniqueWithoutRestaurantInput | FavoriteUpsertWithWhereUniqueWithoutRestaurantInput[]
+    createMany?: FavoriteCreateManyRestaurantInputEnvelope
+    set?: FavoriteWhereUniqueInput | FavoriteWhereUniqueInput[]
+    disconnect?: FavoriteWhereUniqueInput | FavoriteWhereUniqueInput[]
+    delete?: FavoriteWhereUniqueInput | FavoriteWhereUniqueInput[]
+    connect?: FavoriteWhereUniqueInput | FavoriteWhereUniqueInput[]
+    update?: FavoriteUpdateWithWhereUniqueWithoutRestaurantInput | FavoriteUpdateWithWhereUniqueWithoutRestaurantInput[]
+    updateMany?: FavoriteUpdateManyWithWhereWithoutRestaurantInput | FavoriteUpdateManyWithWhereWithoutRestaurantInput[]
+    deleteMany?: FavoriteScalarWhereInput | FavoriteScalarWhereInput[]
+  }
+
   export type MenuUncheckedUpdateManyWithoutRestaurantNestedInput = {
     create?: XOR<MenuCreateWithoutRestaurantInput, MenuUncheckedCreateWithoutRestaurantInput> | MenuCreateWithoutRestaurantInput[] | MenuUncheckedCreateWithoutRestaurantInput[]
     connectOrCreate?: MenuCreateOrConnectWithoutRestaurantInput | MenuCreateOrConnectWithoutRestaurantInput[]
@@ -8030,18 +9778,24 @@ export namespace Prisma {
     deleteMany?: ReviewScalarWhereInput | ReviewScalarWhereInput[]
   }
 
+  export type FavoriteUncheckedUpdateManyWithoutRestaurantNestedInput = {
+    create?: XOR<FavoriteCreateWithoutRestaurantInput, FavoriteUncheckedCreateWithoutRestaurantInput> | FavoriteCreateWithoutRestaurantInput[] | FavoriteUncheckedCreateWithoutRestaurantInput[]
+    connectOrCreate?: FavoriteCreateOrConnectWithoutRestaurantInput | FavoriteCreateOrConnectWithoutRestaurantInput[]
+    upsert?: FavoriteUpsertWithWhereUniqueWithoutRestaurantInput | FavoriteUpsertWithWhereUniqueWithoutRestaurantInput[]
+    createMany?: FavoriteCreateManyRestaurantInputEnvelope
+    set?: FavoriteWhereUniqueInput | FavoriteWhereUniqueInput[]
+    disconnect?: FavoriteWhereUniqueInput | FavoriteWhereUniqueInput[]
+    delete?: FavoriteWhereUniqueInput | FavoriteWhereUniqueInput[]
+    connect?: FavoriteWhereUniqueInput | FavoriteWhereUniqueInput[]
+    update?: FavoriteUpdateWithWhereUniqueWithoutRestaurantInput | FavoriteUpdateWithWhereUniqueWithoutRestaurantInput[]
+    updateMany?: FavoriteUpdateManyWithWhereWithoutRestaurantInput | FavoriteUpdateManyWithWhereWithoutRestaurantInput[]
+    deleteMany?: FavoriteScalarWhereInput | FavoriteScalarWhereInput[]
+  }
+
   export type RestaurantCreateNestedOneWithoutMenusInput = {
     create?: XOR<RestaurantCreateWithoutMenusInput, RestaurantUncheckedCreateWithoutMenusInput>
     connectOrCreate?: RestaurantCreateOrConnectWithoutMenusInput
     connect?: RestaurantWhereUniqueInput
-  }
-
-  export type IntFieldUpdateOperationsInput = {
-    set?: number
-    increment?: number
-    decrement?: number
-    multiply?: number
-    divide?: number
   }
 
   export type RestaurantUpdateOneRequiredWithoutMenusNestedInput = {
@@ -8094,10 +9848,38 @@ export namespace Prisma {
     update?: XOR<XOR<UserUpdateToOneWithWhereWithoutRestaurantRequestsInput, UserUpdateWithoutRestaurantRequestsInput>, UserUncheckedUpdateWithoutRestaurantRequestsInput>
   }
 
+  export type UserCreateNestedOneWithoutFavoritesInput = {
+    create?: XOR<UserCreateWithoutFavoritesInput, UserUncheckedCreateWithoutFavoritesInput>
+    connectOrCreate?: UserCreateOrConnectWithoutFavoritesInput
+    connect?: UserWhereUniqueInput
+  }
+
+  export type RestaurantCreateNestedOneWithoutFavoritesInput = {
+    create?: XOR<RestaurantCreateWithoutFavoritesInput, RestaurantUncheckedCreateWithoutFavoritesInput>
+    connectOrCreate?: RestaurantCreateOrConnectWithoutFavoritesInput
+    connect?: RestaurantWhereUniqueInput
+  }
+
+  export type UserUpdateOneRequiredWithoutFavoritesNestedInput = {
+    create?: XOR<UserCreateWithoutFavoritesInput, UserUncheckedCreateWithoutFavoritesInput>
+    connectOrCreate?: UserCreateOrConnectWithoutFavoritesInput
+    upsert?: UserUpsertWithoutFavoritesInput
+    connect?: UserWhereUniqueInput
+    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutFavoritesInput, UserUpdateWithoutFavoritesInput>, UserUncheckedUpdateWithoutFavoritesInput>
+  }
+
+  export type RestaurantUpdateOneRequiredWithoutFavoritesNestedInput = {
+    create?: XOR<RestaurantCreateWithoutFavoritesInput, RestaurantUncheckedCreateWithoutFavoritesInput>
+    connectOrCreate?: RestaurantCreateOrConnectWithoutFavoritesInput
+    upsert?: RestaurantUpsertWithoutFavoritesInput
+    connect?: RestaurantWhereUniqueInput
+    update?: XOR<XOR<RestaurantUpdateToOneWithWhereWithoutFavoritesInput, RestaurantUpdateWithoutFavoritesInput>, RestaurantUncheckedUpdateWithoutFavoritesInput>
+  }
+
   export type NestedStringFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
-    in?: string[] | ListStringFieldRefInput<$PrismaModel>
-    notIn?: string[] | ListStringFieldRefInput<$PrismaModel>
+    in?: string[]
+    notIn?: string[]
     lt?: string | StringFieldRefInput<$PrismaModel>
     lte?: string | StringFieldRefInput<$PrismaModel>
     gt?: string | StringFieldRefInput<$PrismaModel>
@@ -8110,8 +9892,8 @@ export namespace Prisma {
 
   export type NestedDateTimeFilter<$PrismaModel = never> = {
     equals?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
-    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
+    in?: Date[] | string[]
+    notIn?: Date[] | string[]
     lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
@@ -8121,8 +9903,8 @@ export namespace Prisma {
 
   export type NestedStringWithAggregatesFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
-    in?: string[] | ListStringFieldRefInput<$PrismaModel>
-    notIn?: string[] | ListStringFieldRefInput<$PrismaModel>
+    in?: string[]
+    notIn?: string[]
     lt?: string | StringFieldRefInput<$PrismaModel>
     lte?: string | StringFieldRefInput<$PrismaModel>
     gt?: string | StringFieldRefInput<$PrismaModel>
@@ -8138,8 +9920,8 @@ export namespace Prisma {
 
   export type NestedIntFilter<$PrismaModel = never> = {
     equals?: number | IntFieldRefInput<$PrismaModel>
-    in?: number[] | ListIntFieldRefInput<$PrismaModel>
-    notIn?: number[] | ListIntFieldRefInput<$PrismaModel>
+    in?: number[]
+    notIn?: number[]
     lt?: number | IntFieldRefInput<$PrismaModel>
     lte?: number | IntFieldRefInput<$PrismaModel>
     gt?: number | IntFieldRefInput<$PrismaModel>
@@ -8149,8 +9931,8 @@ export namespace Prisma {
 
   export type NestedDateTimeWithAggregatesFilter<$PrismaModel = never> = {
     equals?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
-    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
+    in?: Date[] | string[]
+    notIn?: Date[] | string[]
     lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
@@ -8163,8 +9945,8 @@ export namespace Prisma {
 
   export type NestedFloatFilter<$PrismaModel = never> = {
     equals?: number | FloatFieldRefInput<$PrismaModel>
-    in?: number[] | ListFloatFieldRefInput<$PrismaModel>
-    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel>
+    in?: number[]
+    notIn?: number[]
     lt?: number | FloatFieldRefInput<$PrismaModel>
     lte?: number | FloatFieldRefInput<$PrismaModel>
     gt?: number | FloatFieldRefInput<$PrismaModel>
@@ -8172,10 +9954,35 @@ export namespace Prisma {
     not?: NestedFloatFilter<$PrismaModel> | number
   }
 
+  export type NestedDateTimeNullableFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
+    in?: Date[] | string[] | null
+    notIn?: Date[] | string[] | null
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeNullableFilter<$PrismaModel> | Date | string | null
+  }
+
+  export type NestedStringNullableFilter<$PrismaModel = never> = {
+    equals?: string | StringFieldRefInput<$PrismaModel> | null
+    in?: string[] | null
+    notIn?: string[] | null
+    lt?: string | StringFieldRefInput<$PrismaModel>
+    lte?: string | StringFieldRefInput<$PrismaModel>
+    gt?: string | StringFieldRefInput<$PrismaModel>
+    gte?: string | StringFieldRefInput<$PrismaModel>
+    contains?: string | StringFieldRefInput<$PrismaModel>
+    startsWith?: string | StringFieldRefInput<$PrismaModel>
+    endsWith?: string | StringFieldRefInput<$PrismaModel>
+    not?: NestedStringNullableFilter<$PrismaModel> | string | null
+  }
+
   export type NestedFloatWithAggregatesFilter<$PrismaModel = never> = {
     equals?: number | FloatFieldRefInput<$PrismaModel>
-    in?: number[] | ListFloatFieldRefInput<$PrismaModel>
-    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel>
+    in?: number[]
+    notIn?: number[]
     lt?: number | FloatFieldRefInput<$PrismaModel>
     lte?: number | FloatFieldRefInput<$PrismaModel>
     gt?: number | FloatFieldRefInput<$PrismaModel>
@@ -8190,8 +9997,8 @@ export namespace Prisma {
 
   export type NestedIntWithAggregatesFilter<$PrismaModel = never> = {
     equals?: number | IntFieldRefInput<$PrismaModel>
-    in?: number[] | ListIntFieldRefInput<$PrismaModel>
-    notIn?: number[] | ListIntFieldRefInput<$PrismaModel>
+    in?: number[]
+    notIn?: number[]
     lt?: number | IntFieldRefInput<$PrismaModel>
     lte?: number | IntFieldRefInput<$PrismaModel>
     gt?: number | IntFieldRefInput<$PrismaModel>
@@ -8204,10 +10011,54 @@ export namespace Prisma {
     _max?: NestedIntFilter<$PrismaModel>
   }
 
+  export type NestedDateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
+    in?: Date[] | string[] | null
+    notIn?: Date[] | string[] | null
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeNullableWithAggregatesFilter<$PrismaModel> | Date | string | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedDateTimeNullableFilter<$PrismaModel>
+    _max?: NestedDateTimeNullableFilter<$PrismaModel>
+  }
+
+  export type NestedIntNullableFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel> | null
+    in?: number[] | null
+    notIn?: number[] | null
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntNullableFilter<$PrismaModel> | number | null
+  }
+
+  export type NestedStringNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: string | StringFieldRefInput<$PrismaModel> | null
+    in?: string[] | null
+    notIn?: string[] | null
+    lt?: string | StringFieldRefInput<$PrismaModel>
+    lte?: string | StringFieldRefInput<$PrismaModel>
+    gt?: string | StringFieldRefInput<$PrismaModel>
+    gte?: string | StringFieldRefInput<$PrismaModel>
+    contains?: string | StringFieldRefInput<$PrismaModel>
+    startsWith?: string | StringFieldRefInput<$PrismaModel>
+    endsWith?: string | StringFieldRefInput<$PrismaModel>
+    not?: NestedStringNullableWithAggregatesFilter<$PrismaModel> | string | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedStringNullableFilter<$PrismaModel>
+    _max?: NestedStringNullableFilter<$PrismaModel>
+  }
+
   export type ReviewCreateWithoutUserInput = {
     id?: string
     rating: number
     content: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
     restaurant: RestaurantCreateNestedOneWithoutReviewsInput
   }
 
@@ -8216,6 +10067,8 @@ export namespace Prisma {
     restaurantId: string
     rating: number
     content: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
   }
 
   export type ReviewCreateOrConnectWithoutUserInput = {
@@ -8225,7 +10078,6 @@ export namespace Prisma {
 
   export type ReviewCreateManyUserInputEnvelope = {
     data: ReviewCreateManyUserInput | ReviewCreateManyUserInput[]
-    skipDuplicates?: boolean
   }
 
   export type RestaurantRequestCreateWithoutUserInput = {
@@ -8233,7 +10085,9 @@ export namespace Prisma {
     restaurantName: string
     address: string
     category: string
+    menuInfo?: string | null
     status?: string
+    createdAt?: Date | string
   }
 
   export type RestaurantRequestUncheckedCreateWithoutUserInput = {
@@ -8241,7 +10095,9 @@ export namespace Prisma {
     restaurantName: string
     address: string
     category: string
+    menuInfo?: string | null
     status?: string
+    createdAt?: Date | string
   }
 
   export type RestaurantRequestCreateOrConnectWithoutUserInput = {
@@ -8251,7 +10107,25 @@ export namespace Prisma {
 
   export type RestaurantRequestCreateManyUserInputEnvelope = {
     data: RestaurantRequestCreateManyUserInput | RestaurantRequestCreateManyUserInput[]
-    skipDuplicates?: boolean
+  }
+
+  export type FavoriteCreateWithoutUserInput = {
+    id?: string
+    restaurant: RestaurantCreateNestedOneWithoutFavoritesInput
+  }
+
+  export type FavoriteUncheckedCreateWithoutUserInput = {
+    id?: string
+    restaurantId: string
+  }
+
+  export type FavoriteCreateOrConnectWithoutUserInput = {
+    where: FavoriteWhereUniqueInput
+    create: XOR<FavoriteCreateWithoutUserInput, FavoriteUncheckedCreateWithoutUserInput>
+  }
+
+  export type FavoriteCreateManyUserInputEnvelope = {
+    data: FavoriteCreateManyUserInput | FavoriteCreateManyUserInput[]
   }
 
   export type ReviewUpsertWithWhereUniqueWithoutUserInput = {
@@ -8279,6 +10153,8 @@ export namespace Prisma {
     restaurantId?: StringFilter<"Review"> | string
     rating?: IntFilter<"Review"> | number
     content?: StringFilter<"Review"> | string
+    createdAt?: DateTimeFilter<"Review"> | Date | string
+    updatedAt?: DateTimeFilter<"Review"> | Date | string
   }
 
   export type RestaurantRequestUpsertWithWhereUniqueWithoutUserInput = {
@@ -8306,7 +10182,34 @@ export namespace Prisma {
     restaurantName?: StringFilter<"RestaurantRequest"> | string
     address?: StringFilter<"RestaurantRequest"> | string
     category?: StringFilter<"RestaurantRequest"> | string
+    menuInfo?: StringNullableFilter<"RestaurantRequest"> | string | null
     status?: StringFilter<"RestaurantRequest"> | string
+    createdAt?: DateTimeFilter<"RestaurantRequest"> | Date | string
+  }
+
+  export type FavoriteUpsertWithWhereUniqueWithoutUserInput = {
+    where: FavoriteWhereUniqueInput
+    update: XOR<FavoriteUpdateWithoutUserInput, FavoriteUncheckedUpdateWithoutUserInput>
+    create: XOR<FavoriteCreateWithoutUserInput, FavoriteUncheckedCreateWithoutUserInput>
+  }
+
+  export type FavoriteUpdateWithWhereUniqueWithoutUserInput = {
+    where: FavoriteWhereUniqueInput
+    data: XOR<FavoriteUpdateWithoutUserInput, FavoriteUncheckedUpdateWithoutUserInput>
+  }
+
+  export type FavoriteUpdateManyWithWhereWithoutUserInput = {
+    where: FavoriteScalarWhereInput
+    data: XOR<FavoriteUpdateManyMutationInput, FavoriteUncheckedUpdateManyWithoutUserInput>
+  }
+
+  export type FavoriteScalarWhereInput = {
+    AND?: FavoriteScalarWhereInput | FavoriteScalarWhereInput[]
+    OR?: FavoriteScalarWhereInput[]
+    NOT?: FavoriteScalarWhereInput | FavoriteScalarWhereInput[]
+    id?: StringFilter<"Favorite"> | string
+    userId?: StringFilter<"Favorite"> | string
+    restaurantId?: StringFilter<"Favorite"> | string
   }
 
   export type MenuCreateWithoutRestaurantInput = {
@@ -8328,13 +10231,14 @@ export namespace Prisma {
 
   export type MenuCreateManyRestaurantInputEnvelope = {
     data: MenuCreateManyRestaurantInput | MenuCreateManyRestaurantInput[]
-    skipDuplicates?: boolean
   }
 
   export type ReviewCreateWithoutRestaurantInput = {
     id?: string
     rating: number
     content: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
     user: UserCreateNestedOneWithoutReviewsInput
   }
 
@@ -8343,6 +10247,8 @@ export namespace Prisma {
     userId: string
     rating: number
     content: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
   }
 
   export type ReviewCreateOrConnectWithoutRestaurantInput = {
@@ -8352,7 +10258,25 @@ export namespace Prisma {
 
   export type ReviewCreateManyRestaurantInputEnvelope = {
     data: ReviewCreateManyRestaurantInput | ReviewCreateManyRestaurantInput[]
-    skipDuplicates?: boolean
+  }
+
+  export type FavoriteCreateWithoutRestaurantInput = {
+    id?: string
+    user: UserCreateNestedOneWithoutFavoritesInput
+  }
+
+  export type FavoriteUncheckedCreateWithoutRestaurantInput = {
+    id?: string
+    userId: string
+  }
+
+  export type FavoriteCreateOrConnectWithoutRestaurantInput = {
+    where: FavoriteWhereUniqueInput
+    create: XOR<FavoriteCreateWithoutRestaurantInput, FavoriteUncheckedCreateWithoutRestaurantInput>
+  }
+
+  export type FavoriteCreateManyRestaurantInputEnvelope = {
+    data: FavoriteCreateManyRestaurantInput | FavoriteCreateManyRestaurantInput[]
   }
 
   export type MenuUpsertWithWhereUniqueWithoutRestaurantInput = {
@@ -8397,24 +10321,52 @@ export namespace Prisma {
     data: XOR<ReviewUpdateManyMutationInput, ReviewUncheckedUpdateManyWithoutRestaurantInput>
   }
 
+  export type FavoriteUpsertWithWhereUniqueWithoutRestaurantInput = {
+    where: FavoriteWhereUniqueInput
+    update: XOR<FavoriteUpdateWithoutRestaurantInput, FavoriteUncheckedUpdateWithoutRestaurantInput>
+    create: XOR<FavoriteCreateWithoutRestaurantInput, FavoriteUncheckedCreateWithoutRestaurantInput>
+  }
+
+  export type FavoriteUpdateWithWhereUniqueWithoutRestaurantInput = {
+    where: FavoriteWhereUniqueInput
+    data: XOR<FavoriteUpdateWithoutRestaurantInput, FavoriteUncheckedUpdateWithoutRestaurantInput>
+  }
+
+  export type FavoriteUpdateManyWithWhereWithoutRestaurantInput = {
+    where: FavoriteScalarWhereInput
+    data: XOR<FavoriteUpdateManyMutationInput, FavoriteUncheckedUpdateManyWithoutRestaurantInput>
+  }
+
   export type RestaurantCreateWithoutMenusInput = {
     id?: string
     name: string
     category: string
+    zone: string
     address: string
     latitude: number
     longitude: number
+    minPrice?: number
+    partnershipStartDate?: Date | string | null
+    partnershipEndDate?: Date | string | null
+    partnershipInfo?: string | null
     reviews?: ReviewCreateNestedManyWithoutRestaurantInput
+    favorites?: FavoriteCreateNestedManyWithoutRestaurantInput
   }
 
   export type RestaurantUncheckedCreateWithoutMenusInput = {
     id?: string
     name: string
     category: string
+    zone: string
     address: string
     latitude: number
     longitude: number
+    minPrice?: number
+    partnershipStartDate?: Date | string | null
+    partnershipEndDate?: Date | string | null
+    partnershipInfo?: string | null
     reviews?: ReviewUncheckedCreateNestedManyWithoutRestaurantInput
+    favorites?: FavoriteUncheckedCreateNestedManyWithoutRestaurantInput
   }
 
   export type RestaurantCreateOrConnectWithoutMenusInput = {
@@ -8437,20 +10389,32 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     category?: StringFieldUpdateOperationsInput | string
+    zone?: StringFieldUpdateOperationsInput | string
     address?: StringFieldUpdateOperationsInput | string
     latitude?: FloatFieldUpdateOperationsInput | number
     longitude?: FloatFieldUpdateOperationsInput | number
+    minPrice?: IntFieldUpdateOperationsInput | number
+    partnershipStartDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    partnershipEndDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    partnershipInfo?: NullableStringFieldUpdateOperationsInput | string | null
     reviews?: ReviewUpdateManyWithoutRestaurantNestedInput
+    favorites?: FavoriteUpdateManyWithoutRestaurantNestedInput
   }
 
   export type RestaurantUncheckedUpdateWithoutMenusInput = {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     category?: StringFieldUpdateOperationsInput | string
+    zone?: StringFieldUpdateOperationsInput | string
     address?: StringFieldUpdateOperationsInput | string
     latitude?: FloatFieldUpdateOperationsInput | number
     longitude?: FloatFieldUpdateOperationsInput | number
+    minPrice?: IntFieldUpdateOperationsInput | number
+    partnershipStartDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    partnershipEndDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    partnershipInfo?: NullableStringFieldUpdateOperationsInput | string | null
     reviews?: ReviewUncheckedUpdateManyWithoutRestaurantNestedInput
+    favorites?: FavoriteUncheckedUpdateManyWithoutRestaurantNestedInput
   }
 
   export type UserCreateWithoutReviewsInput = {
@@ -8458,8 +10422,10 @@ export namespace Prisma {
     email: string
     passwordHash: string
     nickname: string
+    role?: string
     createdAt?: Date | string
     restaurantRequests?: RestaurantRequestCreateNestedManyWithoutUserInput
+    favorites?: FavoriteCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutReviewsInput = {
@@ -8467,8 +10433,10 @@ export namespace Prisma {
     email: string
     passwordHash: string
     nickname: string
+    role?: string
     createdAt?: Date | string
     restaurantRequests?: RestaurantRequestUncheckedCreateNestedManyWithoutUserInput
+    favorites?: FavoriteUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutReviewsInput = {
@@ -8480,20 +10448,32 @@ export namespace Prisma {
     id?: string
     name: string
     category: string
+    zone: string
     address: string
     latitude: number
     longitude: number
+    minPrice?: number
+    partnershipStartDate?: Date | string | null
+    partnershipEndDate?: Date | string | null
+    partnershipInfo?: string | null
     menus?: MenuCreateNestedManyWithoutRestaurantInput
+    favorites?: FavoriteCreateNestedManyWithoutRestaurantInput
   }
 
   export type RestaurantUncheckedCreateWithoutReviewsInput = {
     id?: string
     name: string
     category: string
+    zone: string
     address: string
     latitude: number
     longitude: number
+    minPrice?: number
+    partnershipStartDate?: Date | string | null
+    partnershipEndDate?: Date | string | null
+    partnershipInfo?: string | null
     menus?: MenuUncheckedCreateNestedManyWithoutRestaurantInput
+    favorites?: FavoriteUncheckedCreateNestedManyWithoutRestaurantInput
   }
 
   export type RestaurantCreateOrConnectWithoutReviewsInput = {
@@ -8517,8 +10497,10 @@ export namespace Prisma {
     email?: StringFieldUpdateOperationsInput | string
     passwordHash?: StringFieldUpdateOperationsInput | string
     nickname?: StringFieldUpdateOperationsInput | string
+    role?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     restaurantRequests?: RestaurantRequestUpdateManyWithoutUserNestedInput
+    favorites?: FavoriteUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutReviewsInput = {
@@ -8526,8 +10508,10 @@ export namespace Prisma {
     email?: StringFieldUpdateOperationsInput | string
     passwordHash?: StringFieldUpdateOperationsInput | string
     nickname?: StringFieldUpdateOperationsInput | string
+    role?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     restaurantRequests?: RestaurantRequestUncheckedUpdateManyWithoutUserNestedInput
+    favorites?: FavoriteUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type RestaurantUpsertWithoutReviewsInput = {
@@ -8545,20 +10529,32 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     category?: StringFieldUpdateOperationsInput | string
+    zone?: StringFieldUpdateOperationsInput | string
     address?: StringFieldUpdateOperationsInput | string
     latitude?: FloatFieldUpdateOperationsInput | number
     longitude?: FloatFieldUpdateOperationsInput | number
+    minPrice?: IntFieldUpdateOperationsInput | number
+    partnershipStartDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    partnershipEndDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    partnershipInfo?: NullableStringFieldUpdateOperationsInput | string | null
     menus?: MenuUpdateManyWithoutRestaurantNestedInput
+    favorites?: FavoriteUpdateManyWithoutRestaurantNestedInput
   }
 
   export type RestaurantUncheckedUpdateWithoutReviewsInput = {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     category?: StringFieldUpdateOperationsInput | string
+    zone?: StringFieldUpdateOperationsInput | string
     address?: StringFieldUpdateOperationsInput | string
     latitude?: FloatFieldUpdateOperationsInput | number
     longitude?: FloatFieldUpdateOperationsInput | number
+    minPrice?: IntFieldUpdateOperationsInput | number
+    partnershipStartDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    partnershipEndDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    partnershipInfo?: NullableStringFieldUpdateOperationsInput | string | null
     menus?: MenuUncheckedUpdateManyWithoutRestaurantNestedInput
+    favorites?: FavoriteUncheckedUpdateManyWithoutRestaurantNestedInput
   }
 
   export type UserCreateWithoutRestaurantRequestsInput = {
@@ -8566,8 +10562,10 @@ export namespace Prisma {
     email: string
     passwordHash: string
     nickname: string
+    role?: string
     createdAt?: Date | string
     reviews?: ReviewCreateNestedManyWithoutUserInput
+    favorites?: FavoriteCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutRestaurantRequestsInput = {
@@ -8575,8 +10573,10 @@ export namespace Prisma {
     email: string
     passwordHash: string
     nickname: string
+    role?: string
     createdAt?: Date | string
     reviews?: ReviewUncheckedCreateNestedManyWithoutUserInput
+    favorites?: FavoriteUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutRestaurantRequestsInput = {
@@ -8600,8 +10600,10 @@ export namespace Prisma {
     email?: StringFieldUpdateOperationsInput | string
     passwordHash?: StringFieldUpdateOperationsInput | string
     nickname?: StringFieldUpdateOperationsInput | string
+    role?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     reviews?: ReviewUpdateManyWithoutUserNestedInput
+    favorites?: FavoriteUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutRestaurantRequestsInput = {
@@ -8609,8 +10611,150 @@ export namespace Prisma {
     email?: StringFieldUpdateOperationsInput | string
     passwordHash?: StringFieldUpdateOperationsInput | string
     nickname?: StringFieldUpdateOperationsInput | string
+    role?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     reviews?: ReviewUncheckedUpdateManyWithoutUserNestedInput
+    favorites?: FavoriteUncheckedUpdateManyWithoutUserNestedInput
+  }
+
+  export type UserCreateWithoutFavoritesInput = {
+    id?: string
+    email: string
+    passwordHash: string
+    nickname: string
+    role?: string
+    createdAt?: Date | string
+    reviews?: ReviewCreateNestedManyWithoutUserInput
+    restaurantRequests?: RestaurantRequestCreateNestedManyWithoutUserInput
+  }
+
+  export type UserUncheckedCreateWithoutFavoritesInput = {
+    id?: string
+    email: string
+    passwordHash: string
+    nickname: string
+    role?: string
+    createdAt?: Date | string
+    reviews?: ReviewUncheckedCreateNestedManyWithoutUserInput
+    restaurantRequests?: RestaurantRequestUncheckedCreateNestedManyWithoutUserInput
+  }
+
+  export type UserCreateOrConnectWithoutFavoritesInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutFavoritesInput, UserUncheckedCreateWithoutFavoritesInput>
+  }
+
+  export type RestaurantCreateWithoutFavoritesInput = {
+    id?: string
+    name: string
+    category: string
+    zone: string
+    address: string
+    latitude: number
+    longitude: number
+    minPrice?: number
+    partnershipStartDate?: Date | string | null
+    partnershipEndDate?: Date | string | null
+    partnershipInfo?: string | null
+    menus?: MenuCreateNestedManyWithoutRestaurantInput
+    reviews?: ReviewCreateNestedManyWithoutRestaurantInput
+  }
+
+  export type RestaurantUncheckedCreateWithoutFavoritesInput = {
+    id?: string
+    name: string
+    category: string
+    zone: string
+    address: string
+    latitude: number
+    longitude: number
+    minPrice?: number
+    partnershipStartDate?: Date | string | null
+    partnershipEndDate?: Date | string | null
+    partnershipInfo?: string | null
+    menus?: MenuUncheckedCreateNestedManyWithoutRestaurantInput
+    reviews?: ReviewUncheckedCreateNestedManyWithoutRestaurantInput
+  }
+
+  export type RestaurantCreateOrConnectWithoutFavoritesInput = {
+    where: RestaurantWhereUniqueInput
+    create: XOR<RestaurantCreateWithoutFavoritesInput, RestaurantUncheckedCreateWithoutFavoritesInput>
+  }
+
+  export type UserUpsertWithoutFavoritesInput = {
+    update: XOR<UserUpdateWithoutFavoritesInput, UserUncheckedUpdateWithoutFavoritesInput>
+    create: XOR<UserCreateWithoutFavoritesInput, UserUncheckedCreateWithoutFavoritesInput>
+    where?: UserWhereInput
+  }
+
+  export type UserUpdateToOneWithWhereWithoutFavoritesInput = {
+    where?: UserWhereInput
+    data: XOR<UserUpdateWithoutFavoritesInput, UserUncheckedUpdateWithoutFavoritesInput>
+  }
+
+  export type UserUpdateWithoutFavoritesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    passwordHash?: StringFieldUpdateOperationsInput | string
+    nickname?: StringFieldUpdateOperationsInput | string
+    role?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    reviews?: ReviewUpdateManyWithoutUserNestedInput
+    restaurantRequests?: RestaurantRequestUpdateManyWithoutUserNestedInput
+  }
+
+  export type UserUncheckedUpdateWithoutFavoritesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    passwordHash?: StringFieldUpdateOperationsInput | string
+    nickname?: StringFieldUpdateOperationsInput | string
+    role?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    reviews?: ReviewUncheckedUpdateManyWithoutUserNestedInput
+    restaurantRequests?: RestaurantRequestUncheckedUpdateManyWithoutUserNestedInput
+  }
+
+  export type RestaurantUpsertWithoutFavoritesInput = {
+    update: XOR<RestaurantUpdateWithoutFavoritesInput, RestaurantUncheckedUpdateWithoutFavoritesInput>
+    create: XOR<RestaurantCreateWithoutFavoritesInput, RestaurantUncheckedCreateWithoutFavoritesInput>
+    where?: RestaurantWhereInput
+  }
+
+  export type RestaurantUpdateToOneWithWhereWithoutFavoritesInput = {
+    where?: RestaurantWhereInput
+    data: XOR<RestaurantUpdateWithoutFavoritesInput, RestaurantUncheckedUpdateWithoutFavoritesInput>
+  }
+
+  export type RestaurantUpdateWithoutFavoritesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    category?: StringFieldUpdateOperationsInput | string
+    zone?: StringFieldUpdateOperationsInput | string
+    address?: StringFieldUpdateOperationsInput | string
+    latitude?: FloatFieldUpdateOperationsInput | number
+    longitude?: FloatFieldUpdateOperationsInput | number
+    minPrice?: IntFieldUpdateOperationsInput | number
+    partnershipStartDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    partnershipEndDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    partnershipInfo?: NullableStringFieldUpdateOperationsInput | string | null
+    menus?: MenuUpdateManyWithoutRestaurantNestedInput
+    reviews?: ReviewUpdateManyWithoutRestaurantNestedInput
+  }
+
+  export type RestaurantUncheckedUpdateWithoutFavoritesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    category?: StringFieldUpdateOperationsInput | string
+    zone?: StringFieldUpdateOperationsInput | string
+    address?: StringFieldUpdateOperationsInput | string
+    latitude?: FloatFieldUpdateOperationsInput | number
+    longitude?: FloatFieldUpdateOperationsInput | number
+    minPrice?: IntFieldUpdateOperationsInput | number
+    partnershipStartDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    partnershipEndDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    partnershipInfo?: NullableStringFieldUpdateOperationsInput | string | null
+    menus?: MenuUncheckedUpdateManyWithoutRestaurantNestedInput
+    reviews?: ReviewUncheckedUpdateManyWithoutRestaurantNestedInput
   }
 
   export type ReviewCreateManyUserInput = {
@@ -8618,6 +10762,8 @@ export namespace Prisma {
     restaurantId: string
     rating: number
     content: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
   }
 
   export type RestaurantRequestCreateManyUserInput = {
@@ -8625,13 +10771,22 @@ export namespace Prisma {
     restaurantName: string
     address: string
     category: string
+    menuInfo?: string | null
     status?: string
+    createdAt?: Date | string
+  }
+
+  export type FavoriteCreateManyUserInput = {
+    id?: string
+    restaurantId: string
   }
 
   export type ReviewUpdateWithoutUserInput = {
     id?: StringFieldUpdateOperationsInput | string
     rating?: IntFieldUpdateOperationsInput | number
     content?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     restaurant?: RestaurantUpdateOneRequiredWithoutReviewsNestedInput
   }
 
@@ -8640,6 +10795,8 @@ export namespace Prisma {
     restaurantId?: StringFieldUpdateOperationsInput | string
     rating?: IntFieldUpdateOperationsInput | number
     content?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type ReviewUncheckedUpdateManyWithoutUserInput = {
@@ -8647,6 +10804,8 @@ export namespace Prisma {
     restaurantId?: StringFieldUpdateOperationsInput | string
     rating?: IntFieldUpdateOperationsInput | number
     content?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type RestaurantRequestUpdateWithoutUserInput = {
@@ -8654,7 +10813,9 @@ export namespace Prisma {
     restaurantName?: StringFieldUpdateOperationsInput | string
     address?: StringFieldUpdateOperationsInput | string
     category?: StringFieldUpdateOperationsInput | string
+    menuInfo?: NullableStringFieldUpdateOperationsInput | string | null
     status?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type RestaurantRequestUncheckedUpdateWithoutUserInput = {
@@ -8662,7 +10823,9 @@ export namespace Prisma {
     restaurantName?: StringFieldUpdateOperationsInput | string
     address?: StringFieldUpdateOperationsInput | string
     category?: StringFieldUpdateOperationsInput | string
+    menuInfo?: NullableStringFieldUpdateOperationsInput | string | null
     status?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type RestaurantRequestUncheckedUpdateManyWithoutUserInput = {
@@ -8670,7 +10833,24 @@ export namespace Prisma {
     restaurantName?: StringFieldUpdateOperationsInput | string
     address?: StringFieldUpdateOperationsInput | string
     category?: StringFieldUpdateOperationsInput | string
+    menuInfo?: NullableStringFieldUpdateOperationsInput | string | null
     status?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type FavoriteUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    restaurant?: RestaurantUpdateOneRequiredWithoutFavoritesNestedInput
+  }
+
+  export type FavoriteUncheckedUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    restaurantId?: StringFieldUpdateOperationsInput | string
+  }
+
+  export type FavoriteUncheckedUpdateManyWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    restaurantId?: StringFieldUpdateOperationsInput | string
   }
 
   export type MenuCreateManyRestaurantInput = {
@@ -8684,6 +10864,13 @@ export namespace Prisma {
     userId: string
     rating: number
     content: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type FavoriteCreateManyRestaurantInput = {
+    id?: string
+    userId: string
   }
 
   export type MenuUpdateWithoutRestaurantInput = {
@@ -8708,6 +10895,8 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     rating?: IntFieldUpdateOperationsInput | number
     content?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     user?: UserUpdateOneRequiredWithoutReviewsNestedInput
   }
 
@@ -8716,6 +10905,8 @@ export namespace Prisma {
     userId?: StringFieldUpdateOperationsInput | string
     rating?: IntFieldUpdateOperationsInput | number
     content?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type ReviewUncheckedUpdateManyWithoutRestaurantInput = {
@@ -8723,6 +10914,23 @@ export namespace Prisma {
     userId?: StringFieldUpdateOperationsInput | string
     rating?: IntFieldUpdateOperationsInput | number
     content?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type FavoriteUpdateWithoutRestaurantInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    user?: UserUpdateOneRequiredWithoutFavoritesNestedInput
+  }
+
+  export type FavoriteUncheckedUpdateWithoutRestaurantInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+  }
+
+  export type FavoriteUncheckedUpdateManyWithoutRestaurantInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
   }
 
 

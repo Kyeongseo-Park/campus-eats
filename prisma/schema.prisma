@@ -1,6 +1,6 @@
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider = "sqlite"
+  url      = "file:./dev.db"
 }
 
 generator client {
@@ -13,22 +13,30 @@ model User {
   email              String              @unique
   passwordHash       String              @map("password_hash")
   nickname           String
+  role               String              @default("user") // user | admin
   createdAt          DateTime            @default(now()) @map("created_at")
   reviews            Review[]
   restaurantRequests RestaurantRequest[]
+  favorites          Favorite[]
 
   @@map("users")
 }
 
 model Restaurant {
-  id        String   @id @default(uuid())
-  name      String
-  category  String
-  address   String
-  latitude  Float
-  longitude Float
-  menus     Menu[]
-  reviews   Review[]
+  id                    String    @id @default(uuid())
+  name                  String
+  category              String    // 한식/중식/일식/양식/분식/카페
+  zone                  String    // 정문/상대/예대/후문/공대쪽문
+  address               String
+  latitude              Float
+  longitude             Float
+  minPrice              Int       @default(0) @map("min_price")
+  partnershipStartDate  DateTime? @map("partnership_start_date")
+  partnershipEndDate    DateTime? @map("partnership_end_date")
+  partnershipInfo       String?   @map("partnership_info")
+  menus                 Menu[]
+  reviews               Review[]
+  favorites             Favorite[]
 
   @@map("restaurants")
 }
@@ -49,8 +57,10 @@ model Review {
   user         User       @relation(fields: [userId], references: [id], onDelete: Cascade)
   restaurantId String     @map("restaurant_id")
   restaurant   Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
-  rating       Int
-  content      String     @db.Text
+  rating       Int        // 1~5
+  content      String
+  createdAt    DateTime   @default(now()) @map("created_at")
+  updatedAt    DateTime   @updatedAt @map("updated_at")
 
   @@map("reviews")
 }
@@ -62,7 +72,20 @@ model RestaurantRequest {
   restaurantName String @map("restaurant_name")
   address        String
   category       String
-  status         String @default("PENDING") // PENDING, APPROVED, REJECTED
+  menuInfo       String? @map("menu_info")
+  status         String @default("대기") // 대기 / 승인 / 반려
+  createdAt      DateTime @default(now()) @map("created_at")
 
   @@map("restaurant_requests")
+}
+
+model Favorite {
+  id           String     @id @default(uuid())
+  userId       String     @map("user_id")
+  user         User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  restaurantId String     @map("restaurant_id")
+  restaurant   Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, restaurantId])
+  @@map("favorites")
 }

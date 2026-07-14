@@ -87,9 +87,6 @@ Prisma.NullTypes = {
  * Enums
  */
 exports.Prisma.TransactionIsolationLevel = makeStrictEnum({
-  ReadUncommitted: 'ReadUncommitted',
-  ReadCommitted: 'ReadCommitted',
-  RepeatableRead: 'RepeatableRead',
   Serializable: 'Serializable'
 });
 
@@ -98,6 +95,7 @@ exports.Prisma.UserScalarFieldEnum = {
   email: 'email',
   passwordHash: 'passwordHash',
   nickname: 'nickname',
+  role: 'role',
   createdAt: 'createdAt'
 };
 
@@ -105,9 +103,14 @@ exports.Prisma.RestaurantScalarFieldEnum = {
   id: 'id',
   name: 'name',
   category: 'category',
+  zone: 'zone',
   address: 'address',
   latitude: 'latitude',
-  longitude: 'longitude'
+  longitude: 'longitude',
+  minPrice: 'minPrice',
+  partnershipStartDate: 'partnershipStartDate',
+  partnershipEndDate: 'partnershipEndDate',
+  partnershipInfo: 'partnershipInfo'
 };
 
 exports.Prisma.MenuScalarFieldEnum = {
@@ -122,7 +125,9 @@ exports.Prisma.ReviewScalarFieldEnum = {
   userId: 'userId',
   restaurantId: 'restaurantId',
   rating: 'rating',
-  content: 'content'
+  content: 'content',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
 };
 
 exports.Prisma.RestaurantRequestScalarFieldEnum = {
@@ -131,7 +136,15 @@ exports.Prisma.RestaurantRequestScalarFieldEnum = {
   restaurantName: 'restaurantName',
   address: 'address',
   category: 'category',
-  status: 'status'
+  menuInfo: 'menuInfo',
+  status: 'status',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.FavoriteScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  restaurantId: 'restaurantId'
 };
 
 exports.Prisma.SortOrder = {
@@ -139,9 +152,9 @@ exports.Prisma.SortOrder = {
   desc: 'desc'
 };
 
-exports.Prisma.QueryMode = {
-  default: 'default',
-  insensitive: 'insensitive'
+exports.Prisma.NullsOrder = {
+  first: 'first',
+  last: 'last'
 };
 
 
@@ -150,7 +163,8 @@ exports.Prisma.ModelName = {
   Restaurant: 'Restaurant',
   Menu: 'Menu',
   Review: 'Review',
-  RestaurantRequest: 'RestaurantRequest'
+  RestaurantRequest: 'RestaurantRequest',
+  Favorite: 'Favorite'
 };
 /**
  * Create the Client
@@ -181,7 +195,7 @@ const config = {
     "isCustomOutput": true
   },
   "relativeEnvPaths": {
-    "rootEnvPath": "../../../.env",
+    "rootEnvPath": null,
     "schemaEnvPath": "../../../.env"
   },
   "relativePath": "../../../prisma",
@@ -190,23 +204,22 @@ const config = {
   "datasourceNames": [
     "db"
   ],
-  "activeProvider": "postgresql",
-  "postinstall": false,
+  "activeProvider": "sqlite",
   "inlineDatasources": {
     "db": {
       "url": {
-        "fromEnvVar": "DATABASE_URL",
-        "value": null
+        "fromEnvVar": null,
+        "value": "file:./dev.db"
       }
     }
   },
-  "inlineSchema": "datasource db {\n  provider = \"postgresql\"\n  url      = env(\"DATABASE_URL\")\n}\n\ngenerator client {\n  provider = \"prisma-client-js\"\n  output   = \"../src/generated/client\"\n}\n\nmodel User {\n  id                 String              @id @default(uuid())\n  email              String              @unique\n  passwordHash       String              @map(\"password_hash\")\n  nickname           String\n  createdAt          DateTime            @default(now()) @map(\"created_at\")\n  reviews            Review[]\n  restaurantRequests RestaurantRequest[]\n\n  @@map(\"users\")\n}\n\nmodel Restaurant {\n  id        String   @id @default(uuid())\n  name      String\n  category  String\n  address   String\n  latitude  Float\n  longitude Float\n  menus     Menu[]\n  reviews   Review[]\n\n  @@map(\"restaurants\")\n}\n\nmodel Menu {\n  id           String     @id @default(uuid())\n  restaurantId String     @map(\"restaurant_id\")\n  restaurant   Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)\n  name         String\n  price        Int\n\n  @@map(\"menus\")\n}\n\nmodel Review {\n  id           String     @id @default(uuid())\n  userId       String     @map(\"user_id\")\n  user         User       @relation(fields: [userId], references: [id], onDelete: Cascade)\n  restaurantId String     @map(\"restaurant_id\")\n  restaurant   Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)\n  rating       Int\n  content      String     @db.Text\n\n  @@map(\"reviews\")\n}\n\nmodel RestaurantRequest {\n  id             String @id @default(uuid())\n  userId         String @map(\"user_id\")\n  user           User   @relation(fields: [userId], references: [id], onDelete: Cascade)\n  restaurantName String @map(\"restaurant_name\")\n  address        String\n  category       String\n  status         String @default(\"PENDING\") // PENDING, APPROVED, REJECTED\n\n  @@map(\"restaurant_requests\")\n}\n",
-  "inlineSchemaHash": "69ddc8f4981aa9a17d97690902f9ead6413f0143e036d2431714ac1cdfd4a0bd",
+  "inlineSchema": "datasource db {\n  provider = \"sqlite\"\n  url      = \"file:./dev.db\"\n}\n\ngenerator client {\n  provider = \"prisma-client-js\"\n  output   = \"../src/generated/client\"\n}\n\nmodel User {\n  id                 String              @id @default(uuid())\n  email              String              @unique\n  passwordHash       String              @map(\"password_hash\")\n  nickname           String\n  role               String              @default(\"user\") // user | admin\n  createdAt          DateTime            @default(now()) @map(\"created_at\")\n  reviews            Review[]\n  restaurantRequests RestaurantRequest[]\n  favorites          Favorite[]\n\n  @@map(\"users\")\n}\n\nmodel Restaurant {\n  id                   String     @id @default(uuid())\n  name                 String\n  category             String // 한식/중식/일식/양식/분식/카페\n  zone                 String // 정문/상대/예대/후문/공대쪽문\n  address              String\n  latitude             Float\n  longitude            Float\n  minPrice             Int        @default(0) @map(\"min_price\")\n  partnershipStartDate DateTime?  @map(\"partnership_start_date\")\n  partnershipEndDate   DateTime?  @map(\"partnership_end_date\")\n  partnershipInfo      String?    @map(\"partnership_info\")\n  menus                Menu[]\n  reviews              Review[]\n  favorites            Favorite[]\n\n  @@map(\"restaurants\")\n}\n\nmodel Menu {\n  id           String     @id @default(uuid())\n  restaurantId String     @map(\"restaurant_id\")\n  restaurant   Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)\n  name         String\n  price        Int\n\n  @@map(\"menus\")\n}\n\nmodel Review {\n  id           String     @id @default(uuid())\n  userId       String     @map(\"user_id\")\n  user         User       @relation(fields: [userId], references: [id], onDelete: Cascade)\n  restaurantId String     @map(\"restaurant_id\")\n  restaurant   Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)\n  rating       Int // 1~5\n  content      String\n  createdAt    DateTime   @default(now()) @map(\"created_at\")\n  updatedAt    DateTime   @updatedAt @map(\"updated_at\")\n\n  @@map(\"reviews\")\n}\n\nmodel RestaurantRequest {\n  id             String   @id @default(uuid())\n  userId         String   @map(\"user_id\")\n  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)\n  restaurantName String   @map(\"restaurant_name\")\n  address        String\n  category       String\n  menuInfo       String?  @map(\"menu_info\")\n  status         String   @default(\"대기\") // 대기 / 승인 / 반려\n  createdAt      DateTime @default(now()) @map(\"created_at\")\n\n  @@map(\"restaurant_requests\")\n}\n\nmodel Favorite {\n  id           String     @id @default(uuid())\n  userId       String     @map(\"user_id\")\n  user         User       @relation(fields: [userId], references: [id], onDelete: Cascade)\n  restaurantId String     @map(\"restaurant_id\")\n  restaurant   Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)\n\n  @@unique([userId, restaurantId])\n  @@map(\"favorites\")\n}\n",
+  "inlineSchemaHash": "0a06eb9c7f7cec59e674075487342d62d802b241968cba4ae622ca305c7017e5",
   "copyEngine": true
 }
 config.dirname = '/'
 
-config.runtimeDataModel = JSON.parse("{\"models\":{\"User\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"email\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"passwordHash\",\"kind\":\"scalar\",\"type\":\"String\",\"dbName\":\"password_hash\"},{\"name\":\"nickname\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\",\"dbName\":\"created_at\"},{\"name\":\"reviews\",\"kind\":\"object\",\"type\":\"Review\",\"relationName\":\"ReviewToUser\"},{\"name\":\"restaurantRequests\",\"kind\":\"object\",\"type\":\"RestaurantRequest\",\"relationName\":\"RestaurantRequestToUser\"}],\"dbName\":\"users\"},\"Restaurant\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"name\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"category\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"address\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"latitude\",\"kind\":\"scalar\",\"type\":\"Float\"},{\"name\":\"longitude\",\"kind\":\"scalar\",\"type\":\"Float\"},{\"name\":\"menus\",\"kind\":\"object\",\"type\":\"Menu\",\"relationName\":\"MenuToRestaurant\"},{\"name\":\"reviews\",\"kind\":\"object\",\"type\":\"Review\",\"relationName\":\"RestaurantToReview\"}],\"dbName\":\"restaurants\"},\"Menu\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"restaurantId\",\"kind\":\"scalar\",\"type\":\"String\",\"dbName\":\"restaurant_id\"},{\"name\":\"restaurant\",\"kind\":\"object\",\"type\":\"Restaurant\",\"relationName\":\"MenuToRestaurant\"},{\"name\":\"name\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"price\",\"kind\":\"scalar\",\"type\":\"Int\"}],\"dbName\":\"menus\"},\"Review\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"userId\",\"kind\":\"scalar\",\"type\":\"String\",\"dbName\":\"user_id\"},{\"name\":\"user\",\"kind\":\"object\",\"type\":\"User\",\"relationName\":\"ReviewToUser\"},{\"name\":\"restaurantId\",\"kind\":\"scalar\",\"type\":\"String\",\"dbName\":\"restaurant_id\"},{\"name\":\"restaurant\",\"kind\":\"object\",\"type\":\"Restaurant\",\"relationName\":\"RestaurantToReview\"},{\"name\":\"rating\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"content\",\"kind\":\"scalar\",\"type\":\"String\"}],\"dbName\":\"reviews\"},\"RestaurantRequest\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"userId\",\"kind\":\"scalar\",\"type\":\"String\",\"dbName\":\"user_id\"},{\"name\":\"user\",\"kind\":\"object\",\"type\":\"User\",\"relationName\":\"RestaurantRequestToUser\"},{\"name\":\"restaurantName\",\"kind\":\"scalar\",\"type\":\"String\",\"dbName\":\"restaurant_name\"},{\"name\":\"address\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"category\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"status\",\"kind\":\"scalar\",\"type\":\"String\"}],\"dbName\":\"restaurant_requests\"}},\"enums\":{},\"types\":{}}")
+config.runtimeDataModel = JSON.parse("{\"models\":{\"User\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"email\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"passwordHash\",\"kind\":\"scalar\",\"type\":\"String\",\"dbName\":\"password_hash\"},{\"name\":\"nickname\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"role\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\",\"dbName\":\"created_at\"},{\"name\":\"reviews\",\"kind\":\"object\",\"type\":\"Review\",\"relationName\":\"ReviewToUser\"},{\"name\":\"restaurantRequests\",\"kind\":\"object\",\"type\":\"RestaurantRequest\",\"relationName\":\"RestaurantRequestToUser\"},{\"name\":\"favorites\",\"kind\":\"object\",\"type\":\"Favorite\",\"relationName\":\"FavoriteToUser\"}],\"dbName\":\"users\"},\"Restaurant\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"name\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"category\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"zone\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"address\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"latitude\",\"kind\":\"scalar\",\"type\":\"Float\"},{\"name\":\"longitude\",\"kind\":\"scalar\",\"type\":\"Float\"},{\"name\":\"minPrice\",\"kind\":\"scalar\",\"type\":\"Int\",\"dbName\":\"min_price\"},{\"name\":\"partnershipStartDate\",\"kind\":\"scalar\",\"type\":\"DateTime\",\"dbName\":\"partnership_start_date\"},{\"name\":\"partnershipEndDate\",\"kind\":\"scalar\",\"type\":\"DateTime\",\"dbName\":\"partnership_end_date\"},{\"name\":\"partnershipInfo\",\"kind\":\"scalar\",\"type\":\"String\",\"dbName\":\"partnership_info\"},{\"name\":\"menus\",\"kind\":\"object\",\"type\":\"Menu\",\"relationName\":\"MenuToRestaurant\"},{\"name\":\"reviews\",\"kind\":\"object\",\"type\":\"Review\",\"relationName\":\"RestaurantToReview\"},{\"name\":\"favorites\",\"kind\":\"object\",\"type\":\"Favorite\",\"relationName\":\"FavoriteToRestaurant\"}],\"dbName\":\"restaurants\"},\"Menu\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"restaurantId\",\"kind\":\"scalar\",\"type\":\"String\",\"dbName\":\"restaurant_id\"},{\"name\":\"restaurant\",\"kind\":\"object\",\"type\":\"Restaurant\",\"relationName\":\"MenuToRestaurant\"},{\"name\":\"name\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"price\",\"kind\":\"scalar\",\"type\":\"Int\"}],\"dbName\":\"menus\"},\"Review\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"userId\",\"kind\":\"scalar\",\"type\":\"String\",\"dbName\":\"user_id\"},{\"name\":\"user\",\"kind\":\"object\",\"type\":\"User\",\"relationName\":\"ReviewToUser\"},{\"name\":\"restaurantId\",\"kind\":\"scalar\",\"type\":\"String\",\"dbName\":\"restaurant_id\"},{\"name\":\"restaurant\",\"kind\":\"object\",\"type\":\"Restaurant\",\"relationName\":\"RestaurantToReview\"},{\"name\":\"rating\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"content\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\",\"dbName\":\"created_at\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\",\"dbName\":\"updated_at\"}],\"dbName\":\"reviews\"},\"RestaurantRequest\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"userId\",\"kind\":\"scalar\",\"type\":\"String\",\"dbName\":\"user_id\"},{\"name\":\"user\",\"kind\":\"object\",\"type\":\"User\",\"relationName\":\"RestaurantRequestToUser\"},{\"name\":\"restaurantName\",\"kind\":\"scalar\",\"type\":\"String\",\"dbName\":\"restaurant_name\"},{\"name\":\"address\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"category\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"menuInfo\",\"kind\":\"scalar\",\"type\":\"String\",\"dbName\":\"menu_info\"},{\"name\":\"status\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\",\"dbName\":\"created_at\"}],\"dbName\":\"restaurant_requests\"},\"Favorite\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"userId\",\"kind\":\"scalar\",\"type\":\"String\",\"dbName\":\"user_id\"},{\"name\":\"user\",\"kind\":\"object\",\"type\":\"User\",\"relationName\":\"FavoriteToUser\"},{\"name\":\"restaurantId\",\"kind\":\"scalar\",\"type\":\"String\",\"dbName\":\"restaurant_id\"},{\"name\":\"restaurant\",\"kind\":\"object\",\"type\":\"Restaurant\",\"relationName\":\"FavoriteToRestaurant\"}],\"dbName\":\"favorites\"}},\"enums\":{},\"types\":{}}")
 defineDmmfProperty(exports.Prisma, config.runtimeDataModel)
 config.engineWasm = {
   getRuntime: async () => require('./query_engine_bg.js'),
@@ -219,9 +232,7 @@ config.engineWasm = {
 config.compilerWasm = undefined
 
 config.injectableEdgeEnv = () => ({
-  parsed: {
-    DATABASE_URL: typeof globalThis !== 'undefined' && globalThis['DATABASE_URL'] || typeof process !== 'undefined' && process.env && process.env.DATABASE_URL || undefined
-  }
+  parsed: {}
 })
 
 if (typeof globalThis !== 'undefined' && globalThis['DEBUG'] || typeof process !== 'undefined' && process.env && process.env.DEBUG || undefined) {

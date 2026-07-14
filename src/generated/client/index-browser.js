@@ -115,9 +115,6 @@ Prisma.NullTypes = {
  */
 
 exports.Prisma.TransactionIsolationLevel = makeStrictEnum({
-  ReadUncommitted: 'ReadUncommitted',
-  ReadCommitted: 'ReadCommitted',
-  RepeatableRead: 'RepeatableRead',
   Serializable: 'Serializable'
 });
 
@@ -126,6 +123,7 @@ exports.Prisma.UserScalarFieldEnum = {
   email: 'email',
   passwordHash: 'passwordHash',
   nickname: 'nickname',
+  role: 'role',
   createdAt: 'createdAt'
 };
 
@@ -133,9 +131,14 @@ exports.Prisma.RestaurantScalarFieldEnum = {
   id: 'id',
   name: 'name',
   category: 'category',
+  zone: 'zone',
   address: 'address',
   latitude: 'latitude',
-  longitude: 'longitude'
+  longitude: 'longitude',
+  minPrice: 'minPrice',
+  partnershipStartDate: 'partnershipStartDate',
+  partnershipEndDate: 'partnershipEndDate',
+  partnershipInfo: 'partnershipInfo'
 };
 
 exports.Prisma.MenuScalarFieldEnum = {
@@ -150,7 +153,9 @@ exports.Prisma.ReviewScalarFieldEnum = {
   userId: 'userId',
   restaurantId: 'restaurantId',
   rating: 'rating',
-  content: 'content'
+  content: 'content',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
 };
 
 exports.Prisma.RestaurantRequestScalarFieldEnum = {
@@ -159,7 +164,15 @@ exports.Prisma.RestaurantRequestScalarFieldEnum = {
   restaurantName: 'restaurantName',
   address: 'address',
   category: 'category',
-  status: 'status'
+  menuInfo: 'menuInfo',
+  status: 'status',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.FavoriteScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  restaurantId: 'restaurantId'
 };
 
 exports.Prisma.SortOrder = {
@@ -167,9 +180,9 @@ exports.Prisma.SortOrder = {
   desc: 'desc'
 };
 
-exports.Prisma.QueryMode = {
-  default: 'default',
-  insensitive: 'insensitive'
+exports.Prisma.NullsOrder = {
+  first: 'first',
+  last: 'last'
 };
 
 
@@ -178,7 +191,8 @@ exports.Prisma.ModelName = {
   Restaurant: 'Restaurant',
   Menu: 'Menu',
   Review: 'Review',
-  RestaurantRequest: 'RestaurantRequest'
+  RestaurantRequest: 'RestaurantRequest',
+  Favorite: 'Favorite'
 };
 
 /**
