@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { ArrowLeft, MapPin, Send } from 'lucide-react'
 
-const CATEGORIES = ['한식', '중식', '일식', '양식', '분식', '카페']
+const CATEGORIES = ['한식', '중식', '일식', '양식', '분식', '카페', '패스트푸드', '기타']
 
 export default function ReportPage() {
   const { data: session } = useSession()

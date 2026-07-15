@@ -6,7 +6,7 @@ import Link from 'next/link'
 import { Search, MapPin, Star, SlidersHorizontal, Heart, ChevronDown, Utensils, X } from 'lucide-react'
 
 const ZONES = ['전체', '정문', '상대', '예대', '후문', '공대쪽문']
-const CATEGORIES = ['전체', '한식', '중식', '일식', '양식', '분식', '카페']
+const CATEGORIES = ['전체', '한식', '중식', '일식', '양식', '분식', '카페', '패스트푸드', '기타']
 const PRICE_RANGES = ['전체', '~5000', '~10000', '~20000', '20000~']
 const PRICE_LABELS: Record<string, string> = {
   '전체': '전체',
@@ -71,7 +71,7 @@ export default function MainPage() {
   }
 
   const categoryEmojis: Record<string, string> = {
-    '한식': '🍚', '중식': '🥟', '일식': '🍣', '양식': '🍝', '분식': '🍢', '카페': '☕',
+    '한식': '🍚', '중식': '🥟', '일식': '🍣', '양식': '🍝', '분식': '🍢', '카페': '☕', '패스트푸드': '🍔', '기타': '🍽️',
   }
 
   return (

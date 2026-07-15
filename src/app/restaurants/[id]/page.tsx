@@ -174,7 +174,7 @@ export default function RestaurantDetailPage() {
             <div className="text-right">
               <div className="w-16 h-16 bg-gradient-to-br from-orange-100 to-red-100 rounded-2xl flex items-center justify-center">
                 <span className="text-3xl">
-                  {restaurant.category === '한식' ? '🍚' : restaurant.category === '중식' ? '🥟' : restaurant.category === '일식' ? '🍣' : restaurant.category === '양식' ? '🍝' : restaurant.category === '분식' ? '🍢' : '☕'}
+                  {restaurant.category === '한식' ? '🍚' : restaurant.category === '중식' ? '🥟' : restaurant.category === '일식' ? '🍣' : restaurant.category === '양식' ? '🍝' : restaurant.category === '분식' ? '🍢' : restaurant.category === '카페' ? '☕' : restaurant.category === '패스트푸드' ? '🍔' : '🍽️'}
                 </span>
               </div>
             </div>
