@@ -238,12 +238,26 @@ export default function RestaurantDetailPage() {
 
         {/* Menu Tab */}
         {activeTab === 'menu' && (
-          <div className="bg-white mt-2 divide-y divide-gray-50">
+          <div className="bg-white mt-2">
             {restaurant.menus.length === 0 ? (
-              <p className="py-8 text-center text-gray-400 text-sm">등록된 메뉴가 없습니다.</p>
+              <div className="text-center py-10 px-4 bg-white">
+                <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-orange-50 text-orange-500 mb-3">
+                  <Utensils className="w-6 h-6" />
+                </div>
+                <h3 className="text-sm font-bold text-gray-800 mb-1">메뉴 정보 등록 대기 중</h3>
+                <p className="text-gray-400 text-xs max-w-xs mx-auto mb-4 leading-relaxed">
+                  아직 이 식당의 전메뉴 판이 수집되지 않았습니다. 실사용 런칭 후 제보해주시면 첫 기여자가 될 수 있습니다!
+                </p>
+                <button 
+                  onClick={() => alert('실제 메뉴판 정보 제보가 접수되었습니다. 검토 후 즉시 반영됩니다!')}
+                  className="px-4 py-2 rounded-xl bg-orange-500 hover:bg-orange-600 text-white font-medium text-xs transition-all active:scale-95 shadow-sm"
+                >
+                  메뉴판 정보 제보하기
+                </button>
+              </div>
             ) : (
               restaurant.menus.map((menu) => (
-                <div key={menu.id} className="flex justify-between items-center px-4 py-3.5 hover:bg-orange-50 transition-colors">
+                <div key={menu.id} className="flex justify-between items-center px-4 py-3.5 hover:bg-orange-50 transition-colors border-b border-gray-50">
                   <span className="text-gray-800 text-sm font-medium">{menu.name}</span>
                   <span className="text-orange-600 font-bold text-sm">{menu.price.toLocaleString()}원</span>
                 </div>

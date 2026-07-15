@@ -1,34 +1,34 @@
 async function test() {
-  const KAKAO_REST_API_KEY = 'aa4fc64f9dc721b724b5674f6cebdd6f'
-  const placeId = "1107405350" // "부엉이산장 광주용봉동점" (CNU spot)
+  const placeId = "1107405350" // "부엉이산장 광주용봉동점"
+  const url = `https://place.map.kakao.com/main/v/${placeId}`
   
   try {
-    const url = `https://place.map.kakao.com/${placeId}`
     const res = await fetch(url, {
       headers: {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+        'Host': 'place.map.kakao.com',
+        'Connection': 'keep-alive',
+        'Accept': 'application/json, text/javascript, */*; q=0.01',
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+        'X-Requested-With': 'XMLHttpRequest',
+        'Sec-Fetch-Site': 'same-origin',
+        'Sec-Fetch-Mode': 'cors',
+        'Sec-Fetch-Dest': 'empty',
+        'Referer': `https://place.map.kakao.com/${placeId}`,
+        'Accept-Language': 'ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7'
       }
     })
     
-    console.log("HTML Details Status Code:", res.status)
+    console.log("Full Emulation Status Code:", res.status)
     if (res.ok) {
-      const html = await res.text()
-      console.log("Successfully fetched HTML page. Size:", html.length, "bytes")
-      
-      // Let's search for script variables or keys like "menuInfo" or "menuList" in the HTML string
-      const hasMenuInfo = html.includes('menuInfo')
-      const hasMenuList = html.includes('menuList')
-      console.log("Includes 'menuInfo':", hasMenuInfo)
-      console.log("Includes 'menuList':", hasMenuList)
-      
-      // Kakao detailed page often stringifies state data inside <script> blocks. Let's find script blocks.
-      // Search for any structured pattern containing menu list
-      if (html.includes('menuInfo')) {
-        const startIdx = html.indexOf('menuInfo')
-        console.log("Snippet near 'menuInfo':", html.substring(startIdx, startIdx + 800))
+      const data = await res.json()
+      console.log("JSON successfully retrieved via Full Emulation!")
+      console.log("Keys:", Object.keys(data))
+      if (data.menuInfo) {
+        console.log("MenuList length:", data.menuInfo.menuList?.length)
+        console.log("MenuList sample:", data.menuInfo.menuList?.slice(0, 3))
       }
     } else {
-      console.log("HTML fetch failed. Body:", await res.text())
+      console.log("Failed body:", await res.text())
     }
   } catch (err: any) {
     console.error("Fetch Exception:", err.message || err)
