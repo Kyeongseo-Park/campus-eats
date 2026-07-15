@@ -68,9 +68,11 @@ export default function RestaurantDetailPage() {
     setLoading(false)
   }
 
-  // Effect to load Kakao Map
+  // Effect to load Kakao Map with asynchronous load safety check
   useEffect(() => {
     if (!restaurant || !mapRef.current) return
+
+    let checkInterval: NodeJS.Timeout
 
     const initMap = () => {
       const kakao = (window as any).kakao
@@ -91,11 +93,26 @@ export default function RestaurantDetailPage() {
           position: markerPosition,
         })
         marker.setMap(map)
+        if (checkInterval) clearInterval(checkInterval)
       })
     }
 
-    if (typeof window !== 'undefined' && (window as any).kakao) {
-      initMap()
+    if (typeof window !== 'undefined') {
+      if ((window as any).kakao && (window as any).kakao.maps) {
+        initMap()
+      } else {
+        // Poll window context every 300ms until Kakao Map script loads
+        checkInterval = setInterval(() => {
+          if ((window as any).kakao && (window as any).kakao.maps) {
+            initMap()
+            clearInterval(checkInterval)
+          }
+        }, 300)
+      }
+    }
+
+    return () => {
+      if (checkInterval) clearInterval(checkInterval)
     }
   }, [restaurant])
 
