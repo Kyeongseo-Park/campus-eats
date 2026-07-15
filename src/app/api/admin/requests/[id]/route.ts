@@ -35,10 +35,10 @@ export async function PATCH(
         data: {
           name: updated.restaurantName,
           category: updated.category,
-          zone: '정문', // default zone, admin can update later
+          zone: '정문', // default zone
           address: updated.address,
-          latitude: 0,
-          longitude: 0,
+          latitude: 35.8895, // default campus lat
+          longitude: 128.6115, // default campus lng
           minPrice: 0,
         },
       })
@@ -46,6 +46,7 @@ export async function PATCH(
 
     return NextResponse.json(updated)
   } catch (error) {
-    return NextResponse.json({ error: '서버 오류' }, { status: 500 })
+    console.error("제보 승인 처리 실패:", error)
+    return NextResponse.json({ error: '서버 오류가 발생했습니다.' }, { status: 500 })
   }
 }

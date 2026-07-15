@@ -41,12 +41,13 @@ export default function AdminPage() {
   }, [session])
 
   const checkAdmin = async () => {
-    const res = await fetch('/api/restaurant-requests')
+    const t = Date.now()
+    const res = await fetch(`/api/restaurant-requests?t=${t}`, { cache: 'no-store' })
     if (res.status === 403) { router.push('/'); return }
     setIsAdmin(true)
     const data = await res.json()
     setRequests(data)
-    const rRes = await fetch('/api/restaurants')
+    const rRes = await fetch(`/api/restaurants?t=${t}`, { cache: 'no-store' })
     if (rRes.ok) setRestaurants(await rRes.json())
     setLoading(false)
   }
@@ -57,15 +58,21 @@ export default function AdminPage() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ status: approve ? '승인' : '반려' }),
     })
-    const res = await fetch('/api/restaurant-requests')
-    setRequests(await res.json())
+    const t = Date.now()
+    const [reqRes, restRes] = await Promise.all([
+      fetch(`/api/restaurant-requests?t=${t}`, { cache: 'no-store' }),
+      fetch(`/api/restaurants?t=${t}`, { cache: 'no-store' })
+    ])
+    if (reqRes.ok) setRequests(await reqRes.json())
+    if (restRes.ok) setRestaurants(await restRes.json())
   }
 
   const handleDeleteRestaurant = async (id: string) => {
     if (!confirm('이 식당을 삭제하시겠습니까?')) return
     await fetch(`/api/restaurants/${id}`, { method: 'DELETE' })
-    const res = await fetch('/api/restaurants')
-    setRestaurants(await res.json())
+    const t = Date.now()
+    const res = await fetch(`/api/restaurants?t=${t}`, { cache: 'no-store' })
+    if (res.ok) setRestaurants(await res.json())
   }
 
   if (!session) {
