@@ -54,7 +54,7 @@ export default async function MyFavoritesPage({
   return (
     <main className="flex flex-1 flex-col gap-6 p-8">
       <div>
-        <h1 className="text-heading font-semibold">즐겨찾기 관리</h1>
+        <h1 className="text-2xl font-semibold">즐겨찾기 관리</h1>
         <Link href="/mypage" className="text-sm text-primary hover:underline">
           ← 마이페이지
         </Link>

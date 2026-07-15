@@ -58,7 +58,7 @@ export default async function AdminRequestsPage({
   return (
     <main className="flex flex-1 flex-col gap-6 p-8">
       <div>
-        <h1 className="text-heading font-semibold">식당 제보 관리</h1>
+        <h1 className="text-2xl font-semibold">식당 제보 관리</h1>
         <Link href="/admin" className="text-sm text-primary hover:underline">
           ← 관리자 대시보드
         </Link>

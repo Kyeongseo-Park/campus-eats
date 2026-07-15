@@ -64,7 +64,7 @@ export default async function RestaurantDetailPage({
       <div>
         <div className="flex items-center justify-between gap-2">
           <div className="flex items-center gap-2">
-            <h1 className="text-title font-semibold">{restaurant.name}</h1>
+            <h1 className="text-2xl font-semibold">{restaurant.name}</h1>
             {partnershipActive && <Badge variant="secondary">제휴</Badge>}
             <FavoriteButton
               restaurantId={restaurant.id}
@@ -97,7 +97,7 @@ export default async function RestaurantDetailPage({
 
       {partnershipActive && (
         <section>
-          <h2 className="text-title font-medium">제휴이벤트</h2>
+          <h2 className="text-lg font-medium">제휴이벤트</h2>
           <p className="mt-2 text-sm">{restaurant.partnershipInfo}</p>
           {restaurant.partnershipEndDate && (
             <p className="text-sm text-muted-foreground">
@@ -120,7 +120,7 @@ export default async function RestaurantDetailPage({
           ) : (
             <ul className="flex flex-col gap-1">
               {restaurant.menus.map((menu) => (
-                <li key={menu.id} className="flex justify-between text-body">
+                <li key={menu.id} className="flex justify-between text-sm">
                   <span>{menu.name}</span>
                   <span className="text-muted-foreground">{menu.price.toLocaleString()}원</span>
                 </li>

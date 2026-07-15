@@ -9,7 +9,7 @@ export default async function ChangePasswordPage() {
     <main className="flex flex-1 flex-col items-center p-8">
       <Card className="w-full max-w-sm">
         <CardHeader>
-          <CardTitle className="text-heading">비밀번호 변경</CardTitle>
+          <CardTitle className="text-2xl">비밀번호 변경</CardTitle>
         </CardHeader>
         <CardContent>
           <ChangePasswordForm />

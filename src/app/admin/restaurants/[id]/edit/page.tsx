@@ -16,7 +16,7 @@ export default async function EditAdminRestaurantPage({ params }: { params: Prom
     <main className="flex flex-1 flex-col items-center p-8">
       <Card className="w-full max-w-lg">
         <CardHeader>
-          <CardTitle className="text-heading">{restaurant.name} 수정</CardTitle>
+          <CardTitle className="text-2xl">{restaurant.name} 수정</CardTitle>
         </CardHeader>
         <CardContent>
           <AdminRestaurantForm

@@ -39,7 +39,7 @@ export default async function MyPage() {
   return (
     <main className="flex flex-1 flex-col gap-6 p-8">
       <div>
-        <h1 className="text-heading font-semibold">마이페이지</h1>
+        <h1 className="text-2xl font-semibold">마이페이지</h1>
         <p className="mt-2 text-muted-foreground">
           {user.nickname}님 ({user.email})
         </p>
@@ -50,7 +50,7 @@ export default async function MyPage() {
 
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle className="text-subtitle">내 리뷰 ({reviewCount})</CardTitle>
+          <CardTitle>내 리뷰 ({reviewCount})</CardTitle>
           <Link href="/mypage/reviews" className="flex items-center text-sm text-primary hover:underline">
             전체보기 <ChevronRight className="size-4" />
           </Link>
@@ -78,7 +78,7 @@ export default async function MyPage() {
 
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle className="text-subtitle">내 제보 ({requestCount})</CardTitle>
+          <CardTitle>내 제보 ({requestCount})</CardTitle>
           <Link href="/mypage/requests" className="flex items-center text-sm text-primary hover:underline">
             전체보기 <ChevronRight className="size-4" />
           </Link>
@@ -106,7 +106,7 @@ export default async function MyPage() {
 
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle className="text-subtitle">즐겨찾기 ({favoriteCount})</CardTitle>
+          <CardTitle>즐겨찾기 ({favoriteCount})</CardTitle>
           <Link href="/mypage/favorites" className="flex items-center text-sm text-primary hover:underline">
             전체보기 <ChevronRight className="size-4" />
           </Link>

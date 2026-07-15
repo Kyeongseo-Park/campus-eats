@@ -183,7 +183,7 @@ function RestaurantDetailCard({
       {restaurant.menus.length > 0 && (
         <ul className="flex flex-col gap-0.5">
           {restaurant.menus.map((menu) => (
-            <li key={menu.name} className="flex justify-between text-body">
+            <li key={menu.name} className="flex justify-between text-sm">
               <span>{menu.name}</span>
               <span className="text-muted-foreground">{menu.price.toLocaleString()}원</span>
             </li>

@@ -95,7 +95,7 @@ export function MyReviewsSection({ reviews }: { reviews: MyReviewItem[] }) {
                 </div>
               </div>
               <StaticStars rating={review.rating} />
-              <p className="mt-1 text-body">
+              <p className="mt-1 text-sm">
                 {review.content}
                 {review.updatedAt.getTime() !== review.createdAt.getTime() && (
                   <span className="ml-1 text-xs text-muted-foreground">(수정됨)</span>

@@ -48,7 +48,7 @@ export default function LoginPage() {
     <main className="flex flex-1 flex-col items-center justify-center p-8">
       <Card className="w-full max-w-sm">
         <CardHeader>
-          <CardTitle className="text-heading">로그인</CardTitle>
+          <CardTitle className="text-2xl">로그인</CardTitle>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="flex flex-col gap-4">

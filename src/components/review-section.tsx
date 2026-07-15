@@ -141,7 +141,7 @@ export function ReviewSection({
                       </div>
                     )}
                   </div>
-                  <p className="mt-1 text-body">
+                  <p className="mt-1 text-sm">
                     {review.content}
                     {review.updatedAt.getTime() !== review.createdAt.getTime() && (
                       <span className="ml-1 text-xs text-muted-foreground">(수정됨)</span>
