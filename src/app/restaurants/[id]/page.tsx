@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { useSession } from 'next-auth/react'
 import Link from 'next/link'
@@ -55,6 +55,7 @@ export default function RestaurantDetailPage() {
   const [editRating, setEditRating] = useState(5)
   const [editContent, setEditContent] = useState('')
   const [activeTab, setActiveTab] = useState<'menu' | 'review' | 'info'>('menu')
+  const mapRef = useRef<HTMLDivElement>(null)
 
   const fetchRestaurant = async () => {
     const res = await fetch(`/api/restaurants/${params.id}?t=${Date.now()}`, {
@@ -66,6 +67,37 @@ export default function RestaurantDetailPage() {
     setIsFavorited(data.isFavorited || false)
     setLoading(false)
   }
+
+  // Effect to load Kakao Map
+  useEffect(() => {
+    if (activeTab !== 'info' || !restaurant || !mapRef.current) return
+
+    const initMap = () => {
+      const kakao = (window as any).kakao
+      if (!kakao || !kakao.maps) return
+
+      kakao.maps.load(() => {
+        const container = mapRef.current
+        if (!container) return
+        const options = {
+          center: new kakao.maps.LatLng(restaurant.latitude, restaurant.longitude),
+          level: 3,
+        }
+        const map = new kakao.maps.Map(container, options)
+
+        // Add Marker
+        const markerPosition = new kakao.maps.LatLng(restaurant.latitude, restaurant.longitude)
+        const marker = new kakao.maps.Marker({
+          position: markerPosition,
+        })
+        marker.setMap(map)
+      })
+    }
+
+    if (typeof window !== 'undefined' && (window as any).kakao) {
+      initMap()
+    }
+  }, [activeTab, restaurant])
 
   useEffect(() => {
     fetchRestaurant()
@@ -351,13 +383,9 @@ export default function RestaurantDetailPage() {
         {/* Info/Location Tab */}
         {activeTab === 'info' && (
           <div className="mt-2 bg-white">
-            {/* Map Placeholder */}
-            <div className="h-52 bg-gradient-to-br from-green-100 via-emerald-50 to-teal-100 flex flex-col items-center justify-center">
-              <MapPin className="w-8 h-8 text-emerald-600 animate-bounce" />
-              <p className="text-emerald-700 font-medium text-sm mt-1">지도</p>
-              <p className="text-emerald-500 text-xs">위도: {restaurant.latitude} · 경도: {restaurant.longitude}</p>
-            </div>
-            <div className="p-4">
+            {/* Kakao Map Container */}
+            <div ref={mapRef} className="h-64 w-full bg-gray-100 relative" style={{ minHeight: '260px' }} />
+            <div className="p-4 border-t border-gray-100">
               <div className="flex items-start gap-2">
                 <MapPin className="w-4 h-4 text-gray-400 mt-0.5" />
                 <div>
