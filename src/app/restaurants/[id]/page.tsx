@@ -54,7 +54,7 @@ export default function RestaurantDetailPage() {
   const [editingReviewId, setEditingReviewId] = useState<string | null>(null)
   const [editRating, setEditRating] = useState(5)
   const [editContent, setEditContent] = useState('')
-  const [activeTab, setActiveTab] = useState<'menu' | 'review' | 'info'>('menu')
+  const [activeTab, setActiveTab] = useState<'menu' | 'review'>('menu')
   const mapRef = useRef<HTMLDivElement>(null)
 
   const fetchRestaurant = async () => {
@@ -70,7 +70,7 @@ export default function RestaurantDetailPage() {
 
   // Effect to load Kakao Map
   useEffect(() => {
-    if (activeTab !== 'info' || !restaurant || !mapRef.current) return
+    if (!restaurant || !mapRef.current) return
 
     const initMap = () => {
       const kakao = (window as any).kakao
@@ -97,7 +97,7 @@ export default function RestaurantDetailPage() {
     if (typeof window !== 'undefined' && (window as any).kakao) {
       initMap()
     }
-  }, [activeTab, restaurant])
+  }, [restaurant])
 
   useEffect(() => {
     fetchRestaurant()
@@ -180,6 +180,9 @@ export default function RestaurantDetailPage() {
       </header>
 
       <main className="max-w-md mx-auto pb-8">
+        {/* Persistent Kakao Map at the Top */}
+        <div ref={mapRef} className="h-56 w-full bg-gray-100 border-b border-gray-200 relative shadow-inner" style={{ minHeight: '220px' }} />
+
         {/* Restaurant Info Card */}
         <div className="bg-white px-4 py-5 border-b border-gray-100">
           <div className="flex items-start justify-between">
@@ -240,7 +243,7 @@ export default function RestaurantDetailPage() {
 
         {/* Tabs */}
         <div className="mt-4 flex bg-white border-b border-gray-200">
-          {(['menu', 'review', 'info'] as const).map((tab) => (
+          {(['menu', 'review'] as const).map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
@@ -250,7 +253,7 @@ export default function RestaurantDetailPage() {
                   : 'border-transparent text-gray-500 hover:text-gray-700'
               }`}
             >
-              {tab === 'menu' ? '메뉴' : tab === 'review' ? `리뷰 (${restaurant.reviews.length})` : '위치'}
+              {tab === 'menu' ? '메뉴' : `리뷰 (${restaurant.reviews.length})`}
             </button>
           ))}
         </div>
@@ -380,22 +383,7 @@ export default function RestaurantDetailPage() {
           </div>
         )}
 
-        {/* Info/Location Tab */}
-        {activeTab === 'info' && (
-          <div className="mt-2 bg-white">
-            {/* Kakao Map Container */}
-            <div ref={mapRef} className="h-64 w-full bg-gray-100 relative" style={{ minHeight: '260px' }} />
-            <div className="p-4 border-t border-gray-100">
-              <div className="flex items-start gap-2">
-                <MapPin className="w-4 h-4 text-gray-400 mt-0.5" />
-                <div>
-                  <p className="text-sm text-gray-800 font-medium">주소</p>
-                  <p className="text-sm text-gray-600 mt-0.5">{restaurant.address}</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
+
       </main>
     </div>
   )
