@@ -68,46 +68,48 @@ export default function RestaurantDetailPage() {
     setLoading(false)
   }
 
-  // Effect to load Kakao Map with asynchronous load safety check
+  // Effect to load Leaflet OpenStreetMap (free API-Key configuration)
   useEffect(() => {
     if (!restaurant || !mapRef.current) return
 
     let checkInterval: NodeJS.Timeout
 
     const initMap = () => {
-      const kakao = (window as any).kakao
-      if (!kakao || !kakao.maps) return
+      const L = (window as any).L
+      if (!L) return
 
-      kakao.maps.load(() => {
-        const container = mapRef.current
-        if (!container) return
-        const options = {
-          center: new kakao.maps.LatLng(restaurant.latitude, restaurant.longitude),
-          level: 3,
-        }
-        const map = new kakao.maps.Map(container, options)
+      const container = mapRef.current
+      if (!container) return
 
-        // Add Marker
-        const markerPosition = new kakao.maps.LatLng(restaurant.latitude, restaurant.longitude)
-        const marker = new kakao.maps.Marker({
-          position: markerPosition,
-        })
-        marker.setMap(map)
-        if (checkInterval) clearInterval(checkInterval)
-      })
+      // Clean up previous Leaflet instance if present to avoid duplicate binding errors
+      const containerVal = container as any
+      if (containerVal._leaflet_id) {
+        container.innerHTML = ""
+        containerVal._leaflet_id = null
+      }
+
+      const map = L.map(container).setView([restaurant.latitude, restaurant.longitude], 16)
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '© OpenStreetMap'
+      }).addTo(map)
+
+      L.marker([restaurant.latitude, restaurant.longitude]).addTo(map)
+      
+      if (checkInterval) clearInterval(checkInterval)
     }
 
     if (typeof window !== 'undefined') {
-      if ((window as any).kakao && (window as any).kakao.maps) {
+      if ((window as any).L) {
         initMap()
       } else {
-        // Poll window context every 300ms until Kakao Map script loads
+        // Poll window context until Leaflet Script loads
         checkInterval = setInterval(() => {
-          if ((window as any).kakao && (window as any).kakao.maps) {
+          if ((window as any).L) {
             initMap()
             clearInterval(checkInterval)
           }
-        }, 300)
+        }, 200)
       }
     }
 
