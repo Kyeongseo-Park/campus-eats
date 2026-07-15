@@ -55,7 +55,7 @@ export default async function AdminMembersPage({
   return (
     <main className="flex flex-1 flex-col gap-6 p-8">
       <div>
-        <h1 className="text-2xl font-semibold">회원 관리</h1>
+        <h1 className="text-heading font-semibold">회원 관리</h1>
         <Link href="/admin" className="text-sm text-primary hover:underline">
           ← 관리자 대시보드
         </Link>
@@ -82,7 +82,7 @@ export default async function AdminMembersPage({
         {members.length === 0 ? (
           <p className="text-sm text-muted-foreground">조건에 맞는 회원이 없어요.</p>
         ) : (
-          <div className="overflow-x-auto rounded-lg border">
+          <div className="overflow-x-auto rounded-md border">
             <table className="w-full text-sm">
               <thead className="bg-muted/50 text-left text-muted-foreground">
                 <tr>

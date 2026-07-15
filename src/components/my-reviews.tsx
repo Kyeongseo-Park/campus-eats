@@ -62,7 +62,7 @@ export function MyReviewsSection({ reviews }: { reviews: MyReviewItem[] }) {
   return (
     <ul className="mt-2 flex flex-col gap-3">
       {reviews.map((review) => (
-        <li key={review.id} className="rounded-lg border p-3">
+        <li key={review.id} className="rounded-md border p-3">
           {editingId === review.id ? (
             <form onSubmit={(event) => handleEditSubmit(event, review.id)} className="flex flex-col gap-2">
               <Link href={`/restaurants/${review.restaurant.id}`} className="text-sm font-medium hover:underline">
@@ -95,7 +95,7 @@ export function MyReviewsSection({ reviews }: { reviews: MyReviewItem[] }) {
                 </div>
               </div>
               <StaticStars rating={review.rating} />
-              <p className="mt-1 text-sm">
+              <p className="mt-1 text-body">
                 {review.content}
                 {review.updatedAt.getTime() !== review.createdAt.getTime() && (
                   <span className="ml-1 text-xs text-muted-foreground">(수정됨)</span>

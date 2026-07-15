@@ -109,7 +109,7 @@ export function ReviewSection({
       ) : (
         <ul className="flex flex-col gap-3">
           {reviews.map((review) => (
-            <li key={review.id} className="rounded-lg border p-3">
+            <li key={review.id} className="rounded-md border p-3">
               {editingId === review.id ? (
                 <form onSubmit={(event) => handleEditSubmit(event, review.id)} className="flex flex-col gap-2">
                   <StarPicker value={editRating} onChange={setEditRating} />
@@ -141,7 +141,7 @@ export function ReviewSection({
                       </div>
                     )}
                   </div>
-                  <p className="mt-1 text-sm">
+                  <p className="mt-1 text-body">
                     {review.content}
                     {review.updatedAt.getTime() !== review.createdAt.getTime() && (
                       <span className="ml-1 text-xs text-muted-foreground">(수정됨)</span>
@@ -155,7 +155,7 @@ export function ReviewSection({
       )}
 
       {currentUserId ? (
-        <form onSubmit={handleCreateSubmit} className="flex flex-col gap-2 rounded-lg border p-3">
+        <form onSubmit={handleCreateSubmit} className="flex flex-col gap-2 rounded-md border p-3">
           <span className="text-sm font-medium">리뷰 작성</span>
           <StarPicker value={rating} onChange={setRating} />
           <Input

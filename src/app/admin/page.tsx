@@ -32,7 +32,7 @@ export default async function AdminDashboardPage() {
   return (
     <main className="flex flex-1 flex-col gap-6 p-8">
       <div>
-        <h1 className="text-2xl font-semibold">관리자 대시보드</h1>
+        <h1 className="text-heading font-semibold">관리자 대시보드</h1>
         <p className="mt-2 text-muted-foreground">{user.nickname}님, 관리자 권한으로 접속했습니다.</p>
       </div>
 
@@ -41,11 +41,11 @@ export default async function AdminDashboardPage() {
           <Link key={section.href} href={section.href}>
             <Card className="h-full transition-colors hover:bg-muted/50">
               <CardHeader>
-                <CardTitle>{section.title}</CardTitle>
+                <CardTitle className="text-subtitle">{section.title}</CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-sm text-muted-foreground">{section.description}</p>
-                <p className="mt-2 text-2xl font-semibold">{section.count.toLocaleString()}</p>
+                <p className="mt-2 text-title font-semibold">{section.count.toLocaleString()}</p>
               </CardContent>
             </Card>
           </Link>

@@ -180,6 +180,16 @@ function RestaurantDetailCard({
           </Button>
         </div>
       </div>
+      {restaurant.menus.length > 0 && (
+        <ul className="flex flex-col gap-0.5">
+          {restaurant.menus.map((menu) => (
+            <li key={menu.name} className="flex justify-between text-body">
+              <span>{menu.name}</span>
+              <span className="text-muted-foreground">{menu.price.toLocaleString()}원</span>
+            </li>
+          ))}
+        </ul>
+      )}
       <Button nativeButton={false} render={<Link href={detailHref} />} className="mt-1 w-fit">
         상세보기
       </Button>

@@ -28,6 +28,8 @@ export type RestaurantListItem = {
   avgRating: number | null;
   reviewCount: number;
   distanceKm: number;
+  /// 요약카드에 보여줄 대표메뉴 최대 3개.
+  menus: { name: string; price: number }[];
 };
 
 // 가격대는 배타적 구간이다. 여러 개를 체크하면 각 구간을 OR로 묶어서 보여준다
@@ -72,7 +74,10 @@ export async function searchRestaurants(params: RestaurantSearchParams): Promise
 
   const restaurants = await prisma.restaurant.findMany({
     where,
-    include: { reviews: { select: { rating: true } } },
+    include: {
+      reviews: { select: { rating: true } },
+      menus: { select: { name: true, price: true }, take: 3 },
+    },
   });
 
   const origin = params.origin ?? SCHOOL_MAIN_GATE;
@@ -92,6 +97,7 @@ export async function searchRestaurants(params: RestaurantSearchParams): Promise
       avgRating,
       reviewCount: r.reviews.length,
       distanceKm: haversineDistanceKm(origin, { latitude: r.latitude, longitude: r.longitude }),
+      menus: r.menus,
     };
   });
 

@@ -54,7 +54,7 @@ export default async function MyFavoritesPage({
   return (
     <main className="flex flex-1 flex-col gap-6 p-8">
       <div>
-        <h1 className="text-2xl font-semibold">즐겨찾기 관리</h1>
+        <h1 className="text-heading font-semibold">즐겨찾기 관리</h1>
         <Link href="/mypage" className="text-sm text-primary hover:underline">
           ← 마이페이지
         </Link>
@@ -83,7 +83,7 @@ export default async function MyFavoritesPage({
         ) : (
           <ul className="flex flex-col gap-1">
             {favorites.map((favorite) => (
-              <li key={favorite.id} className="flex items-center justify-between rounded-lg border p-3">
+              <li key={favorite.id} className="flex items-center justify-between rounded-md border p-3">
                 <Link href={`/restaurants/${favorite.restaurant.id}`} className="text-sm hover:underline">
                   {favorite.restaurant.name}
                   <span className="ml-1 text-muted-foreground">

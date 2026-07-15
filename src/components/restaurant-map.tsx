@@ -18,11 +18,15 @@ export type RestaurantMapPoint = {
 const CAFE_CATEGORY = "카페";
 type MarkerKind = "cafe" | "food";
 
-// 브랜드 강조색(orange). 일반 마커는 옅고 반투명하게 두어 지도 위 도로명/건물명이
-// 비쳐 보이게 하고, 선택된 마커만 크고 진하게 강조한다.
+// 마커 색상 규칙: 일반(오렌지) / 선택됨(빨강) / 내 위치(파랑, 항상 고정).
+// 일반 마커는 옅고 반투명하게 두어 지도 위 도로명/건물명이 비쳐 보이게 하고,
+// 선택된 마커만 크고 진하게 강조한다.
 const PIN_NORMAL_SIZE = 21;
 const PIN_SELECTED_SIZE = 30;
-const PIN_COLOR = "#f97316";
+const PIN_COLOR_NORMAL = "#FF6B00";
+const PIN_COLOR_SELECTED = "#EF4444";
+const MY_LOCATION_COLOR = "#3B82F6";
+const MY_LOCATION_SIZE = 18;
 
 // 24x24 좌표계에 그려 두면 최종 픽셀 크기(PIN_NORMAL_SIZE 등)가 바뀌어도
 // viewBox가 알아서 스케일해 주므로 아이콘을 다시 그릴 필요가 없다.
@@ -44,21 +48,26 @@ const UTENSILS_ICON_SVG =
 function buildPinImageSrc(
   kind: MarkerKind,
   size: number,
-  { fillOpacity, strokeWidth }: { fillOpacity: number; strokeWidth: number }
+  { fillOpacity, strokeWidth, color }: { fillOpacity: number; strokeWidth: number; color: string }
 ) {
   const icon = kind === "cafe" ? COFFEE_ICON_SVG : UTENSILS_ICON_SVG;
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="${PIN_COLOR}" fill-opacity="${fillOpacity}" stroke="#ffffff" stroke-width="${strokeWidth}" />${icon}</svg>`;
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="${color}" fill-opacity="${fillOpacity}" stroke="#ffffff" stroke-width="${strokeWidth}" />${icon}</svg>`;
   return `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`;
 }
 
-// 클러스터 원은 마커와 같은 브랜드 톤(orange)을 유지하되, 묶인 개수가 많을수록
+function buildMyLocationImageSrc() {
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${MY_LOCATION_SIZE}" height="${MY_LOCATION_SIZE}" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="${MY_LOCATION_COLOR}" stroke="#ffffff" stroke-width="3" /></svg>`;
+  return `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`;
+}
+
+// 클러스터 원은 일반 마커와 같은 브랜드 톤(오렌지)을 유지하되, 묶인 개수가 많을수록
 // 크고 진해지도록 4단계로 나눈다.
 const CLUSTER_CALCULATOR = [10, 30, 60];
 const CLUSTER_STYLES: Array<Partial<CSSStyleDeclaration>> = [
-  clusterStyle(32, "rgba(249, 115, 22, 0.85)"),
-  clusterStyle(40, "rgba(249, 115, 22, 0.85)"),
-  clusterStyle(48, "rgba(234, 88, 12, 0.88)"),
-  clusterStyle(56, "rgba(194, 65, 12, 0.9)"),
+  clusterStyle(32, "rgba(255, 107, 0, 0.85)"),
+  clusterStyle(40, "rgba(255, 107, 0, 0.85)"),
+  clusterStyle(48, "rgba(230, 96, 0, 0.88)"),
+  clusterStyle(56, "rgba(194, 81, 0, 0.9)"),
 ];
 
 function clusterStyle(size: number, background: string): Partial<CSSStyleDeclaration> {
@@ -101,6 +110,7 @@ export function RestaurantMap({
   const markersRef = useRef<Map<string, MarkerEntry>>(new Map());
   const markerImagesRef = useRef<MarkerImages | null>(null);
   const myLocationMarkerRef = useRef<kakao.maps.Marker | null>(null);
+  const myLocationImageRef = useRef<kakao.maps.MarkerImage | null>(null);
   const selectedIdRef = useRef<string | null>(null);
   const onMarkerClickRef = useRef(onMarkerClick);
   useEffect(() => {
@@ -125,19 +135,23 @@ export function RestaurantMap({
       const map = new window.kakao.maps.Map(containerRef.current, { center, level: 4 });
       mapObjRef.current = map;
 
-      const makeImage = (kind: MarkerKind, size: number, opts: { fillOpacity: number; strokeWidth: number }) =>
+      const makeImage = (
+        kind: MarkerKind,
+        size: number,
+        opts: { fillOpacity: number; strokeWidth: number; color: string }
+      ) =>
         new window.kakao.maps.MarkerImage(buildPinImageSrc(kind, size, opts), new window.kakao.maps.Size(size, size), {
           offset: new window.kakao.maps.Point(size / 2, size / 2),
         });
 
       markerImagesRef.current = {
         food: {
-          normal: makeImage("food", PIN_NORMAL_SIZE, { fillOpacity: 0.75, strokeWidth: 1.6 }),
-          selected: makeImage("food", PIN_SELECTED_SIZE, { fillOpacity: 1, strokeWidth: 2.2 }),
+          normal: makeImage("food", PIN_NORMAL_SIZE, { fillOpacity: 0.75, strokeWidth: 1.6, color: PIN_COLOR_NORMAL }),
+          selected: makeImage("food", PIN_SELECTED_SIZE, { fillOpacity: 1, strokeWidth: 2.2, color: PIN_COLOR_SELECTED }),
         },
         cafe: {
-          normal: makeImage("cafe", PIN_NORMAL_SIZE, { fillOpacity: 0.75, strokeWidth: 1.6 }),
-          selected: makeImage("cafe", PIN_SELECTED_SIZE, { fillOpacity: 1, strokeWidth: 2.2 }),
+          normal: makeImage("cafe", PIN_NORMAL_SIZE, { fillOpacity: 0.75, strokeWidth: 1.6, color: PIN_COLOR_NORMAL }),
+          selected: makeImage("cafe", PIN_SELECTED_SIZE, { fillOpacity: 1, strokeWidth: 2.2, color: PIN_COLOR_SELECTED }),
         },
       };
       // 지도를 축소해 넓은 지역을 볼 때(레벨 6 이상)만 마커를 클러스터로 묶는다.
@@ -149,12 +163,18 @@ export function RestaurantMap({
         styles: CLUSTER_STYLES,
       });
 
+      myLocationImageRef.current = new window.kakao.maps.MarkerImage(
+        buildMyLocationImageSrc(),
+        new window.kakao.maps.Size(MY_LOCATION_SIZE, MY_LOCATION_SIZE),
+        { offset: new window.kakao.maps.Point(MY_LOCATION_SIZE / 2, MY_LOCATION_SIZE / 2) }
+      );
+
       setIsMapReady(true);
 
       // 위치 권한이 없거나 실패하면 학교 정문 좌표를 기준으로 유지한다 (PRD 6.1).
       navigator.geolocation?.getCurrentPosition((pos) => {
         const position = new window.kakao.maps.LatLng(pos.coords.latitude, pos.coords.longitude);
-        myLocationMarkerRef.current = new window.kakao.maps.Marker({ position, map });
+        myLocationMarkerRef.current = new window.kakao.maps.Marker({ position, map, image: myLocationImageRef.current! });
       });
     });
   }, [isSdkReady]);
@@ -172,7 +192,7 @@ export function RestaurantMap({
       if (myLocationMarkerRef.current) {
         myLocationMarkerRef.current.setPosition(position);
       } else {
-        myLocationMarkerRef.current = new window.kakao.maps.Marker({ position, map });
+        myLocationMarkerRef.current = new window.kakao.maps.Marker({ position, map, image: myLocationImageRef.current! });
       }
       // setLevel을 호출하지 않으므로 기존 확대/축소 레벨이 그대로 유지된다.
       map.panTo(position);

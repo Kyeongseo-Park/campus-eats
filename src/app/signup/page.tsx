@@ -54,7 +54,7 @@ export default function SignupPage() {
     <main className="flex flex-1 flex-col items-center justify-center p-8">
       <Card className="w-full max-w-sm">
         <CardHeader>
-          <CardTitle className="text-2xl">회원가입</CardTitle>
+          <CardTitle className="text-heading">회원가입</CardTitle>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="flex flex-col gap-4">

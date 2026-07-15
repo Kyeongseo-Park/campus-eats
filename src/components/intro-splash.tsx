@@ -32,7 +32,7 @@ export function IntroSplash() {
       onTransitionEnd={() => phase === "fading" && setPhase("hidden")}
       aria-hidden
     >
-      <h1 className="text-3xl font-semibold">학식 말고 뭐 먹지?</h1>
+      <h1 className="text-heading font-semibold">학식 말고 뭐 먹지?</h1>
       <p className="max-w-xs text-muted-foreground">
         학교 주변 식당의 메뉴, 가격, 리뷰, 제휴이벤트를 한곳에서 확인하세요.
       </p>

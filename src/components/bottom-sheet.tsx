@@ -65,7 +65,7 @@ export function BottomSheet({
   return (
     <div
       ref={containerRef}
-      className="absolute inset-0 z-30 flex flex-col overflow-hidden rounded-t-2xl bg-background shadow-[0_-4px_16px_rgba(0,0,0,0.12)] ring-1 ring-foreground/10"
+      className="absolute inset-0 z-30 flex flex-col overflow-hidden rounded-t-md bg-background shadow-[0_-4px_16px_rgba(0,0,0,0.12)] ring-1 ring-foreground/10"
       style={{
         transform,
         transition: isDragging ? "none" : "transform 200ms ease-out",

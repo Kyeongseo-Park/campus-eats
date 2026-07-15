@@ -18,7 +18,7 @@ export default async function ApproveRestaurantRequestPage({ params }: { params:
     <main className="flex flex-1 flex-col items-center p-8">
       <Card className="w-full max-w-lg">
         <CardHeader>
-          <CardTitle className="text-2xl">제보 승인 — {request.restaurantName}</CardTitle>
+          <CardTitle className="text-heading">제보 승인 — {request.restaurantName}</CardTitle>
         </CardHeader>
         <CardContent>
           <AdminRestaurantForm

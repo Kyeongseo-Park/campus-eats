@@ -149,7 +149,7 @@ export function RestaurantFilters() {
         />
       )}
       {openPanel === "sort" && (
-        <div className="flex flex-wrap gap-1.5 rounded-xl border border-border/60 bg-muted/20 p-3">
+        <div className="flex flex-wrap gap-1.5 rounded-md border border-border/60 bg-muted/20 p-3">
           {SORT_OPTIONS.map((option) => (
             <Button
               key={option.value}
@@ -206,7 +206,7 @@ function CheckboxPanel({
   onSelectAll?: () => void;
 }) {
   return (
-    <div className="flex flex-wrap gap-2 rounded-xl border border-border/60 bg-muted/20 p-3">
+    <div className="flex flex-wrap gap-2 rounded-md border border-border/60 bg-muted/20 p-3">
       {onSelectAll && <FilterChip label="전체" checked={selected.length === 0} onCheckedChange={onSelectAll} />}
       {options.map((option) => (
         <FilterChip

@@ -16,7 +16,7 @@ import { Prisma } from "@/generated/prisma/client";
 const PAGE_SIZE = 20;
 
 const SELECT_CLASS =
-  "h-8 w-full rounded-lg border border-input bg-transparent px-2.5 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 dark:bg-input/30";
+  "h-8 w-full rounded-md border border-input bg-transparent px-2.5 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 dark:bg-input/30";
 
 function firstParam(value: string | string[] | undefined): string | undefined {
   return Array.isArray(value) ? value[0] : value;
@@ -65,7 +65,7 @@ export default async function AdminRestaurantsPage({
     <main className="flex flex-1 flex-col gap-6 p-8">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-semibold">식당 관리</h1>
+          <h1 className="text-heading font-semibold">식당 관리</h1>
           <Link href="/admin" className="text-sm text-primary hover:underline">
             ← 관리자 대시보드
           </Link>
@@ -122,7 +122,7 @@ export default async function AdminRestaurantsPage({
         {restaurants.length === 0 ? (
           <p className="text-sm text-muted-foreground">조건에 맞는 식당이 없어요.</p>
         ) : (
-          <div className="overflow-x-auto rounded-lg border">
+          <div className="overflow-x-auto rounded-md border">
             <table className="w-full text-sm">
               <thead className="bg-muted/50 text-left text-muted-foreground">
                 <tr>

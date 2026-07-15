@@ -58,7 +58,7 @@ export function PasswordResetRequestForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="mt-4 flex flex-col gap-3 rounded-lg border p-4">
+    <form onSubmit={handleSubmit} className="mt-4 flex flex-col gap-3 rounded-md border p-4">
       <div className="flex flex-col gap-1.5">
         <Label htmlFor="password-request-email">가입 시 사용한 이메일</Label>
         <Input

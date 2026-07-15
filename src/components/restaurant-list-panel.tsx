@@ -65,7 +65,7 @@ export function RestaurantListPanel({
               onClick={() => onSelect(restaurant.id)}
               onKeyDown={(event) => handleKeyDown(event, restaurant.id)}
               className={cn(
-                "h-full cursor-pointer rounded-2xl shadow-sm ring-1 ring-black/5 transition-all hover:-translate-y-0.5 hover:shadow-md",
+                "h-full cursor-pointer rounded-md shadow-sm ring-1 ring-black/5 transition-all hover:-translate-y-0.5 hover:shadow-md",
                 selectedId === restaurant.id && "ring-2 ring-primary"
               )}
             >

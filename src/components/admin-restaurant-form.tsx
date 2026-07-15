@@ -29,7 +29,7 @@ export type AdminRestaurantFormValues = {
 const EMPTY_MENU_ROW: MenuRow = { name: "", price: "" };
 
 const SELECT_CLASS =
-  "h-8 w-full rounded-lg border border-input bg-transparent px-2.5 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 dark:bg-input/30";
+  "h-8 w-full rounded-md border border-input bg-transparent px-2.5 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 dark:bg-input/30";
 
 export function AdminRestaurantForm({
   initialValues,
@@ -301,7 +301,7 @@ export function AdminRestaurantForm({
       <div className="flex flex-col gap-2">
         <Label>메뉴 *</Label>
         {reportedMenuInfo && (
-          <p className="rounded-lg bg-muted p-2 text-xs text-muted-foreground">
+          <p className="rounded-md bg-muted p-2 text-xs text-muted-foreground">
             제보자가 입력한 메뉴 정보 (참고용, 아래에 직접 입력해주세요): {reportedMenuInfo}
           </p>
         )}
@@ -332,7 +332,7 @@ export function AdminRestaurantForm({
       </div>
 
       {isEdit && (
-        <div className="flex flex-col gap-2 rounded-lg border p-3">
+        <div className="flex flex-col gap-2 rounded-md border p-3">
           <span className="text-sm font-medium">제휴이벤트</span>
           <div className="grid grid-cols-2 gap-3">
             <div className="flex flex-col gap-1.5">

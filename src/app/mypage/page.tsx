@@ -39,7 +39,7 @@ export default async function MyPage() {
   return (
     <main className="flex flex-1 flex-col gap-6 p-8">
       <div>
-        <h1 className="text-2xl font-semibold">마이페이지</h1>
+        <h1 className="text-heading font-semibold">마이페이지</h1>
         <p className="mt-2 text-muted-foreground">
           {user.nickname}님 ({user.email})
         </p>
@@ -50,7 +50,7 @@ export default async function MyPage() {
 
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle>내 리뷰 ({reviewCount})</CardTitle>
+          <CardTitle className="text-subtitle">내 리뷰 ({reviewCount})</CardTitle>
           <Link href="/mypage/reviews" className="flex items-center text-sm text-primary hover:underline">
             전체보기 <ChevronRight className="size-4" />
           </Link>
@@ -61,7 +61,7 @@ export default async function MyPage() {
           ) : (
             <ul className="flex flex-col gap-1">
               {reviews.map((review) => (
-                <li key={review.id} className="flex items-center justify-between rounded-lg border p-3">
+                <li key={review.id} className="flex items-center justify-between rounded-md border p-3">
                   <Link href={`/restaurants/${review.restaurant.id}`} className="text-sm font-medium hover:underline">
                     {review.restaurant.name}
                   </Link>
@@ -78,7 +78,7 @@ export default async function MyPage() {
 
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle>내 제보 ({requestCount})</CardTitle>
+          <CardTitle className="text-subtitle">내 제보 ({requestCount})</CardTitle>
           <Link href="/mypage/requests" className="flex items-center text-sm text-primary hover:underline">
             전체보기 <ChevronRight className="size-4" />
           </Link>
@@ -89,7 +89,7 @@ export default async function MyPage() {
           ) : (
             <ul className="flex flex-col gap-1">
               {requests.map((req) => (
-                <li key={req.id} className="flex items-center justify-between rounded-lg border p-3">
+                <li key={req.id} className="flex items-center justify-between rounded-md border p-3">
                   <span className="text-sm">
                     {req.restaurantName}
                     <span className="ml-1 text-muted-foreground">
@@ -106,7 +106,7 @@ export default async function MyPage() {
 
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle>즐겨찾기 ({favoriteCount})</CardTitle>
+          <CardTitle className="text-subtitle">즐겨찾기 ({favoriteCount})</CardTitle>
           <Link href="/mypage/favorites" className="flex items-center text-sm text-primary hover:underline">
             전체보기 <ChevronRight className="size-4" />
           </Link>
@@ -117,7 +117,7 @@ export default async function MyPage() {
           ) : (
             <ul className="flex flex-col gap-1">
               {favorites.map((favorite) => (
-                <li key={favorite.id} className="flex items-center justify-between rounded-lg border p-3">
+                <li key={favorite.id} className="flex items-center justify-between rounded-md border p-3">
                   <Link href={`/restaurants/${favorite.restaurant.id}`} className="text-sm hover:underline">
                     {favorite.restaurant.name}
                     <span className="ml-1 text-muted-foreground">

@@ -9,7 +9,7 @@ export default async function NewRestaurantRequestPage() {
     <main className="flex flex-1 flex-col items-center justify-center p-8">
       <Card className="w-full max-w-sm">
         <CardHeader>
-          <CardTitle className="text-2xl">식당 제보</CardTitle>
+          <CardTitle className="text-heading">식당 제보</CardTitle>
         </CardHeader>
         <CardContent>
           <RestaurantRequestForm />
