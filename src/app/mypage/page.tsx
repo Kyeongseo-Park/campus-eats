@@ -104,11 +104,30 @@ export default function MyPage() {
             <div className="w-14 h-14 bg-gradient-to-br from-orange-400 to-red-500 rounded-2xl flex items-center justify-center shadow-md">
               <span className="text-2xl font-bold text-white">{session.user?.name?.[0] ?? '학'}</span>
             </div>
-            <div>
-              <h2 className="font-bold text-gray-900 text-lg">{session.user?.name}</h2>
+            <div className="flex-1">
+              <div className="flex items-center gap-1.5">
+                <h2 className="font-bold text-gray-900 text-lg">{session.user?.name}</h2>
+                {session.user?.role === 'admin' && (
+                  <span className="px-2 py-0.5 bg-red-100 text-red-700 text-[10px] font-bold rounded-full">관리자</span>
+                )}
+              </div>
               <p className="text-sm text-gray-500">{session.user?.email}</p>
             </div>
           </div>
+
+          {/* Admin Dashboard Entry */}
+          {session.user?.role === 'admin' && (
+            <Link
+              href="/admin"
+              className="mt-4 flex items-center justify-between bg-red-50 hover:bg-red-100 border border-red-100 rounded-2xl p-3.5 transition-all group"
+            >
+              <div className="flex items-center gap-2">
+                <span className="text-lg">⚙️</span>
+                <span className="text-sm font-bold text-red-800">관리자 대시보드 바로가기</span>
+              </div>
+              <span className="text-xs text-red-600 font-medium group-hover:translate-x-1 transition-transform">이동하기 →</span>
+            </Link>
+          )}
 
           {/* Quick Actions */}
           <div className="mt-4 grid grid-cols-3 gap-2">
