@@ -3,254 +3,331 @@ import * as bcrypt from 'bcryptjs'
 
 const prisma = new PrismaClient()
 
+const KAKAO_REST_API_KEY = 'aa4fc64f9dc721b724b5674f6cebdd6f'
+
+// CNU Gate Anchors for final Zone partitioning
+const ANCHORS = {
+  '후문': '전남대학교 스포츠센터',
+  '공대쪽문': '전남대학교 공과대학 5호관',
+  '예대': '전남대학교 예술대학 3호관',
+  '상대': '전남대학교 진리관',
+  '정문': '전남대학교 광주캠퍼스 정문'
+}
+
+// CNU Campus Center Library for strict 1km radial filter
+const LIBRARY_ANCHOR = '전남대학교 도서관 본관'
+
+// Distance computation using Haversine formula
+function getDistance(lat1: number, lon1: number, lat2: number, lon2: number): number {
+  const R = 6371 // Earth radius in km
+  const dLat = (lat2 - lat1) * Math.PI / 180
+  const dLon = (lon2 - lon1) * Math.PI / 180
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+    Math.sin(dLon / 2) * Math.sin(dLon / 2)
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
+  return R * c // Distance in km
+}
+
+// Kakao category description mapper
+function mapCategory(categoryName: string): string {
+  if (categoryName.includes('한식')) return '한식'
+  if (categoryName.includes('중식') || categoryName.includes('중화요리')) return '중식'
+  if (categoryName.includes('일식') || categoryName.includes('돈까스') || categoryName.includes('초밥')) return '일식'
+  if (categoryName.includes('양식') || categoryName.includes('파스타') || categoryName.includes('패밀리레스토랑')) return '양식'
+  if (categoryName.includes('분식') || categoryName.includes('떡볶이')) return '분식'
+  // Map bakeries and baker shops into Cafe category
+  if (categoryName.includes('카페') || categoryName.includes('커피') || categoryName.includes('제과') || categoryName.includes('베이커리')) return '카페'
+  if (categoryName.includes('패스트푸드') || categoryName.includes('햄버거') || categoryName.includes('피자')) return '패스트푸드'
+  return '기타'
+}
+
+// Smart menu generator depending on category
+function generateMenus(category: string): { name: string; price: number }[] {
+  switch (category) {
+    case '한식':
+      return [
+        { name: '김치찌개 정식', price: 8000 },
+        { name: '제육볶음 백반', price: 9000 },
+        { name: '된장찌개', price: 7500 },
+      ]
+    case '중식':
+      return [
+        { name: '짜장면', price: 6500 },
+        { name: '짬뽕', price: 7500 },
+        { name: '탕수육 (소)', price: 15000 },
+      ]
+    case '일식':
+      return [
+        { name: '모듬 초밥 (10p)', price: 14000 },
+        { name: '등심 돈카츠', price: 9500 },
+        { name: '규동 (소고기 덮밥)', price: 9000 },
+      ]
+    case '양식':
+      return [
+        { name: '토마토 파스타', price: 11000 },
+        { name: '고르곤졸라 피자', price: 14000 },
+        { name: '쉬림프 리조또', price: 12500 },
+      ]
+    case '분식':
+      return [
+        { name: '매콤 떡볶이', price: 4500 },
+        { name: '모듬 튀김', price: 5000 },
+        { name: '참치 마요 김밥', price: 4000 },
+      ]
+    case '카페':
+      return [
+        { name: '아메리카노', price: 3500 },
+        { name: '카페라떼', price: 4200 },
+        { name: '수제 치즈케이크', price: 5500 },
+      ]
+    case '패스트푸드':
+      return [
+        { name: '치즈버거 세트', price: 7200 },
+        { name: '베이컨 토마토 디럭스', price: 8200 },
+        { name: '감자튀김 L', price: 3000 },
+      ]
+    default:
+      return [
+        { name: '시그니처 메뉴', price: 9500 },
+        { name: '오늘의 요리', price: 11000 },
+        { name: '수제 음료', price: 4500 },
+      ]
+  }
+}
+
+const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
+
+async function getCoordinates(keyword: string): Promise<{ lat: number; lng: number } | null> {
+  try {
+    const url = `https://dapi.kakao.com/v2/local/search/keyword.json?query=${encodeURIComponent(keyword)}`
+    await sleep(100) // Delay to prevent Rate-Limiting
+    const response = await fetch(url, {
+      headers: {
+        'Authorization': `KakaoAK ${KAKAO_REST_API_KEY}`,
+        'KA': 'sdk/1.0.0 os/javascript lang/ko device/web origin/http://localhost:3000'
+      }
+    })
+
+    if (!response.ok) {
+      const errorText = await response.text()
+      console.error(`Kakao API request failed for: ${keyword} (Status: ${response.status}, Details: ${errorText})`)
+      return null
+    }
+
+    const data = await response.json()
+    if (!data.documents || data.documents.length === 0) {
+      console.error(`No search result found on Kakao for: ${keyword}`)
+      return null
+    }
+
+    // Get coordinates
+    const doc = data.documents[0]
+    return {
+      lat: parseFloat(doc.y),
+      lng: parseFloat(doc.x)
+    }
+  } catch (err: any) {
+    console.error(`❌ getCoordinates network error for keyword [${keyword}]:`, err.message || err)
+    return null
+  }
+}
+
+async function searchCategory(lat: number, lng: number, code: string, radius: number = 1000): Promise<any[]> {
+  let allDocs: any[] = []
+
+  // Loop pages to collect enough records
+  for (let page = 1; page <= 3; page++) {
+    try {
+      const url = `https://dapi.kakao.com/v2/local/search/category.json?category_group_code=${code}&x=${lng}&y=${lat}&radius=${radius}&page=${page}`
+      await sleep(100) // Rate-Limiting protection delay
+      const response = await fetch(url, {
+        headers: {
+          'Authorization': `KakaoAK ${KAKAO_REST_API_KEY}`,
+          'KA': 'sdk/1.0.0 os/javascript lang/ko device/web origin/http://localhost:3000'
+        }
+      })
+
+      if (!response.ok) break
+      const data = await response.json()
+      if (!data.documents || data.documents.length === 0) break
+      allDocs = allDocs.concat(data.documents)
+    } catch (err: any) {
+      console.warn(`⚠️ searchCategory warning on page ${page} near ${lat},${lng}:`, err.message || err)
+      break // Skip mapping to allow partial seeding
+    }
+  }
+
+  return allDocs
+}
+
 async function main() {
-  // Clear existing data
+  console.log('🔄 Purging old database tables...')
+  // Delete cascading records first due to foreign key constraints
   await prisma.favorite.deleteMany()
   await prisma.review.deleteMany()
   await prisma.menu.deleteMany()
   await prisma.restaurantRequest.deleteMany()
   await prisma.restaurant.deleteMany()
   await prisma.user.deleteMany()
+  console.log('🗑️ DB purge complete.')
 
-  // Create users
+  console.log('\n🔄 Creating development users (Admin and Students)...')
   const passwordHash = await bcrypt.hash('test1234', 10)
   const adminHash = await bcrypt.hash('admin1234', 10)
 
-  const user1 = await prisma.user.create({
+  await prisma.user.create({
     data: { email: 'student@example.com', passwordHash, nickname: '학생1', role: 'user' },
   })
-  const user2 = await prisma.user.create({
+  await prisma.user.create({
     data: { email: 'student2@example.com', passwordHash, nickname: '밥친구', role: 'user' },
   })
-  const admin = await prisma.user.create({
+  await prisma.user.create({
     data: { email: 'admin@example.com', passwordHash: adminHash, nickname: '관리자', role: 'admin' },
   })
+  console.log('👤 Development users created.')
 
-  // Create restaurants with menus
-  const restaurants = [
-    {
-      name: '김밥천국 정문점',
-      category: '분식',
-      zone: '정문',
-      address: '대학로 12-3',
-      latitude: 35.8895,
-      longitude: 128.6115,
-      minPrice: 3500,
-      partnershipStartDate: new Date('2026-07-01'),
-      partnershipEndDate: new Date('2026-08-31'),
-      partnershipInfo: '학생증 제시 시 김밥류 500원 할인',
-      menus: [
-        { name: '참치김밥', price: 4500 },
-        { name: '라볶이', price: 5500 },
-        { name: '떡볶이', price: 3500 },
-        { name: '순대', price: 4000 },
-      ],
-    },
-    {
-      name: '맛있는 중화반점',
-      category: '중식',
-      zone: '정문',
-      address: '대학로 15-7',
-      latitude: 35.8900,
-      longitude: 128.6120,
-      minPrice: 7000,
-      menus: [
-        { name: '짜장면', price: 7000 },
-        { name: '짬뽕', price: 8000 },
-        { name: '탕수육(소)', price: 15000 },
-        { name: '볶음밥', price: 8000 },
-      ],
-    },
-    {
-      name: '스시오마카세 예대점',
-      category: '일식',
-      zone: '예대',
-      address: '예술관길 5',
-      latitude: 35.8870,
-      longitude: 128.6090,
-      minPrice: 12000,
-      partnershipStartDate: new Date('2026-07-10'),
-      partnershipEndDate: new Date('2026-07-31'),
-      partnershipInfo: '총학생회 제휴 - 런치 코스 20% 할인',
-      menus: [
-        { name: '런치 초밥세트', price: 12000 },
-        { name: '사시미 정식', price: 18000 },
-        { name: '우동', price: 9000 },
-      ],
-    },
-    {
-      name: '후문 파스타집',
-      category: '양식',
-      zone: '후문',
-      address: '후문로 22',
-      latitude: 35.8860,
-      longitude: 128.6140,
-      minPrice: 9000,
-      menus: [
-        { name: '토마토 파스타', price: 9000 },
-        { name: '크림 파스타', price: 10000 },
-        { name: '스테이크', price: 22000 },
-        { name: '리조또', price: 11000 },
-      ],
-    },
-    {
-      name: '엄마손 한식당',
-      category: '한식',
-      zone: '상대',
-      address: '상대로 8-2',
-      latitude: 35.8910,
-      longitude: 128.6100,
-      minPrice: 6000,
-      partnershipStartDate: new Date('2026-06-01'),
-      partnershipEndDate: new Date('2026-12-31'),
-      partnershipInfo: '학생증 제시 시 국밥류 1000원 할인',
-      menus: [
-        { name: '된장찌개', price: 7000 },
-        { name: '김치찌개', price: 7000 },
-        { name: '제육볶음', price: 8000 },
-        { name: '순두부찌개', price: 6000 },
-      ],
-    },
-    {
-      name: '공대 커피하우스',
-      category: '카페',
-      zone: '공대쪽문',
-      address: '공학로 3',
-      latitude: 35.8880,
-      longitude: 128.6150,
-      minPrice: 2500,
-      menus: [
-        { name: '아메리카노', price: 2500 },
-        { name: '카페라떼', price: 3500 },
-        { name: '바닐라라떼', price: 4000 },
-        { name: '딸기스무디', price: 5000 },
-      ],
-    },
-    {
-      name: '정문 돈까스',
-      category: '일식',
-      zone: '정문',
-      address: '대학로 18',
-      latitude: 35.8898,
-      longitude: 128.6118,
-      minPrice: 8000,
-      menus: [
-        { name: '등심돈까스', price: 8000 },
-        { name: '치즈돈까스', price: 9500 },
-        { name: '생선까스', price: 8500 },
-      ],
-    },
-    {
-      name: '상대 국밥집',
-      category: '한식',
-      zone: '상대',
-      address: '상대로 15',
-      latitude: 35.8915,
-      longitude: 128.6105,
-      minPrice: 7000,
-      menus: [
-        { name: '돼지국밥', price: 7000 },
-        { name: '순대국밥', price: 8000 },
-        { name: '수육', price: 25000 },
-      ],
-    },
-    {
-      name: '예대 카페 봄날',
-      category: '카페',
-      zone: '예대',
-      address: '예술관길 12',
-      latitude: 35.8868,
-      longitude: 128.6085,
-      minPrice: 3000,
-      partnershipStartDate: new Date('2026-07-01'),
-      partnershipEndDate: new Date('2026-07-20'),
-      partnershipInfo: '예대 학생회 제휴 - 음료 전메뉴 500원 할인',
-      menus: [
-        { name: '핸드드립', price: 4500 },
-        { name: '아이스티', price: 3000 },
-        { name: '케이크 세트', price: 8000 },
-      ],
-    },
-    {
-      name: '후문 치킨&피자',
-      category: '양식',
-      zone: '후문',
-      address: '후문로 30',
-      latitude: 35.8855,
-      longitude: 128.6145,
-      minPrice: 9000,
-      menus: [
-        { name: '후라이드치킨', price: 18000 },
-        { name: '양념치킨', price: 19000 },
-        { name: '페퍼로니피자', price: 15000 },
-        { name: '치킨텐더', price: 9000 },
-      ],
-    },
-  ]
+  console.log('\n🔄 Fetching coordinates of CNU Campus Library (Campus Center)...')
+  const libraryCenter = await getCoordinates(LIBRARY_ANCHOR)
+  if (!libraryCenter) {
+    console.error('❌ Failed to resolve CNU Library Center coordinate. Seeding aborted.')
+    return
+  }
+  console.log(`📍 Library Center: ${libraryCenter.lat}, ${libraryCenter.lng}`)
 
-  for (const r of restaurants) {
-    const { menus, ...restaurantData } = r
-    const restaurant = await prisma.restaurant.create({
-      data: restaurantData,
-    })
-    for (const m of menus) {
-      await prisma.menu.create({
-        data: { ...m, restaurantId: restaurant.id },
+  console.log('\n🔄 Fetching coordinates of CNU Campus Gate Anchors...')
+  const anchorCoordinates: Record<string, { lat: number; lng: number }> = {}
+
+  for (const [zoneName, keyword] of Object.entries(ANCHORS)) {
+    const coords = await getCoordinates(keyword)
+    if (coords) {
+      anchorCoordinates[zoneName] = coords
+      console.log(`📍 Gate Anchor [${zoneName}]: ${coords.lat}, ${coords.lng} (${keyword})`)
+    }
+  }
+
+  console.log('\n🔄 Gathering restaurant and cafe entries near Library Center from Kakao API...')
+  const uniqueRestaurants = new Map<string, any>()
+  const categories = ['FD6', 'CE7']
+
+  // Scan surrounding using libraryCenter as the main core to cover campus bounds
+  for (const catCode of categories) {
+    const docs = await searchCategory(libraryCenter.lat, libraryCenter.lng, catCode, 1200)
+    console.log(`- Retrieved ${docs.length} spots in category [${catCode}] near Library`)
+
+    for (const doc of docs) {
+      const categoryStr = doc.category_name || ''
+      const nameStr = doc.place_name || ''
+
+      // Filter out bars, beer houses, pubs, and izakayas
+      const isAlcoholSpot = categoryStr.includes('술집') || categoryStr.includes('호프') || 
+                            categoryStr.includes('주점') || categoryStr.includes('포장마차') || 
+                            categoryStr.includes('이자카야') || categoryStr.includes('바(bar)') ||
+                            nameStr.includes('포차') || nameStr.includes('맥주') || nameStr.includes('호프')
+
+      if (isAlcoholSpot) continue
+
+      const key = doc.id || doc.road_address_name || doc.place_name
+      if (!uniqueRestaurants.has(key)) {
+        uniqueRestaurants.set(key, doc)
+      }
+    }
+  }
+
+  // Also query gate anchors to capture all edge dining blocks
+  for (const [zoneName, center] of Object.entries(anchorCoordinates)) {
+    for (const catCode of categories) {
+      const docs = await searchCategory(center.lat, center.lng, catCode, 500)
+      for (const doc of docs) {
+        const categoryStr = doc.category_name || ''
+        const nameStr = doc.place_name || ''
+
+        // Alcohol exclusion check
+        const isAlcoholSpot = categoryStr.includes('술집') || categoryStr.includes('호프') || 
+                              categoryStr.includes('주점') || categoryStr.includes('포장마차') || 
+                              categoryStr.includes('이자카야') || categoryStr.includes('바(bar)') ||
+                              nameStr.includes('포차') || nameStr.includes('맥주') || nameStr.includes('호프')
+
+        if (isAlcoholSpot) continue
+
+        const key = doc.id || doc.road_address_name || doc.place_name
+        if (!uniqueRestaurants.has(key)) {
+          uniqueRestaurants.set(key, doc)
+        }
+      }
+    }
+  }
+
+  console.log(`\n✅ Raw unique collection complete: ${uniqueRestaurants.size} places found around campus bounds.`)
+
+  console.log('\n🔄 Enforcing strict 1.0 km radius limit from Library Center and mapping zones...')
+  const mappedRestaurants: any[] = []
+
+  for (const doc of uniqueRestaurants.values()) {
+    const docLat = parseFloat(doc.y)
+    const docLng = parseFloat(doc.x)
+
+    // Calculate distance to Library Center
+    const distanceToLibrary = getDistance(docLat, docLng, libraryCenter.lat, libraryCenter.lng)
+
+    // Accept only within 1.0 km of Library Center (approx. 15min walk from heart of campus)
+    if (distanceToLibrary <= 1.0) {
+      let closestZone = ''
+      let minDistanceToGate = Infinity
+
+      // Map to the closest CNU gate zone
+      for (const [zoneName, center] of Object.entries(anchorCoordinates)) {
+        const dist = getDistance(docLat, docLng, center.lat, center.lng)
+        if (dist < minDistanceToGate) {
+          minDistanceToGate = dist
+          closestZone = zoneName
+        }
+      }
+
+      mappedRestaurants.push({
+        name: doc.place_name,
+        category: mapCategory(doc.category_name),
+        zone: closestZone || '정문', // Fallback to 정문
+        address: doc.road_address_name || doc.address_name,
+        latitude: docLat,
+        longitude: docLng,
       })
     }
   }
 
-  // Get created restaurants for reviews
-  const allRestaurants = await prisma.restaurant.findMany()
+  console.log(`✅ Filtered: Assigned ${mappedRestaurants.length} clean spots inside CNU Library 1.0 km radius bounds.`)
 
-  // Create some reviews
-  const reviewData = [
-    { userId: user1.id, restaurantId: allRestaurants[0].id, rating: 4, content: '가성비 최고! 학교 앞에서 이 가격이면 훌륭합니다.' },
-    { userId: user2.id, restaurantId: allRestaurants[0].id, rating: 5, content: '떡볶이가 맛있어요. 점심시간에 빨리 먹기 좋아요.' },
-    { userId: user1.id, restaurantId: allRestaurants[1].id, rating: 3, content: '짜장면 양이 좀 적은 편이에요. 맛은 괜찮습니다.' },
-    { userId: user2.id, restaurantId: allRestaurants[2].id, rating: 5, content: '런치 세트가 정말 좋아요! 제휴 할인까지 받으면 가성비 최고.' },
-    { userId: user1.id, restaurantId: allRestaurants[3].id, rating: 4, content: '크림 파스타 추천합니다. 분위기도 좋아요.' },
-    { userId: user2.id, restaurantId: allRestaurants[4].id, rating: 5, content: '된장찌개가 진짜 엄마 맛이에요. 밥 리필도 됩니다.' },
-    { userId: user1.id, restaurantId: allRestaurants[4].id, rating: 4, content: '제육볶음도 맛있어요. 학생 할인도 해줘서 자주 가요.' },
-    { userId: user2.id, restaurantId: allRestaurants[5].id, rating: 4, content: '조용하고 커피 맛도 좋아요. 과제하기 딱입니다.' },
-    { userId: user1.id, restaurantId: allRestaurants[7].id, rating: 5, content: '국밥 국물이 진하고 맛있습니다. 해장으로 최고!' },
-    { userId: user2.id, restaurantId: allRestaurants[8].id, rating: 4, content: '분위기 좋고 케이크가 맛있어요.' },
-  ]
+  console.log('\n🔄 Seeding CNU restaurant data and menus into DB...')
+  let seedCount = 0
 
-  for (const review of reviewData) {
-    await prisma.review.create({ data: review })
+  for (const spot of mappedRestaurants) {
+    const menus = generateMenus(spot.category)
+    const minPrice = Math.min(...menus.map(m => m.price))
+
+    await prisma.restaurant.create({
+      data: {
+        name: spot.name,
+        category: spot.category,
+        zone: spot.zone,
+        address: spot.address,
+        latitude: spot.latitude,
+        longitude: spot.longitude,
+        minPrice: minPrice,
+        menus: {
+          create: menus
+        }
+      }
+    })
+    seedCount++
   }
 
-  // Create a restaurant request
-  await prisma.restaurantRequest.create({
-    data: {
-      userId: user1.id,
-      restaurantName: '새로운 맛집',
-      address: '정문로 45',
-      category: '한식',
-      menuInfo: '부대찌개 8000원, 김치볶음밥 7000원',
-      status: '대기',
-    },
-  })
-
-  // Create favorites
-  await prisma.favorite.create({
-    data: { userId: user1.id, restaurantId: allRestaurants[0].id },
-  })
-  await prisma.favorite.create({
-    data: { userId: user1.id, restaurantId: allRestaurants[4].id },
-  })
-
-  console.log('✅ Seed data created successfully!')
-  console.log(`  - Users: 3 (student@example.com / student2@example.com / admin@example.com)`)
-  console.log(`  - Restaurants: ${allRestaurants.length}`)
-  console.log(`  - Reviews: ${reviewData.length}`)
+  console.log(`\n🎉 CNU Seeding successfully completed! Inserted ${seedCount} clean restaurants and menus into sqlite DB.`)
 }
 
 main()
-  .catch((e) => {
-    console.error(e)
-    process.exit(1)
+  .catch(e => {
+    console.error('❌ Seeding crawler error:', e)
   })
   .finally(async () => {
     await prisma.$disconnect()
