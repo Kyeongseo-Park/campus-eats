@@ -55,7 +55,6 @@ export default function RestaurantDetailPage() {
   const [editRating, setEditRating] = useState(5)
   const [editContent, setEditContent] = useState('')
   const [activeTab, setActiveTab] = useState<'menu' | 'review'>('menu')
-  const mapRef = useRef<HTMLDivElement>(null)
 
   const fetchRestaurant = async () => {
     const res = await fetch(`/api/restaurants/${params.id}?t=${Date.now()}`, {
@@ -68,55 +67,7 @@ export default function RestaurantDetailPage() {
     setLoading(false)
   }
 
-  // Effect to load Leaflet OpenStreetMap (free API-Key configuration)
-  useEffect(() => {
-    if (!restaurant || !mapRef.current) return
 
-    let checkInterval: NodeJS.Timeout
-
-    const initMap = () => {
-      const L = (window as any).L
-      if (!L) return
-
-      const container = mapRef.current
-      if (!container) return
-
-      // Clean up previous Leaflet instance if present to avoid duplicate binding errors
-      const containerVal = container as any
-      if (containerVal._leaflet_id) {
-        container.innerHTML = ""
-        containerVal._leaflet_id = null
-      }
-
-      const map = L.map(container).setView([restaurant.latitude, restaurant.longitude], 16)
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        maxZoom: 19,
-        attribution: '© OpenStreetMap'
-      }).addTo(map)
-
-      L.marker([restaurant.latitude, restaurant.longitude]).addTo(map)
-      
-      if (checkInterval) clearInterval(checkInterval)
-    }
-
-    if (typeof window !== 'undefined') {
-      if ((window as any).L) {
-        initMap()
-      } else {
-        // Poll window context until Leaflet Script loads
-        checkInterval = setInterval(() => {
-          if ((window as any).L) {
-            initMap()
-            clearInterval(checkInterval)
-          }
-        }, 200)
-      }
-    }
-
-    return () => {
-      if (checkInterval) clearInterval(checkInterval)
-    }
-  }, [restaurant])
 
   useEffect(() => {
     fetchRestaurant()
@@ -199,8 +150,16 @@ export default function RestaurantDetailPage() {
       </header>
 
       <main className="max-w-md mx-auto pb-8">
-        {/* Persistent Kakao Map at the Top */}
-        <div ref={mapRef} className="h-56 w-full bg-gray-100 border-b border-gray-200 relative shadow-inner" style={{ minHeight: '220px' }} />
+        {/* Persistent Google Map at the Top - 100% Reliable & Keyless */}
+        <div className="h-56 w-full bg-gray-100 border-b border-gray-200 relative shadow-inner overflow-hidden" style={{ minHeight: '220px' }}>
+          <iframe
+            src={`https://maps.google.com/maps?q=${restaurant.latitude},${restaurant.longitude}&z=17&output=embed&hl=ko`}
+            className="w-full h-full border-0"
+            allowFullScreen={false}
+            loading="lazy"
+            referrerPolicy="no-referrer-when-downgrade"
+          />
+        </div>
 
         {/* Restaurant Info Card */}
         <div className="bg-white px-4 py-5 border-b border-gray-100">
