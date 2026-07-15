@@ -65,13 +65,13 @@ export function RestaurantListPanel({
               onKeyDown={(event) => handleKeyDown(event, restaurant.id)}
               className={cn(
                 "h-full cursor-pointer rounded-2xl shadow-sm ring-1 ring-black/5 transition-all hover:-translate-y-0.5 hover:shadow-md",
-                selectedId === restaurant.id && "ring-2 ring-orange-500"
+                selectedId === restaurant.id && "ring-2 ring-primary"
               )}
             >
               <CardHeader>
                 <CardTitle className="pr-8">{restaurant.name}</CardTitle>
                 <CardDescription className="flex flex-wrap items-center gap-x-1.5">
-                  <span className="font-medium text-orange-600">{restaurant.category}</span>
+                  <span className="font-medium text-primary">{restaurant.category}</span>
                   <span>· {restaurant.zone}</span>
                   {restaurant.avgRating !== null && (
                     <span className="ml-auto flex items-center gap-0.5 font-semibold text-foreground">
@@ -83,7 +83,7 @@ export function RestaurantListPanel({
                 </CardDescription>
                 {restaurant.isPartnershipActive && (
                   <CardAction className="mr-8">
-                    <Badge className="border-orange-200 bg-orange-50 text-orange-700">제휴</Badge>
+                    <Badge variant="secondary">제휴</Badge>
                   </CardAction>
                 )}
               </CardHeader>

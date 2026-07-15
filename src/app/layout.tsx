@@ -37,7 +37,7 @@ export default async function RootLayout({
       <body className="flex h-dvh flex-col overflow-hidden">
         <header className="flex shrink-0 flex-wrap items-center justify-between gap-x-4 gap-y-1 border-b px-4 py-2">
           <Link href="/" className="flex items-center gap-2">
-            <span className="flex size-7 shrink-0 items-center justify-center rounded-lg bg-orange-500 text-white">
+            <span className="flex size-7 shrink-0 items-center justify-center rounded-lg bg-primary text-primary-foreground">
               <UtensilsCrossed className="size-4" />
             </span>
             <span className="text-lg font-bold tracking-tight">학식 말고 뭐 먹지?</span>
@@ -46,11 +46,11 @@ export default async function RootLayout({
             {user ? (
               <>
                 <span className="text-muted-foreground">{user.nickname}님</span>
-                <Link href="/mypage" className="font-medium text-muted-foreground transition-colors hover:text-orange-500">
+                <Link href="/mypage" className="font-medium text-muted-foreground transition-colors hover:text-primary">
                   마이페이지
                 </Link>
                 {user.role === "admin" && (
-                  <Link href="/admin" className="font-medium text-muted-foreground transition-colors hover:text-orange-500">
+                  <Link href="/admin" className="font-medium text-muted-foreground transition-colors hover:text-primary">
                     관리자
                   </Link>
                 )}
@@ -58,10 +58,10 @@ export default async function RootLayout({
               </>
             ) : (
               <>
-                <Link href="/login" className="font-medium text-muted-foreground transition-colors hover:text-orange-500">
+                <Link href="/login" className="font-medium text-muted-foreground transition-colors hover:text-primary">
                   로그인
                 </Link>
-                <Link href="/signup" className="font-medium text-muted-foreground transition-colors hover:text-orange-500">
+                <Link href="/signup" className="font-medium text-muted-foreground transition-colors hover:text-primary">
                   회원가입
                 </Link>
               </>

@@ -9,18 +9,76 @@ import { SCHOOL_MAIN_GATE } from "@/lib/constants";
 export type RestaurantMapPoint = {
   id: string;
   name: string;
+  category: string;
   latitude: number;
   longitude: number;
 };
 
-// 테마 자체가 무채색(oklch chroma 0)이라 bg-primary 등 시맨틱 색상으로는
-// 선택 여부가 거의 구분되지 않는다. 지도 핀만은 고정된 파란색 강조색을 쓴다.
-const PIN_BASE_CLASS =
-  "flex items-center justify-center rounded-full ring-2 ring-background shadow-md cursor-pointer transition-transform";
-const PIN_NORMAL_CLASS = `${PIN_BASE_CLASS} h-5 w-5 bg-foreground/80`;
-const PIN_SELECTED_CLASS = `${PIN_BASE_CLASS} h-7 w-7 bg-blue-500 scale-110`;
+// 카테고리를 "카페" vs "그 외 전부"의 두 그룹으로 단순화해 아이콘 2종만 쓴다.
+const CAFE_CATEGORY = "카페";
+type MarkerKind = "cafe" | "food";
 
-type OverlayEntry = { overlay: kakao.maps.CustomOverlay; el: HTMLDivElement };
+// 브랜드 강조색(orange). 일반 마커는 옅고 반투명하게 두어 지도 위 도로명/건물명이
+// 비쳐 보이게 하고, 선택된 마커만 크고 진하게 강조한다.
+const PIN_NORMAL_SIZE = 21;
+const PIN_SELECTED_SIZE = 30;
+const PIN_COLOR = "#f97316";
+
+// 24x24 좌표계에 그려 두면 최종 픽셀 크기(PIN_NORMAL_SIZE 등)가 바뀌어도
+// viewBox가 알아서 스케일해 주므로 아이콘을 다시 그릴 필요가 없다.
+const COFFEE_ICON_SVG =
+  '<rect x="8" y="9" width="8" height="7" rx="1.5" fill="#fff"/>' +
+  '<path d="M16 10.5h1.3a1.6 1.6 0 0 1 0 3.2H16" fill="none" stroke="#fff" stroke-width="1.4" stroke-linecap="round"/>' +
+  '<rect x="7.3" y="16.3" width="9.4" height="1.1" rx="0.55" fill="#fff"/>';
+
+// 왼쪽: 숟가락, 오른쪽: 포크 (한식/양식/중식/일식/분식/패스트푸드/기타 공용 아이콘).
+const UTENSILS_ICON_SVG =
+  '<ellipse cx="8.7" cy="8.6" rx="1.75" ry="2.4" fill="#fff"/>' +
+  '<rect x="8.25" y="10.8" width="0.9" height="6.2" rx="0.45" fill="#fff"/>' +
+  '<rect x="14.6" y="7" width="0.7" height="3" rx="0.35" fill="#fff"/>' +
+  '<rect x="15.6" y="7" width="0.7" height="3" rx="0.35" fill="#fff"/>' +
+  '<rect x="16.6" y="7" width="0.7" height="3" rx="0.35" fill="#fff"/>' +
+  '<rect x="14.6" y="9.6" width="2.7" height="1" rx="0.5" fill="#fff"/>' +
+  '<rect x="15.55" y="10.6" width="0.8" height="6.4" rx="0.4" fill="#fff"/>';
+
+function buildPinImageSrc(
+  kind: MarkerKind,
+  size: number,
+  { fillOpacity, strokeWidth }: { fillOpacity: number; strokeWidth: number }
+) {
+  const icon = kind === "cafe" ? COFFEE_ICON_SVG : UTENSILS_ICON_SVG;
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="${PIN_COLOR}" fill-opacity="${fillOpacity}" stroke="#ffffff" stroke-width="${strokeWidth}" />${icon}</svg>`;
+  return `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`;
+}
+
+// 클러스터 원은 마커와 같은 브랜드 톤(orange)을 유지하되, 묶인 개수가 많을수록
+// 크고 진해지도록 4단계로 나눈다.
+const CLUSTER_CALCULATOR = [10, 30, 60];
+const CLUSTER_STYLES: Array<Partial<CSSStyleDeclaration>> = [
+  clusterStyle(32, "rgba(249, 115, 22, 0.85)"),
+  clusterStyle(40, "rgba(249, 115, 22, 0.85)"),
+  clusterStyle(48, "rgba(234, 88, 12, 0.88)"),
+  clusterStyle(56, "rgba(194, 65, 12, 0.9)"),
+];
+
+function clusterStyle(size: number, background: string): Partial<CSSStyleDeclaration> {
+  return {
+    width: `${size}px`,
+    height: `${size}px`,
+    lineHeight: `${size - 2}px`,
+    background,
+    border: "2px solid #fff",
+    borderRadius: "50%",
+    color: "#fff",
+    textAlign: "center",
+    fontWeight: "700",
+    fontSize: size >= 48 ? "14px" : "12px",
+  };
+}
+
+type MarkerEntry = { marker: kakao.maps.Marker; isCafe: boolean };
+type MarkerImageSet = { normal: kakao.maps.MarkerImage; selected: kakao.maps.MarkerImage };
+type MarkerImages = { food: MarkerImageSet; cafe: MarkerImageSet };
 
 export function RestaurantMap({
   restaurants,
@@ -39,7 +97,9 @@ export function RestaurantMap({
 }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapObjRef = useRef<kakao.maps.Map | null>(null);
-  const overlaysRef = useRef<Map<string, OverlayEntry>>(new Map());
+  const clustererRef = useRef<kakao.maps.MarkerClusterer | null>(null);
+  const markersRef = useRef<Map<string, MarkerEntry>>(new Map());
+  const markerImagesRef = useRef<MarkerImages | null>(null);
   const myLocationMarkerRef = useRef<kakao.maps.Marker | null>(null);
   const selectedIdRef = useRef<string | null>(null);
   const onMarkerClickRef = useRef(onMarkerClick);
@@ -64,6 +124,31 @@ export function RestaurantMap({
       const center = new window.kakao.maps.LatLng(SCHOOL_MAIN_GATE.latitude, SCHOOL_MAIN_GATE.longitude);
       const map = new window.kakao.maps.Map(containerRef.current, { center, level: 4 });
       mapObjRef.current = map;
+
+      const makeImage = (kind: MarkerKind, size: number, opts: { fillOpacity: number; strokeWidth: number }) =>
+        new window.kakao.maps.MarkerImage(buildPinImageSrc(kind, size, opts), new window.kakao.maps.Size(size, size), {
+          offset: new window.kakao.maps.Point(size / 2, size / 2),
+        });
+
+      markerImagesRef.current = {
+        food: {
+          normal: makeImage("food", PIN_NORMAL_SIZE, { fillOpacity: 0.75, strokeWidth: 1.6 }),
+          selected: makeImage("food", PIN_SELECTED_SIZE, { fillOpacity: 1, strokeWidth: 2.2 }),
+        },
+        cafe: {
+          normal: makeImage("cafe", PIN_NORMAL_SIZE, { fillOpacity: 0.75, strokeWidth: 1.6 }),
+          selected: makeImage("cafe", PIN_SELECTED_SIZE, { fillOpacity: 1, strokeWidth: 2.2 }),
+        },
+      };
+      // 지도를 축소해 넓은 지역을 볼 때(레벨 6 이상)만 마커를 클러스터로 묶는다.
+      clustererRef.current = new window.kakao.maps.MarkerClusterer({
+        map,
+        averageCenter: true,
+        minLevel: 6,
+        calculator: CLUSTER_CALCULATOR,
+        styles: CLUSTER_STYLES,
+      });
+
       setIsMapReady(true);
 
       // 위치 권한이 없거나 실패하면 학교 정문 좌표를 기준으로 유지한다 (PRD 6.1).
@@ -96,35 +181,35 @@ export function RestaurantMap({
 
   useEffect(() => {
     const map = mapObjRef.current;
-    if (!map || !isMapReady) return;
+    const clusterer = clustererRef.current;
+    const images = markerImagesRef.current;
+    if (!map || !isMapReady || !clusterer || !images) return;
 
-    for (const { overlay } of overlaysRef.current.values()) {
-      overlay.setMap(null);
-    }
-    overlaysRef.current.clear();
+    clusterer.clear();
+    markersRef.current.clear();
 
     if (restaurants.length === 0) return;
 
     const bounds = new window.kakao.maps.LatLngBounds();
+    const markers: kakao.maps.Marker[] = [];
 
     for (const restaurant of restaurants) {
       const position = new window.kakao.maps.LatLng(restaurant.latitude, restaurant.longitude);
       bounds.extend(position);
 
-      const el = document.createElement("div");
-      el.className = restaurant.id === selectedIdRef.current ? PIN_SELECTED_CLASS : PIN_NORMAL_CLASS;
-      el.addEventListener("click", () => onMarkerClickRef.current?.(restaurant.id));
-
-      const overlay = new window.kakao.maps.CustomOverlay({
+      const isCafe = restaurant.category === CAFE_CATEGORY;
+      const imageSet = isCafe ? images.cafe : images.food;
+      const marker = new window.kakao.maps.Marker({
         position,
-        content: el,
-        map,
-        clickable: true,
-        yAnchor: 0.5,
+        image: restaurant.id === selectedIdRef.current ? imageSet.selected : imageSet.normal,
       });
+      window.kakao.maps.event.addListener(marker, "click", () => onMarkerClickRef.current?.(restaurant.id));
 
-      overlaysRef.current.set(restaurant.id, { overlay, el });
+      markersRef.current.set(restaurant.id, { marker, isCafe });
+      markers.push(marker);
     }
+
+    clusterer.addMarkers(markers);
 
     if (!selectedIdRef.current) {
       if (restaurants.length === 1) {
@@ -143,18 +228,21 @@ export function RestaurantMap({
     const map = mapObjRef.current;
     if (!map || !isMapReady) return;
 
+    const images = markerImagesRef.current;
+    if (!images) return;
+
     const previousId = selectedIdRef.current;
     selectedIdRef.current = selectedId;
 
     if (previousId && previousId !== selectedId) {
-      const prev = overlaysRef.current.get(previousId);
-      if (prev) prev.el.className = PIN_NORMAL_CLASS;
+      const prev = markersRef.current.get(previousId);
+      if (prev) prev.marker.setImage(prev.isCafe ? images.cafe.normal : images.food.normal);
     }
 
     if (!selectedId) return;
 
-    const current = overlaysRef.current.get(selectedId);
-    if (current) current.el.className = PIN_SELECTED_CLASS;
+    const current = markersRef.current.get(selectedId);
+    if (current) current.marker.setImage(current.isCafe ? images.cafe.selected : images.food.selected);
 
     const restaurant = restaurants.find((r) => r.id === selectedId);
     if (!restaurant) return;
@@ -174,7 +262,7 @@ export function RestaurantMap({
   return (
     <div className="relative h-full w-full">
       <Script
-        src={`https://dapi.kakao.com/v2/maps/sdk.js?appkey=${appKey}&autoload=false`}
+        src={`https://dapi.kakao.com/v2/maps/sdk.js?appkey=${appKey}&autoload=false&libraries=clusterer`}
         strategy="afterInteractive"
         onReady={() => setIsSdkReady(true)}
       />

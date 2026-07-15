@@ -64,7 +64,7 @@ export default async function RestaurantDetailPage({
         <div className="flex items-center justify-between gap-2">
           <div className="flex items-center gap-2">
             <h1 className="text-2xl font-semibold">{restaurant.name}</h1>
-            {partnershipActive && <Badge className="border-orange-200 bg-orange-50 text-orange-700">제휴</Badge>}
+            {partnershipActive && <Badge variant="secondary">제휴</Badge>}
             <FavoriteButton
               restaurantId={restaurant.id}
               initialFavorited={favorite !== null}
@@ -138,6 +138,7 @@ export default async function RestaurantDetailPage({
                 {
                   id: restaurant.id,
                   name: restaurant.name,
+                  category: restaurant.category,
                   latitude: restaurant.latitude,
                   longitude: restaurant.longitude,
                 },

@@ -119,7 +119,6 @@ export function RestaurantFilters() {
           <Checkbox
             checked={partnershipOnly}
             onCheckedChange={(checked) => navigate({ partnership_only: checked ? "true" : null })}
-            className="data-checked:border-orange-500 data-checked:bg-orange-500"
           />
           제휴이벤트 중인 식당만 보기
         </Label>
@@ -186,7 +185,7 @@ function FilterMenuButton({
       variant={isOpen ? "secondary" : "outline"}
       size="sm"
       onClick={onClick}
-      className={cn("rounded-full", !isOpen && !!count && "border-orange-300 text-orange-600")}
+      className={cn("rounded-full", !isOpen && !!count && "border-primary/40 text-primary")}
     >
       {label}
       {!!count && ` (${count})`}
@@ -235,8 +234,8 @@ function FilterChip({
       className={cn(
         "cursor-pointer gap-1.5 rounded-full border px-3 py-1.5 text-xs font-medium transition-colors",
         checked
-          ? "border-orange-500 bg-orange-500 text-white"
-          : "border-border bg-background text-muted-foreground hover:border-orange-200 hover:text-foreground"
+          ? "border-primary bg-primary text-primary-foreground"
+          : "border-border bg-background text-muted-foreground hover:border-primary/30 hover:text-foreground"
       )}
     >
       <Checkbox
@@ -244,7 +243,7 @@ function FilterChip({
         onCheckedChange={onCheckedChange}
         className={cn(
           "size-3.5",
-          checked && "border-white/70 bg-transparent data-checked:border-white data-checked:bg-white/90 data-checked:text-orange-500"
+          checked && "border-white/70 bg-transparent data-checked:border-white data-checked:bg-white/90 data-checked:text-primary"
         )}
       />
       {label}

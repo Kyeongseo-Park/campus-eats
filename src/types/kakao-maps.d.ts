@@ -29,9 +29,10 @@ declare global {
     }
 
     class Marker {
-      constructor(options: { position: LatLng; map?: Map });
+      constructor(options: { position: LatLng; map?: Map; image?: MarkerImage });
       setMap(map: Map | null): void;
       setPosition(latlng: LatLng): void;
+      setImage(image: MarkerImage): void;
     }
 
     class CustomOverlay {
@@ -44,6 +45,50 @@ declare global {
         clickable?: boolean;
       });
       setMap(map: Map | null): void;
+    }
+
+    class Size {
+      constructor(width: number, height: number);
+    }
+
+    class Point {
+      constructor(x: number, y: number);
+    }
+
+    class MarkerImage {
+      constructor(src: string, size: Size, options?: { offset?: Point });
+    }
+
+    // 클러스터 클릭 이벤트 핸들러에 전달되는 클러스터 객체 — 필요한 부분만 선언.
+    class Cluster {
+      getCenter(): LatLng;
+      getSize(): number;
+    }
+
+    class MarkerClusterer {
+      constructor(options: {
+        map?: Map;
+        averageCenter?: boolean;
+        minLevel?: number;
+        gridSize?: number;
+        disableClickZoom?: boolean;
+        calculator?: number[];
+        styles?: Array<Partial<CSSStyleDeclaration>>;
+      });
+      addMarker(marker: Marker): void;
+      addMarkers(markers: Marker[]): void;
+      removeMarker(marker: Marker): void;
+      removeMarkers(markers: Marker[]): void;
+      clear(): void;
+      redraw(): void;
+    }
+
+    namespace event {
+      function addListener(
+        target: object,
+        type: string,
+        handler: (...args: never[]) => void
+      ): void;
     }
 
     function load(callback: () => void): void;

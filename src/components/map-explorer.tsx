@@ -154,12 +154,10 @@ function RestaurantDetailCard({
         <div>
           <div className="flex items-center gap-2">
             <h2 className="text-lg font-semibold">{restaurant.name}</h2>
-            {restaurant.isPartnershipActive && (
-              <Badge className="border-orange-200 bg-orange-50 text-orange-700">제휴</Badge>
-            )}
+            {restaurant.isPartnershipActive && <Badge variant="secondary">제휴</Badge>}
           </div>
           <p className="mt-1 flex flex-wrap items-center gap-x-1.5 text-sm text-muted-foreground">
-            <span className="font-medium text-orange-600">{restaurant.category}</span>
+            <span className="font-medium text-primary">{restaurant.category}</span>
             <span>· {restaurant.zone}</span>
             {restaurant.avgRating !== null && (
               <span className="flex items-center gap-0.5 font-semibold text-foreground">
