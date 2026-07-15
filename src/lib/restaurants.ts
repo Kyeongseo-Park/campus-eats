@@ -20,7 +20,8 @@ export type RestaurantListItem = {
   name: string;
   category: string;
   zone: string;
-  minPrice: number;
+  /// 메뉴 정보가 없는 식당은 null ("가격 정보 없음"). formatMinPrice로 표시한다.
+  minPrice: number | null;
   latitude: number;
   longitude: number;
   isPartnershipActive: boolean;
@@ -101,7 +102,12 @@ function sortRestaurants(items: RestaurantListItem[], sort: SortValue): Restaura
   const sorted = [...items];
 
   if (sort === "price") {
-    sorted.sort((a, b) => a.minPrice - b.minPrice);
+    // 가격 정보가 없는 식당(minPrice: null)은 정렬 방향과 무관하게 항상 맨 뒤로 보낸다.
+    sorted.sort((a, b) => {
+      if (a.minPrice === null) return b.minPrice === null ? 0 : 1;
+      if (b.minPrice === null) return -1;
+      return a.minPrice - b.minPrice;
+    });
   } else if (sort === "distance") {
     sorted.sort((a, b) => a.distanceKm - b.distanceKm);
   } else {

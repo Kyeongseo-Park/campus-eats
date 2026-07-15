@@ -10,6 +10,7 @@ import { requireAdmin } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { isPartnershipActive } from "@/lib/partnership";
 import { CATEGORIES, ZONES } from "@/lib/constants";
+import { formatMinPrice } from "@/lib/format";
 import { Prisma } from "@/generated/prisma/client";
 
 const PAGE_SIZE = 20;
@@ -139,7 +140,7 @@ export default async function AdminRestaurantsPage({
                     <td className="p-3 font-medium">{restaurant.name}</td>
                     <td className="p-3">{restaurant.zone}</td>
                     <td className="p-3">{restaurant.category}</td>
-                    <td className="p-3 whitespace-nowrap">{restaurant.minPrice.toLocaleString()}원~</td>
+                    <td className="p-3 whitespace-nowrap">{formatMinPrice(restaurant.minPrice)}</td>
                     <td className="p-3">
                       {isPartnershipActive(restaurant.partnershipStartDate, restaurant.partnershipEndDate) ? (
                         <Badge variant="secondary">제휴중</Badge>

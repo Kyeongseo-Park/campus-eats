@@ -29,9 +29,12 @@ model User {
 }
 
 model Restaurant {
-  id        String @id @default(uuid()) @db.Uuid
+  id        String  @id @default(uuid()) @db.Uuid
+  /// 카카오 로컬 API의 place id. CSV/API 기반 데이터 임포트를 재실행해도 같은 식당을
+  /// 덮어쓰도록 매칭하는 키 — 수기로 등록한(관리자 도구) 식당은 값이 없다.
+  kakaoId   String? @unique @map("kakao_id")
   name      String
-  /// 한식 | 중식 | 일식 | 양식 | 분식 | 카페
+  /// 한식 | 중식 | 일식 | 양식 | 분식 | 카페 | 패스트푸드 | 기타
   category  String
   /// 정문 | 상대 | 예대 | 후문 | 공대쪽문
   zone      String
@@ -39,8 +42,9 @@ model Restaurant {
   phone     String?
   latitude  Float
   longitude Float
-  /// Lowest menu price; drives the price-range filter/sort.
-  minPrice  Int    @map("min_price")
+  /// Lowest menu price; drives the price-range filter/sort. 메뉴 정보가 없으면 null
+  /// ("가격 정보 없음")이며, 가격대 필터에서는 자동으로 제외된다.
+  minPrice  Int?    @map("min_price")
 
   partnershipStartDate DateTime? @map("partnership_start_date") @db.Date
   partnershipEndDate   DateTime? @map("partnership_end_date") @db.Date

@@ -12,6 +12,7 @@ import { RestaurantListPanel } from "@/components/restaurant-list-panel";
 import { BottomSheet } from "@/components/bottom-sheet";
 import { FavoriteButton } from "@/components/favorite-button";
 import type { RestaurantListItem } from "@/lib/restaurants";
+import { formatMinPrice } from "@/lib/format";
 import type { SortValue } from "@/lib/constants";
 
 // 바텀시트 기본(resting) 위치 — 지도 박스 높이와 동일한 값을 써서 시트 상단이 지도 박스 바로
@@ -168,7 +169,7 @@ function RestaurantDetailCard({
             )}
           </p>
           <p className="text-sm text-muted-foreground">
-            {restaurant.minPrice.toLocaleString()}원~
+            {formatMinPrice(restaurant.minPrice)}
             {sort === "distance" && ` · ${restaurant.distanceKm.toFixed(1)}km`}
           </p>
         </div>

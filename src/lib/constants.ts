@@ -1,7 +1,7 @@
 export const ZONES = ["정문", "상대", "예대", "후문", "공대쪽문"] as const;
 export type Zone = (typeof ZONES)[number];
 
-export const CATEGORIES = ["한식", "중식", "일식", "양식", "분식", "카페"] as const;
+export const CATEGORIES = ["한식", "중식", "일식", "양식", "분식", "카페", "패스트푸드", "기타"] as const;
 export type Category = (typeof CATEGORIES)[number];
 
 // 실제 학교 좌표가 정해지기 전까지 사용하는 임시 구역별 기준점.
