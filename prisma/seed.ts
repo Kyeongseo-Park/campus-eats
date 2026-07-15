@@ -43,58 +43,156 @@ function mapCategory(categoryName: string): string {
   return '기타'
 }
 
-// Fallback menu generator depending on category
-function generateFallbackMenus(category: string): { name: string; price: number }[] {
-  switch (category) {
-    case '한식':
-      return [
-        { name: '김치찌개 정식', price: 8000 },
-        { name: '제육볶음 백반', price: 9000 },
-        { name: '된장찌개', price: 7500 },
-      ]
-    case '중식':
-      return [
-        { name: '짜장면', price: 6500 },
-        { name: '짬뽕', price: 7500 },
-        { name: '탕수육 (소)', price: 15000 },
-      ]
-    case '일식':
-      return [
-        { name: '모듬 초밥 (10p)', price: 14000 },
-        { name: '등심 돈카츠', price: 9500 },
-        { name: '규동 (소고기 덮밥)', price: 9000 },
-      ]
-    case '양식':
-      return [
-        { name: '토마토 파스타', price: 11000 },
-        { name: '고르곤졸라 피자', price: 14000 },
-        { name: '쉬림프 리조또', price: 12500 },
-      ]
-    case '분식':
-      return [
-        { name: '매콤 떡볶이', price: 4500 },
-        { name: '모듬 튀김', price: 5000 },
-        { name: '참치 마요 김밥', price: 4000 },
-      ]
-    case '카페':
-      return [
-        { name: '아메리카노', price: 3500 },
-        { name: '카페라떼', price: 4200 },
-        { name: '수제 치즈케이크', price: 5500 },
-      ]
-    case '패스트푸드':
-      return [
-        { name: '치즈버거 세트', price: 7200 },
-        { name: '베이컨 토마토 디럭스', price: 8200 },
-        { name: '감자튀김 L', price: 3000 },
-      ]
-    default:
-      return [
-        { name: '시그니처 메뉴', price: 9500 },
-        { name: '오늘의 요리', price: 11000 },
-        { name: '수제 음료', price: 4500 },
-      ]
+// Smart menu generator depending on restaurant name keywords and category
+function generateSmartMenus(restaurantName: string, category: string): { name: string; price: number }[] {
+  // 1. Cutlet / Japanese Fried Cutlet
+  if (restaurantName.includes('돈까스') || restaurantName.includes('돈카츠') || restaurantName.includes('카츠') || restaurantName.includes('가츠')) {
+    return [
+      { name: '로스(등심) 카츠 정식', price: 9500 },
+      { name: '히레(안심) 카츠 정식', price: 10500 },
+      { name: '치즈 고구마 카츠', price: 11500 },
+      { name: '냉모밀 + 등심카츠 세트', price: 12500 },
+      { name: '매콤 카츠 동 (덮밥)', price: 9000 },
+      { name: '사이드 미니 우동', price: 3000 },
+    ]
   }
+  // 2. Korean Soup / Rice Soup
+  if (restaurantName.includes('국밥') || restaurantName.includes('해장국') || restaurantName.includes('설렁탕') || restaurantName.includes('곰탕') || restaurantName.includes('찌개')) {
+    return [
+      { name: '가마솥 돼지국밥', price: 8500 },
+      { name: '얼큰 순대국밥', price: 8500 },
+      { name: '전통 뼈해장국', price: 9000 },
+      { name: '모듬 순대 한접시', price: 7000 },
+      { name: '한우 소머리곰탕', price: 11000 },
+      { name: '공기밥 추가', price: 1000 },
+    ]
+  }
+  // 3. Roast Meat / Samgyeopsal / BBQ
+  if (restaurantName.includes('갈비') || restaurantName.includes('고기') || restaurantName.includes('삼겹살') || restaurantName.includes('구이') || restaurantName.includes('숯불')) {
+    return [
+      { name: '참숯 삼겹살 (180g)', price: 14000 },
+      { name: '양념 돼지갈비 (200g)', price: 15000 },
+      { name: '대패 삼겹살 정식 (점심)', price: 9000 },
+      { name: '물냉면 / 비빔냉면', price: 6500 },
+      { name: '차돌 된장찌개', price: 5000 },
+      { name: '계란찜', price: 3000 },
+    ]
+  }
+  // 4. Chicken / Fried Chicken
+  if (restaurantName.includes('치킨') || restaurantName.includes('통닭') || restaurantName.includes('강정') || restaurantName.includes('닭')) {
+    return [
+      { name: '바삭 후라이드 치킨', price: 17000 },
+      { name: '달콤 양념 치킨', price: 18000 },
+      { name: '갈릭 간장 치킨', price: 18000 },
+      { name: '순살 반반 치킨 L', price: 19000 },
+      { name: '치즈볼 (5p)', price: 5000 },
+      { name: '콜라 1.25L', price: 3000 },
+    ]
+  }
+  // 5. Pizza & Burger / Fastfood
+  if (restaurantName.includes('피자') || restaurantName.includes('버거') || restaurantName.includes('맥도날드') || restaurantName.includes('롯데리아') || restaurantName.includes('맘스터치') || restaurantName.includes('리아')) {
+    return [
+      { name: '시그니처 비프버거 세트', price: 8500 },
+      { name: '통가슴살 스파이시 버거 세트', price: 7900 },
+      { name: '치즈버거 단품', price: 4900 },
+      { name: '페퍼로니 피자 R', price: 14900 },
+      { name: '베이컨 포테이토 피자 L', price: 19900 },
+      { name: '어니언링 튀김', price: 3500 },
+    ]
+  }
+  // 6. Chinese / Noodles / Dumplings
+  if (restaurantName.includes('반점') || restaurantName.includes('중국') || restaurantName.includes('성') || restaurantName.includes('객') || restaurantName.includes('마라')) {
+    return [
+      { name: '정통 짜장면', price: 6000 },
+      { name: '삼선 해물 짬뽕', price: 8000 },
+      { name: '게살 볶음밥', price: 7500 },
+      { name: '바삭 탕수육 (소)', price: 15000 },
+      { name: '군만두 (8p)', price: 5000 },
+      { name: '마라탕 (기본)', price: 8000 },
+    ]
+  }
+  // 7. Sushi / Seafood / Raw Fish
+  if (restaurantName.includes('스시') || restaurantName.includes('초밥') || restaurantName.includes('회') || restaurantName.includes('바다') || restaurantName.includes('연어')) {
+    return [
+      { name: '모듬 초밥 (10p)', price: 14000 },
+      { name: '특선 초밥 (12p)', price: 18000 },
+      { name: '생연어 초밥 (8p)', price: 15000 },
+      { name: '회덮밥', price: 9000 },
+      { name: '가쓰오 우동', price: 7000 },
+      { name: '새우튀김 (4p)', price: 6000 },
+    ]
+  }
+
+  // Fallbacks by Category
+  if (category === '한식') {
+    return [
+      { name: '어머니 김치찌개 정식', price: 8000 },
+      { name: '불맛 제육볶음 백반', price: 9000 },
+      { name: '보글보글 된장찌개', price: 7500 },
+      { name: '뚝배기 불고기', price: 9500 },
+      { name: '비빔밥과 후라이', price: 8000 },
+    ]
+  }
+  if (category === '중식') {
+    return [
+      { name: '수제 짜장면', price: 6500 },
+      { name: '얼큰 해물짬뽕', price: 8000 },
+      { name: '정통 짜장밥', price: 7500 },
+      { name: '찹쌀 탕수육 (소)', price: 15000 },
+      { name: '바삭 군만두', price: 5000 },
+    ]
+  }
+  if (category === '일식') {
+    return [
+      { name: '모듬 초밥 세트', price: 14000 },
+      { name: '바삭 등심 돈카츠', price: 9500 },
+      { name: '돈까스 덮밥 (가츠동)', price: 8500 },
+      { name: '뜨끈한 튀김우동', price: 7500 },
+    ]
+  }
+  if (category === '양식') {
+    return [
+      { name: '까르보나라 베이컨 파스타', price: 11500 },
+      { name: '매콤 토마토 아라비아따', price: 12000 },
+      { name: '치즈 마르게리따 피자', price: 14500 },
+      { name: '베이컨 김치 필라프', price: 10500 },
+      { name: '그린 가든 샐러드', price: 7500 },
+    ]
+  }
+  if (category === '분식') {
+    return [
+      { name: '매콤 쌀 떡볶이', price: 4500 },
+      { name: '바삭 모듬 튀김', price: 5000 },
+      { name: '참치 마요 뚱김밥', price: 4000 },
+      { name: '야채 김밥', price: 3000 },
+      { name: '쫄깃한 찰순대', price: 4500 },
+      { name: '양은 냄비라면', price: 4000 },
+    ]
+  }
+  if (category === '카페') {
+    return [
+      { name: '시그니처 아메리카노', price: 3500 },
+      { name: '카페 라떼', price: 4200 },
+      { name: '바닐라 빈 라떼', price: 4800 },
+      { name: '청귤 에이드', price: 5000 },
+      { name: '부드러운 티라미수 케이크', price: 5800 },
+      { name: '초코칩 아메리칸 쿠키', price: 2500 },
+    ]
+  }
+  if (category === '패스트푸드') {
+    return [
+      { name: '더블 빅치즈버거 세트', price: 8500 },
+      { name: '핫스파이시 치킨버거 세트', price: 7900 },
+      { name: '포테이토 후라이 M', price: 2500 },
+      { name: '치즈 가득 롱스틱', price: 3000 },
+    ]
+  }
+
+  return [
+    { name: '셰프 추천 스페셜 요리', price: 12000 },
+    { name: '데일리 특제 파스타', price: 10500 },
+    { name: '오늘의 수제 음료', price: 4500 },
+  ]
 }
 
 const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
@@ -160,40 +258,6 @@ async function searchCategory(lat: number, lng: number, code: string, radius: nu
   }
 
   return allDocs
-}
-
-// Fetch real menu lists from Kakao Place Details API
-async function fetchRealMenus(placeId: string): Promise<{ name: string; price: number }[]> {
-  try {
-    const url = `https://place.map.kakao.com/main/v/${placeId}`
-    await sleep(150) // Safe delay to protect against Kakao Crawler bans
-    const response = await fetch(url, {
-      headers: {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
-      }
-    })
-
-    if (!response.ok) return []
-    const data = await response.json()
-    const menuInfo = data.menuInfo
-
-    if (menuInfo && menuInfo.menuList && Array.isArray(menuInfo.menuList)) {
-      const list = menuInfo.menuList
-      const parsedMenus = list.map((m: any) => {
-        const rawPrice = m.price || '0'
-        const cleanPrice = parseInt(rawPrice.toString().replace(/[^0-9]/g, '')) || 0
-        return {
-          name: m.menu.toString().trim(),
-          price: cleanPrice
-        }
-      }).filter((m: any) => m.name.length > 0)
-
-      return parsedMenus
-    }
-  } catch (err) {
-    // Silently fall back to dummy mock menus on error
-  }
-  return []
 }
 
 async function main() {
@@ -333,18 +397,12 @@ async function main() {
 
   console.log(`✅ Filtered: Assigned ${mappedRestaurants.length} clean spots inside CNU Library 1.0 km radius bounds.`)
 
-  console.log('\n🔄 Seeding CNU restaurant data and REAL KAKAO MENUS into DB (this may take up to 2-3 minutes due to details crawler)...')
+  console.log('\n🔄 Seeding CNU restaurant data and Smart-Generated Menus into DB...')
   let seedCount = 0
 
   for (const spot of mappedRestaurants) {
-    // 1. Fetch real menu details
-    let menus = await fetchRealMenus(spot.id)
-
-    // 2. Fall back to smart category mockup if real menu parsing returns empty
-    if (menus.length === 0) {
-      menus = generateFallbackMenus(spot.category)
-    }
-
+    // Generate smart menu details based on name keywords and category type
+    const menus = generateSmartMenus(spot.name, spot.category)
     const minPrice = Math.min(...menus.map(m => m.price).filter(p => p > 0)) || 0
 
     await prisma.restaurant.create({
@@ -355,19 +413,19 @@ async function main() {
         address: spot.address,
         latitude: spot.latitude,
         longitude: spot.longitude,
-        minPrice: minPrice > 0 ? minPrice : 5000, // safe price boundary
+        minPrice: minPrice > 0 ? minPrice : 5000,
         menus: {
           create: menus
         }
       }
     })
     seedCount++
-    if (seedCount % 10 === 0) {
-      console.log(`- Progress: Seeding ${seedCount}/${mappedRestaurants.length} restaurants...`)
+    if (seedCount % 50 === 0) {
+      console.log(`- Seeding Progress: ${seedCount}/${mappedRestaurants.length} restaurants...`)
     }
   }
 
-  console.log(`\n🎉 CNU Seeding successfully completed! Inserted ${seedCount} clean restaurants and their real/fallback menus into sqlite DB.`)
+  console.log(`\n🎉 CNU Seeding successfully completed! Inserted ${seedCount} clean restaurants and smart menus into sqlite DB.`)
 }
 
 main()
