@@ -42,23 +42,28 @@ export default function MyPage() {
   const [requests, setRequests] = useState<RequestItem[]>([])
   const [loading, setLoading] = useState(false)
 
-  useEffect(() => {
-    if (!session) return
-    fetchData()
-  }, [session, activeTab])
-
   const fetchData = async () => {
     setLoading(true)
     const t = Date.now()
-    if (activeTab === 'favorites') {
-      const res = await fetch(`/api/favorites?t=${t}`, { cache: 'no-store' })
-      if (res.ok) setFavorites(await res.json())
-    } else if (activeTab === 'requests') {
-      const res = await fetch(`/api/restaurant-requests?t=${t}`, { cache: 'no-store' })
-      if (res.ok) setRequests(await res.json())
+    try {
+      const [favRes, reqRes, revRes] = await Promise.all([
+        fetch(`/api/favorites?t=${t}`, { cache: 'no-store' }),
+        fetch(`/api/restaurant-requests?t=${t}`, { cache: 'no-store' }),
+        fetch(`/api/reviews?my=true&t=${t}`, { cache: 'no-store' })
+      ])
+      if (favRes.ok) setFavorites(await favRes.json())
+      if (reqRes.ok) setRequests(await reqRes.json())
+      if (revRes.ok) setReviews(await revRes.json())
+    } catch (e) {
+      console.error("데이터 로드 실패", e)
     }
     setLoading(false)
   }
+
+  useEffect(() => {
+    if (!session) return
+    fetchData()
+  }, [session])
 
   if (!session) {
     return (
@@ -107,17 +112,17 @@ export default function MyPage() {
 
           {/* Quick Actions */}
           <div className="mt-4 grid grid-cols-3 gap-2">
-            <div className="bg-orange-50 rounded-2xl p-3 text-center">
+            <div className="bg-orange-50 rounded-2xl p-3 text-center cursor-pointer hover:bg-orange-100 transition-colors" onClick={() => setActiveTab('favorites')}>
               <Heart className="w-5 h-5 text-orange-500 mx-auto mb-1" />
               <span className="text-xs text-gray-600 font-medium">즐겨찾기</span>
               <p className="text-lg font-bold text-orange-600">{favorites.length}</p>
             </div>
-            <div className="bg-orange-50 rounded-2xl p-3 text-center">
+            <div className="bg-orange-50 rounded-2xl p-3 text-center cursor-pointer hover:bg-orange-100 transition-colors" onClick={() => setActiveTab('reviews')}>
               <Star className="w-5 h-5 text-amber-500 mx-auto mb-1" />
               <span className="text-xs text-gray-600 font-medium">내 리뷰</span>
-              <p className="text-lg font-bold text-orange-600">-</p>
+              <p className="text-lg font-bold text-orange-600">{reviews.length}</p>
             </div>
-            <div className="bg-orange-50 rounded-2xl p-3 text-center">
+            <div className="bg-orange-50 rounded-2xl p-3 text-center cursor-pointer hover:bg-orange-100 transition-colors" onClick={() => setActiveTab('requests')}>
               <FileText className="w-5 h-5 text-blue-500 mx-auto mb-1" />
               <span className="text-xs text-gray-600 font-medium">제보</span>
               <p className="text-lg font-bold text-orange-600">{requests.length}</p>
@@ -127,7 +132,7 @@ export default function MyPage() {
 
         {/* Tabs */}
         <div className="flex gap-1 mt-4 bg-gray-100 rounded-2xl p-1">
-          {(['favorites', 'requests'] as const).map((tab) => (
+          {(['favorites', 'reviews', 'requests'] as const).map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
@@ -135,7 +140,7 @@ export default function MyPage() {
                 activeTab === tab ? 'bg-white text-orange-600 shadow-sm' : 'text-gray-500 hover:text-gray-700'
               }`}
             >
-              {tab === 'favorites' ? '❤️ 즐겨찾기' : '📋 내 제보'}
+              {tab === 'favorites' ? '❤️ 즐겨찾기' : tab === 'reviews' ? '⭐ 내 리뷰' : '📋 내 제보'}
             </button>
           ))}
         </div>
@@ -174,6 +179,37 @@ export default function MyPage() {
                       </div>
                     </div>
                     <ChevronRight className="w-4 h-4 text-gray-400" />
+                  </Link>
+                ))
+              )}
+            </div>
+          ) : activeTab === 'reviews' ? (
+            <div className="space-y-3">
+              {reviews.length === 0 ? (
+                <div className="bg-white rounded-2xl p-8 text-center shadow-sm">
+                  <Star className="w-10 h-10 text-gray-200 mx-auto mb-2" />
+                  <p className="text-gray-400 text-sm">작성한 리뷰가 없습니다.</p>
+                  <Link href="/" className="inline-block mt-2 text-sm text-orange-600 font-medium hover:underline">식당 리뷰 남기기 →</Link>
+                </div>
+              ) : (
+                reviews.map((rev) => (
+                  <Link
+                    key={rev.id}
+                    href={`/restaurants/${rev.restaurant.id}`}
+                    className="block bg-white rounded-2xl p-4 shadow-sm border border-orange-50 hover:shadow-md transition-all group"
+                  >
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <h4 className="font-bold text-gray-950 group-hover:text-orange-600 transition-colors text-sm">{rev.restaurant.name}</h4>
+                        <div className="flex gap-0.5 my-1">
+                          {Array.from({ length: 5 }).map((_, i) => (
+                            <Star key={i} className={`w-3 h-3 ${i < rev.rating ? 'text-amber-400 fill-amber-400' : 'text-gray-200 fill-gray-200'}`} />
+                          ))}
+                        </div>
+                      </div>
+                      <span className="text-[10px] text-gray-400">{new Date(rev.createdAt).toLocaleDateString('ko-KR')}</span>
+                    </div>
+                    <p className="text-xs text-gray-700 mt-1 line-clamp-2">{rev.content}</p>
                   </Link>
                 ))
               )}

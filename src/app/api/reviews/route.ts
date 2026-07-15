@@ -7,9 +7,29 @@ export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url)
     const restaurantId = searchParams.get('restaurantId')
+    const my = searchParams.get('my') === 'true'
+
+    if (my) {
+      const session = await getServerSession(authOptions)
+      if (!session?.user?.id) {
+        return NextResponse.json({ error: '로그인이 필요합니다.' }, { status: 401 })
+      }
+      const reviews = await db.review.findMany({
+        where: { userId: session.user.id },
+        include: {
+          restaurant: {
+            select: { id: true, name: true, category: true, zone: true }
+          }
+        },
+        orderBy: { createdAt: 'desc' },
+      })
+      return NextResponse.json(reviews)
+    }
+
     if (!restaurantId) {
       return NextResponse.json({ error: 'restaurantId가 필요합니다.' }, { status: 400 })
     }
+
     const reviews = await db.review.findMany({
       where: { restaurantId },
       include: { user: { select: { id: true, nickname: true } } },
