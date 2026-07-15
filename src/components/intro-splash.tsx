@@ -2,8 +2,7 @@
 
 import { useEffect, useState } from "react";
 
-const VISITED_STORAGE_KEY = "ce_visited";
-const SPLASH_DURATION_MS = 1400;
+const SPLASH_DURATION_MS = 2000;
 
 type Phase = "hidden" | "visible" | "fading";
 
@@ -11,9 +10,6 @@ export function IntroSplash() {
   const [phase, setPhase] = useState<Phase>("hidden");
 
   useEffect(() => {
-    if (localStorage.getItem(VISITED_STORAGE_KEY)) return;
-
-    localStorage.setItem(VISITED_STORAGE_KEY, "1");
     const showTimer = setTimeout(() => setPhase("visible"), 0);
     const fadeTimer = setTimeout(() => setPhase("fading"), SPLASH_DURATION_MS);
 
