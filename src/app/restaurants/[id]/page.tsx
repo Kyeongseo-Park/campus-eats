@@ -57,16 +57,19 @@ export default function RestaurantDetailPage() {
   const [activeTab, setActiveTab] = useState<'menu' | 'review' | 'info'>('menu')
 
   const fetchRestaurant = async () => {
-    const res = await fetch(`/api/restaurants/${params.id}`)
+    const res = await fetch(`/api/restaurants/${params.id}?t=${Date.now()}`, {
+      cache: 'no-store'
+    })
     if (!res.ok) { router.push('/'); return }
     const data = await res.json()
     setRestaurant(data)
+    setIsFavorited(data.isFavorited || false)
     setLoading(false)
   }
 
   useEffect(() => {
     fetchRestaurant()
-  }, [params.id])
+  }, [params.id, session])
 
   const handleFavorite = async () => {
     if (!session) { router.push('/login'); return }

@@ -20,6 +20,7 @@ export async function GET(
       },
     })
     if (!restaurant) return NextResponse.json({ error: '존재하지 않는 식당입니다.' }, { status: 404 })
+    
     const avgRating = restaurant.reviews.length > 0
       ? restaurant.reviews.reduce((sum, r) => sum + r.rating, 0) / restaurant.reviews.length
       : 0
@@ -27,7 +28,28 @@ export async function GET(
     const hasPartnership = restaurant.partnershipStartDate && restaurant.partnershipEndDate
       ? restaurant.partnershipStartDate <= today && restaurant.partnershipEndDate >= today
       : false
-    return NextResponse.json({ ...restaurant, avgRating: Math.round(avgRating * 10) / 10, hasPartnership })
+
+    // Check if favorited by current logged in user
+    const session = await getServerSession(authOptions)
+    let isFavorited = false
+    if (session?.user?.id) {
+      const favorite = await db.favorite.findUnique({
+        where: {
+          userId_restaurantId: {
+            userId: session.user.id,
+            restaurantId: id,
+          },
+        },
+      })
+      isFavorited = !!favorite
+    }
+
+    return NextResponse.json({ 
+      ...restaurant, 
+      avgRating: Math.round(avgRating * 10) / 10, 
+      hasPartnership,
+      isFavorited
+    })
   } catch (error) {
     return NextResponse.json({ error: '서버 오류' }, { status: 500 })
   }

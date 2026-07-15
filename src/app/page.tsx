@@ -51,8 +51,11 @@ export default function MainPage() {
     if (partnershipOnly) params.set('partnership_only', 'true')
     if (sort) params.set('sort', sort)
     if (search) params.set('search', search)
+    params.set('t', Date.now().toString())
 
-    const res = await fetch(`/api/restaurants?${params.toString()}`)
+    const res = await fetch(`/api/restaurants?${params.toString()}`, {
+      cache: 'no-store'
+    })
     const data = await res.json()
     setRestaurants(data)
     setLoading(false)

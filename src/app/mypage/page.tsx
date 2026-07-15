@@ -49,11 +49,12 @@ export default function MyPage() {
 
   const fetchData = async () => {
     setLoading(true)
+    const t = Date.now()
     if (activeTab === 'favorites') {
-      const res = await fetch('/api/favorites')
+      const res = await fetch(`/api/favorites?t=${t}`, { cache: 'no-store' })
       if (res.ok) setFavorites(await res.json())
     } else if (activeTab === 'requests') {
-      const res = await fetch('/api/restaurant-requests')
+      const res = await fetch(`/api/restaurant-requests?t=${t}`, { cache: 'no-store' })
       if (res.ok) setRequests(await res.json())
     }
     setLoading(false)
