@@ -43,8 +43,8 @@ function mapCategory(categoryName: string): string {
   return '기타'
 }
 
-// Smart menu generator depending on category
-function generateMenus(category: string): { name: string; price: number }[] {
+// Fallback menu generator depending on category
+function generateFallbackMenus(category: string): { name: string; price: number }[] {
   switch (category) {
     case '한식':
       return [
@@ -160,6 +160,40 @@ async function searchCategory(lat: number, lng: number, code: string, radius: nu
   }
 
   return allDocs
+}
+
+// Fetch real menu lists from Kakao Place Details API
+async function fetchRealMenus(placeId: string): Promise<{ name: string; price: number }[]> {
+  try {
+    const url = `https://place.map.kakao.com/main/v/${placeId}`
+    await sleep(150) // Safe delay to protect against Kakao Crawler bans
+    const response = await fetch(url, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+      }
+    })
+
+    if (!response.ok) return []
+    const data = await response.json()
+    const menuInfo = data.menuInfo
+
+    if (menuInfo && menuInfo.menuList && Array.isArray(menuInfo.menuList)) {
+      const list = menuInfo.menuList
+      const parsedMenus = list.map((m: any) => {
+        const rawPrice = m.price || '0'
+        const cleanPrice = parseInt(rawPrice.toString().replace(/[^0-9]/g, '')) || 0
+        return {
+          name: m.menu.toString().trim(),
+          price: cleanPrice
+        }
+      }).filter((m: any) => m.name.length > 0)
+
+      return parsedMenus
+    }
+  } catch (err) {
+    // Silently fall back to dummy mock menus on error
+  }
+  return []
 }
 
 async function main() {
@@ -286,6 +320,7 @@ async function main() {
       }
 
       mappedRestaurants.push({
+        id: doc.id,
         name: doc.place_name,
         category: mapCategory(doc.category_name),
         zone: closestZone || '정문', // Fallback to 정문
@@ -298,12 +333,19 @@ async function main() {
 
   console.log(`✅ Filtered: Assigned ${mappedRestaurants.length} clean spots inside CNU Library 1.0 km radius bounds.`)
 
-  console.log('\n🔄 Seeding CNU restaurant data and menus into DB...')
+  console.log('\n🔄 Seeding CNU restaurant data and REAL KAKAO MENUS into DB (this may take up to 2-3 minutes due to details crawler)...')
   let seedCount = 0
 
   for (const spot of mappedRestaurants) {
-    const menus = generateMenus(spot.category)
-    const minPrice = Math.min(...menus.map(m => m.price))
+    // 1. Fetch real menu details
+    let menus = await fetchRealMenus(spot.id)
+
+    // 2. Fall back to smart category mockup if real menu parsing returns empty
+    if (menus.length === 0) {
+      menus = generateFallbackMenus(spot.category)
+    }
+
+    const minPrice = Math.min(...menus.map(m => m.price).filter(p => p > 0)) || 0
 
     await prisma.restaurant.create({
       data: {
@@ -313,16 +355,19 @@ async function main() {
         address: spot.address,
         latitude: spot.latitude,
         longitude: spot.longitude,
-        minPrice: minPrice,
+        minPrice: minPrice > 0 ? minPrice : 5000, // safe price boundary
         menus: {
           create: menus
         }
       }
     })
     seedCount++
+    if (seedCount % 10 === 0) {
+      console.log(`- Progress: Seeding ${seedCount}/${mappedRestaurants.length} restaurants...`)
+    }
   }
 
-  console.log(`\n🎉 CNU Seeding successfully completed! Inserted ${seedCount} clean restaurants and menus into sqlite DB.`)
+  console.log(`\n🎉 CNU Seeding successfully completed! Inserted ${seedCount} clean restaurants and their real/fallback menus into sqlite DB.`)
 }
 
 main()
