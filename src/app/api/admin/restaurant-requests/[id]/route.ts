@@ -26,11 +26,17 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
   const body = await request.json().catch(() => null);
   const status = (body as Record<string, unknown> | null)?.status;
 
+  // "대기" 상태를 조건에 포함한 조건부 업데이트로 처리한다 — 승인 버튼을 두 탭에서
+  // 동시에 눌러도 하나만 실제로 반영되고 나머지는 "이미 처리됨"으로 안전하게 막힌다.
   if (status === "반려") {
-    const requestRecord = await prisma.restaurantRequest.update({
-      where: { id },
+    const result = await prisma.restaurantRequest.updateMany({
+      where: { id, status: "대기" },
       data: { status: "반려" },
     });
+    if (result.count === 0) {
+      return NextResponse.json({ error: "이미 처리된 제보입니다." }, { status: 409 });
+    }
+    const requestRecord = await prisma.restaurantRequest.findUniqueOrThrow({ where: { id } });
     return NextResponse.json({ request: requestRecord });
   }
 
@@ -42,15 +48,28 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
 
     const { menus, ...restaurantData } = parsed.data;
 
-    const [restaurant] = await prisma.$transaction([
-      prisma.restaurant.create({
-        data: { ...restaurantData, menus: { create: menus } },
-        include: { menus: true },
-      }),
-      prisma.restaurantRequest.update({ where: { id }, data: { status: "승인" } }),
-    ]);
+    try {
+      const restaurant = await prisma.$transaction(async (tx) => {
+        const result = await tx.restaurantRequest.updateMany({
+          where: { id, status: "대기" },
+          data: { status: "승인" },
+        });
+        if (result.count === 0) {
+          throw new Error("ALREADY_PROCESSED");
+        }
+        return tx.restaurant.create({
+          data: { ...restaurantData, menus: { create: menus } },
+          include: { menus: true },
+        });
+      });
 
-    return NextResponse.json({ restaurant });
+      return NextResponse.json({ restaurant });
+    } catch (err) {
+      if (err instanceof Error && err.message === "ALREADY_PROCESSED") {
+        return NextResponse.json({ error: "이미 처리된 제보입니다." }, { status: 409 });
+      }
+      throw err;
+    }
   }
 
   return NextResponse.json({ error: "status는 '승인' 또는 '반려'여야 합니다." }, { status: 400 });

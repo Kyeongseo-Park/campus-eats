@@ -1,6 +1,6 @@
 import { Prisma } from "@/generated/prisma/client";
 import { prisma } from "@/lib/prisma";
-import { isPartnershipActive } from "@/lib/partnership";
+import { isPartnershipActive, todayAsUtcDate } from "@/lib/partnership";
 import { haversineDistanceKm, type Coordinates } from "@/lib/geo";
 import { calculateAverageRating } from "@/lib/reviews";
 import { SCHOOL_MAIN_GATE, type PriceRangeValue, type SortValue } from "@/lib/constants";
@@ -57,8 +57,8 @@ export async function searchRestaurants(params: RestaurantSearchParams): Promise
   if (params.priceRanges?.length) and.push({ OR: params.priceRanges.map(priceRangeCondition) });
 
   if (params.partnershipOnly) {
-    const now = new Date();
-    and.push({ partnershipStartDate: { lte: now }, partnershipEndDate: { gte: now } });
+    const today = todayAsUtcDate();
+    and.push({ partnershipStartDate: { lte: today }, partnershipEndDate: { gte: today } });
   }
 
   if (params.q) {

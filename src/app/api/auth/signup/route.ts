@@ -1,6 +1,7 @@
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 
+import { Prisma } from "@/generated/prisma/client";
 import { prisma } from "@/lib/prisma";
 import { hashPassword } from "@/lib/password";
 import { setSessionCookie } from "@/lib/session";
@@ -30,10 +31,21 @@ export async function POST(request: Request) {
   }
 
   const passwordHash = await hashPassword(password);
-  const user = await prisma.user.create({
-    data: { email, passwordHash, nickname },
-    select: { id: true, email: true, nickname: true, role: true },
-  });
+
+  let user;
+  try {
+    user = await prisma.user.create({
+      data: { email, passwordHash, nickname },
+      select: { id: true, email: true, nickname: true, role: true },
+    });
+  } catch (err) {
+    // 두 요청이 거의 동시에 들어와 위 findUnique 체크를 함께 통과한 경우, DB의 email
+    // unique 제약에서 걸린다 — 이 경우도 동일하게 "이미 가입된 이메일" 에러로 응답한다.
+    if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === "P2002") {
+      return NextResponse.json({ error: "이미 가입된 이메일입니다." }, { status: 409 });
+    }
+    throw err;
+  }
 
   const cookieStore = await cookies();
   setSessionCookie(cookieStore, user.id);
