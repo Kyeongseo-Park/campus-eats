@@ -282,7 +282,7 @@ export function RestaurantMap({
   return (
     <div className="relative h-full w-full">
       <Script
-        src={`https://dapi.kakao.com/v2/maps/sdk.js?appkey=${appKey}&autoload=false&libraries=clusterer`}
+        src={`https://dapi.kakao.com/v2/maps/sdk.js?appkey=${appKey}&autoload=false&libraries=clusterer,services`}
         strategy="afterInteractive"
         onReady={() => setIsSdkReady(true)}
       />

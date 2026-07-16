@@ -106,6 +106,20 @@ declare global {
       addressSearch(address: string, callback: (result: AddressSearchResult[], status: string) => void): void;
     }
 
+    interface PlacesSearchResultItem {
+      place_name: string;
+      address_name: string;
+      road_address_name: string;
+      x: string;
+      y: string;
+    }
+
+    // 장소명/건물명 등 정식 주소 형식이 아닌 검색어도 찾을 수 있는 키워드 검색.
+    // 정식 주소 지오코딩(addressSearch)이 실패했을 때의 폴백으로 쓴다.
+    class Places {
+      keywordSearch(keyword: string, callback: (result: PlacesSearchResultItem[], status: string) => void): void;
+    }
+
     const Status: { OK: string; ZERO_RESULT: string; ERROR: string };
   }
 

@@ -82,18 +82,54 @@ export function AdminRestaurantForm({
     setGeocodeError(null);
     setIsGeocoding(true);
 
-    const geocoder = new window.kakao.maps.services.Geocoder();
-    geocoder.addressSearch(address.trim(), (result, status) => {
+    const query = address.trim();
+
+    function fail(message: string, cause?: unknown) {
+      if (cause) console.error("[geocode]", message, cause);
       setIsGeocoding(false);
+      setGeocodeError(message);
+    }
 
-      if (status !== window.kakao.maps.services.Status.OK || result.length === 0) {
-        setGeocodeError("주소로 좌표를 찾지 못했어요. 카카오맵에서 직접 확인해주세요.");
-        return;
+    function searchByKeyword() {
+      try {
+        const places = new window.kakao.maps.services.Places();
+        places.keywordSearch(query, (placeResult, placeStatus) => {
+          try {
+            if (placeStatus !== window.kakao.maps.services.Status.OK || placeResult.length === 0) {
+              fail("주소로 좌표를 찾지 못했어요. 카카오맵에서 직접 확인해주세요.");
+              return;
+            }
+            setIsGeocoding(false);
+            setLatitude(placeResult[0].y);
+            setLongitude(placeResult[0].x);
+          } catch (err) {
+            fail("좌표를 찾는 중 오류가 발생했어요. 다시 시도해주세요.", err);
+          }
+        });
+      } catch (err) {
+        fail("좌표를 찾는 중 오류가 발생했어요. 다시 시도해주세요.", err);
       }
+    }
 
-      setLatitude(result[0].y);
-      setLongitude(result[0].x);
-    });
+    try {
+      const geocoder = new window.kakao.maps.services.Geocoder();
+      geocoder.addressSearch(query, (result, status) => {
+        try {
+          if (status === window.kakao.maps.services.Status.OK && result.length > 0) {
+            setIsGeocoding(false);
+            setLatitude(result[0].y);
+            setLongitude(result[0].x);
+            return;
+          }
+          // 정식 도로명/지번 주소가 아니면(건물명, 약식 주소 등) 장소명 검색으로 한 번 더 시도한다.
+          searchByKeyword();
+        } catch (err) {
+          fail("좌표를 찾는 중 오류가 발생했어요. 다시 시도해주세요.", err);
+        }
+      });
+    } catch (err) {
+      fail("좌표를 찾는 중 오류가 발생했어요. 다시 시도해주세요.", err);
+    }
   }
 
   function updateMenu(index: number, patch: Partial<MenuRow>) {
@@ -187,7 +223,7 @@ export function AdminRestaurantForm({
     <>
       {kakaoAppKey && (
         <Script
-          src={`https://dapi.kakao.com/v2/maps/sdk.js?appkey=${kakaoAppKey}&autoload=false&libraries=services`}
+          src={`https://dapi.kakao.com/v2/maps/sdk.js?appkey=${kakaoAppKey}&autoload=false&libraries=clusterer,services`}
           strategy="afterInteractive"
           onReady={() => window.kakao.maps.load(() => setIsGeocoderReady(true))}
         />
@@ -248,10 +284,10 @@ export function AdminRestaurantForm({
             size="sm"
             variant="outline"
             onClick={handleFindCoordinates}
-            disabled={isGeocoding}
+            disabled={isGeocoding || !isGeocoderReady}
             className="shrink-0"
           >
-            {isGeocoding ? "찾는 중..." : "좌표 자동 찾기"}
+            {isGeocoding ? "찾는 중..." : isGeocoderReady ? "좌표 자동 찾기" : "지도 불러오는 중..."}
           </Button>
         </div>
         {geocodeError && <p className="text-xs text-destructive">{geocodeError}</p>}
