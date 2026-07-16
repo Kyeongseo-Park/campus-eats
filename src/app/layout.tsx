@@ -55,6 +55,12 @@ export default async function RootLayout({
                 <Link href="/mypage" className="font-medium text-muted-foreground transition-colors hover:text-primary">
                   마이페이지
                 </Link>
+                <Link
+                  href="/restaurant-requests/new"
+                  className="font-medium text-muted-foreground transition-colors hover:text-primary"
+                >
+                  식당제보하기
+                </Link>
                 {user.role === "admin" && (
                   <Link href="/admin" className="font-medium text-muted-foreground transition-colors hover:text-primary">
                     관리자
