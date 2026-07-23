@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Plus_Jakarta_Sans, Noto_Sans_KR, Geist_Mono } from "next/font/google";
 import { UtensilsCrossed } from "lucide-react";
+import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 
 import { getCurrentUser } from "@/lib/auth";
@@ -81,6 +82,7 @@ export default async function RootLayout({
           </nav>
         </header>
         <div className="min-h-0 flex-1 overflow-y-auto">{children}</div>
+        <Analytics />
       </body>
     </html>
   );
