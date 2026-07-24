@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>실제 디자인 스펙 미리보기 — 학식 말고 뭐 먹지?</title>
+<style>
+  :root {
+    --radius-sm: 6px;
+    --radius-md: 8px;
+    --radius-lg: 10px;
+    --radius-xl: 14px;
+    --radius-2xl: 18px;
+    --radius-3xl: 22px;
+    --primary: #f97316; /* orange-500 */
+    --primary-dark: #fb923c; /* orange-400, 다크모드용 참고 */
+    --secondary: #fff7ed; /* orange-50 */
+    --destructive: #ef4444;
+    --border: #e5e7eb;
+    --muted: #6b7280;
+  }
+  * { box-sizing: border-box; }
+  body {
+    font-family: -apple-system, "Noto Sans KR", sans-serif;
+    background: #f3f4f6;
+    padding: 24px 16px;
+    color: #111827;
+  }
+  .intro {
+    max-width: 900px; margin: 0 auto 24px; background: #fff;
+    border: 1px solid var(--border); border-radius: var(--radius-lg);
+    padding: 16px 20px; font-size: 14px; line-height: 1.6;
+  }
+  .intro b { color: var(--primary); }
+  h1 { font-size: 20px; margin-bottom: 6px; }
+  .wrap { max-width: 900px; margin: 0 auto; display: flex; flex-direction: column; gap: 24px; }
+  .section {
+    background: #fff; border: 1px solid var(--border); border-radius: var(--radius-lg);
+    padding: 20px;
+  }
+  .section h2 { font-size: 16px; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+  .row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-bottom: 10px; }
+  .label { font-size: 12px; color: var(--muted); width: 130px; flex-shrink: 0; }
+
+  /* 1. Radius 스케일 */
+  .radius-swatch {
+    width: 64px; height: 64px; background: var(--secondary); border: 2px solid var(--primary);
+    display: flex; align-items: center; justify-content: center; font-size: 11px; color: var(--primary); font-weight: 700;
+  }
+
+  /* 2. 색상 */
+  .color-swatch { width: 80px; height: 44px; border-radius: var(--radius-md); border: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: center; font-size: 11px; }
+
+  /* 3. 폰트 스케일 */
+  .font-row { display: flex; align-items: baseline; gap: 12px; margin-bottom: 8px; }
+  .font-tag { font-size: 11px; color: var(--muted); width: 100px; flex-shrink:0; }
+
+  /* 4. UI 프리미티브 */
+  .btn { display: inline-flex; align-items:center; justify-content:center; border: none; cursor: pointer;
+    background: var(--primary); color: #fff; font-weight: 600; }
+  .btn-default { height: 40px; padding: 0 16px; border-radius: var(--radius-md); font-size: 14px; }
+  .btn-sm { height: 32px; padding: 0 12px; border-radius: var(--radius-md); font-size: 12.8px; }
+  .btn-xs { height: 24px; padding: 0 8px; border-radius: var(--radius-md); font-size: 12px; }
+  .card-demo { border: 1px solid var(--border); border-radius: var(--radius-md); padding: 16px; font-size: 14px; }
+  .badge-demo { display:inline-flex; align-items:center; height:20px; padding:0 10px; border-radius: 26px;
+    background: var(--secondary); color: var(--primary); font-size:12px; font-weight:600; }
+  .input-demo { height: 40px; border: 1px solid var(--border); border-radius: var(--radius-md); padding: 0 12px; font-size: 16px; width: 220px; }
+
+  /* 5. 홈 화면 (지도+바텀시트) 재현 */
+  .phone { width: 340px; margin: 0 auto; border-radius: 22px; overflow: hidden; box-shadow: 0 4px 16px rgba(0,0,0,.12); background:#fff; }
+  .app-header { padding: 8px 16px; display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border); }
+  .app-logo { display:flex; align-items:center; gap:6px; font-size:18px; font-weight:700; }
+  .app-logo .badge-icon { width:28px; height:28px; border-radius: var(--radius-lg); background:var(--primary); }
+  .nav-link { font-size:14px; font-weight:500; color: var(--muted); }
+  .map-box { margin: 12px; height: 140px; border-radius: var(--radius-2xl); background: linear-gradient(135deg,#e6f0ec,#e3ebf6); position:relative; border:1px solid var(--border); }
+  .locate-btn { position:absolute; right:8px; bottom:8px; width:44px; height:44px; border-radius:9999px; background:#fff; box-shadow:0 1px 4px rgba(0,0,0,.2); display:flex; align-items:center; justify-content:center; font-size:16px; }
+  .pin { position:absolute; width:14px; height:14px; border-radius:50%; border:2px solid #fff; }
+  .filter-bar { margin: 0 12px 12px; display:flex; gap:6px; }
+  .filter-chip { padding: 6px 12px; border-radius: 9999px; font-size:12px; border:1px solid var(--border); background:#fff; }
+  .filter-chip.on { background: var(--primary); color:#fff; border-color: var(--primary); }
+  .sheet { border-radius: var(--radius-md) var(--radius-md) 0 0; border:1px solid var(--border); border-bottom:none; padding: 8px 12px 12px; }
+  .sheet-handle { width:40px; height:6px; border-radius:9999px; background:var(--border); margin: 0 auto 8px; }
+  .list-count { font-size:12px; color:var(--muted); margin-bottom:6px; }
+  .list-card { border:1px solid var(--border); border-radius: var(--radius-md); padding:10px; margin-bottom:8px; display:flex; justify-content:space-between; }
+  .list-card .name { font-size:14px; font-weight:600; }
+  .list-card .sub { font-size:12px; color:var(--muted); }
+  .star { color:#facc15; font-size:14px; }
+
+  /* 6. 식당 상세 재현 */
+  .detail-title { font-size:24px; font-weight:700; }
+  .detail-sub { font-size:14px; color:var(--muted); }
+  .detail-section-title { font-size:18px; font-weight:500; margin: 12px 0 6px; }
+  .review-card { border:1px solid var(--border); border-radius: var(--radius-md); padding:12px; font-size:14px; }
+
+  /* 7. 로그인 폼 재현 */
+  .login-card { max-width: 320px; margin: 0 auto; border:1px solid var(--border); border-radius: var(--radius-lg); padding:24px; }
+  .login-title { font-size:24px; font-weight:700; margin-bottom:16px; }
+  .login-field { margin-bottom:16px; }
+  .login-field label { font-size:13px; display:block; margin-bottom:6px; }
+  .error-text { font-size:14px; color: var(--destructive); }
+  .caption-text { font-size:12px; color: var(--muted); }
+</style>
+</head>
+<body>
+
+<div class="intro">
+  <h1>실제 디자인 스펙 미리보기</h1>
+  이 화면은 <b>이론적인 디자인 문서가 아니라, 지금 실제로 배포된 코드(globals.css, 컴포넌트 파일)에 들어있는 값 그대로</b> 재현한 것입니다.
+  개발팀이 코드를 고치지 않아도, 여기서 색상·모서리·폰트 크기를 바로 눈으로 비교하고 "이 정도는 바꿔볼 만하다" 판단하는 용도로 쓰시면 됩니다.
+  <br><br>
+  <b>사용법:</b> 바꾸고 싶은 값이 생기면 "여기 카드 radius를 rounded-xl(14px)로 바꾸면 어떻게 보여?" 같은 식으로 요청만 하면, 이 미리보기를 그 값으로 다시 만들어서 비교해드릴 수 있습니다.
+</div>
+
+<div class="wrap">
+
+  <!-- 1. Radius 스케일 -->
+  <div class="section">
+    <h2>1. 모서리 둥글기(Radius) 스케일</h2>
+    <div class="row">
+      <div style="text-align:center;"><div class="radius-swatch" style="border-radius:6px;">sm</div><div class="label" style="text-align:center;width:64px;">6px</div></div>
+      <div style="text-align:center;"><div class="radius-swatch" style="border-radius:8px;">md</div><div class="label" style="text-align:center;width:64px;">8px (카드/버튼 기본)</div></div>
+      <div style="text-align:center;"><div class="radius-swatch" style="border-radius:10px;">lg</div><div class="label" style="text-align:center;width:64px;">10px</div></div>
+      <div style="text-align:center;"><div class="radius-swatch" style="border-radius:14px;">xl</div><div class="label" style="text-align:center;width:64px;">14px</div></div>
+      <div style="text-align:center;"><div class="radius-swatch" style="border-radius:18px;">2xl</div><div class="label" style="text-align:center;width:64px;">18px (지도 박스)</div></div>
+      <div style="text-align:center;"><div class="radius-swatch" style="border-radius:22px;">3xl</div><div class="label" style="text-align:center;width:64px;">22px</div></div>
+    </div>
+  </div>
+
+  <!-- 2. 색상 -->
+  <div class="section">
+    <h2>2. 색상 토큰</h2>
+    <div class="row">
+      <div style="text-align:center;"><div class="color-swatch" style="background:#f97316; color:#fff;">primary</div><div class="label" style="text-align:center;width:80px;">orange-500</div></div>
+      <div style="text-align:center;"><div class="color-swatch" style="background:#fff7ed;">secondary</div><div class="label" style="text-align:center;width:80px;">orange-50</div></div>
+      <div style="text-align:center;"><div class="color-swatch" style="background:#ef4444; color:#fff;">destructive</div><div class="label" style="text-align:center;width:80px;">red</div></div>
+      <div style="text-align:center;"><div class="color-swatch" style="background:#e5e7eb;">border</div><div class="label" style="text-align:center;width:80px;">neutral gray</div></div>
+    </div>
+    <p class="caption-text">※ 마커 색상만 예외: 일반 #FF6B00, 선택됨 #EF4444, 내 위치는 별도 색 — 카카오맵 API 특성상 하드코딩됨 (Tailwind 토큰 미적용)</p>
+  </div>
+
+  <!-- 3. 폰트 스케일 -->
+  <div class="section">
+    <h2>3. 폰트 크기 스케일</h2>
+    <div class="font-row"><span class="font-tag">text-xs</span><span style="font-size:12px;">12px — 캡션, 보조설명</span></div>
+    <div class="font-row"><span class="font-tag">text-sm</span><span style="font-size:14px;">14px — 본문, 대부분의 텍스트</span></div>
+    <div class="font-row"><span class="font-tag">text-base</span><span style="font-size:16px;">16px — Input 기본, 카드 제목</span></div>
+    <div class="font-row"><span class="font-tag">text-lg</span><span style="font-size:18px;">18px — 헤더 타이틀, 섹션 소제목</span></div>
+    <div class="font-row"><span class="font-tag">text-xl</span><span style="font-size:20px;">20px</span></div>
+    <div class="font-row"><span class="font-tag">text-2xl</span><span style="font-size:24px; font-weight:700;">24px — 페이지 제목 (거의 전부 이거)</span></div>
+  </div>
+
+  <!-- 4. UI 프리미티브 -->
+  <div class="section">
+    <h2>4. 공통 UI 요소 (버튼/카드/뱃지/입력창)</h2>
+    <div class="row">
+      <button class="btn btn-default">Button (14px, radius 8px)</button>
+      <button class="btn btn-sm">Button sm (12.8px)</button>
+      <button class="btn btn-xs">Button xs (12px)</button>
+    </div>
+    <div class="row">
+      <div class="card-demo" style="width:200px;">Card 본문 텍스트<br><span style="font-size:12px;color:var(--muted);">radius 8px, padding 16px</span></div>
+      <span class="badge-demo">Badge 12px</span>
+      <input class="input-demo" placeholder="Input 16px, radius 8px">
+    </div>
+  </div>
+
+  <!-- 5. 홈 화면 재현 -->
+  <div class="section">
+    <h2>5. 홈 화면 (지도 + 바텀시트) 실제 값 재현</h2>
+    <div class="phone">
+      <div class="app-header">
+        <div class="app-logo"><span class="badge-icon"></span>학식 말고 뭐 먹지?</div>
+        <div class="nav-link">로그인</div>
+      </div>
+      <div class="filter-bar" style="margin-top:10px;">
+        <div class="filter-chip on">정문</div><div class="filter-chip">상대</div><div class="filter-chip">예대</div>
+      </div>
+      <div class="map-box">
+        <div class="pin" style="background:#FF6B00; left:30%; top:40%;"></div>
+        <div class="pin" style="background:#EF4444; left:60%; top:60%;"></div>
+        <div class="locate-btn">◎</div>
+      </div>
+      <div class="sheet">
+        <div class="sheet-handle"></div>
+        <div class="list-count">14개의 식당</div>
+        <div class="list-card">
+          <div><div class="name">상대설렁탕</div><div class="sub">상대 · 한식</div></div>
+          <div class="star">★4.8</div>
+        </div>
+        <div class="list-card">
+          <div><div class="name">예대라멘</div><div class="sub">예대 · 일식</div></div>
+          <div class="star">★4.6</div>
+        </div>
+      </div>
+    </div>
+    <p class="caption-text" style="margin-top:10px;">지도 박스 radius 18px(2xl) · 바텀시트 상단만 radius 8px · 리스트 카드 radius 8px · 필터칩 완전 둥근형(pill) · 내 위치 버튼 44×44px 원형</p>
+  </div>
+
+  <!-- 6. 식당 상세 재현 -->
+  <div class="section">
+    <h2>6. 식당 상세 페이지 실제 값 재현</h2>
+    <div class="detail-title">상대설렁탕</div>
+    <div class="detail-sub">062-000-0000</div>
+    <div class="detail-section-title">제휴이벤트</div>
+    <div class="review-card">
+      <b style="font-size:14px;">홍길동</b> ★★★★★<br>
+      <span style="font-size:14px;">진짜 맛있어요!</span>
+    </div>
+    <p class="caption-text" style="margin-top:8px;">식당명 24px(2xl) · 전화번호 14px muted · 소제목 18px(lg) · 리뷰카드 radius 8px, padding 12px</p>
+  </div>
+
+  <!-- 7. 로그인 폼 재현 -->
+  <div class="section">
+    <h2>7. 로그인 화면 실제 값 재현</h2>
+    <div class="login-card">
+      <div class="login-title">로그인</div>
+      <div class="login-field">
+        <label>이메일</label>
+        <input class="input-demo" style="width:100%;" placeholder="이메일 입력">
+      </div>
+      <div class="login-field">
+        <label>비밀번호</label>
+        <input class="input-demo" style="width:100%;" type="password">
+        <div class="error-text" style="margin-top:6px;">비밀번호가 일치하지 않습니다</div>
+      </div>
+      <button class="btn btn-default" style="width:100%;">로그인</button>
+      <p class="caption-text" style="margin-top:12px; text-align:center;">계정이 없으신가요? 회원가입</p>
+    </div>
+    <p class="caption-text" style="margin-top:10px;">카드 최대폭 384px(max-w-sm) · 제목 24px · 필드 간격 16px · 에러 텍스트 14px 빨강 · 보조설명 12px</p>
+  </div>
+
+</div>
+
+</body>
+</html>
