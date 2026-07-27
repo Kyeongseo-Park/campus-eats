@@ -1,6 +1,7 @@
 import { Prisma } from "@/generated/prisma/client";
 import { prisma } from "@/lib/prisma";
 import { isPartnershipActive, todayAsUtcDate } from "@/lib/partnership";
+import { getOpenStatus, type BusinessHours, type OpenStatus } from "@/lib/business-hours";
 import { haversineDistanceKm, type Coordinates } from "@/lib/geo";
 import { calculateAverageRating } from "@/lib/reviews";
 import { SCHOOL_MAIN_GATE, type PriceRangeValue, type SortValue } from "@/lib/constants";
@@ -11,6 +12,7 @@ export type RestaurantSearchParams = {
   categories?: string[];
   priceRanges?: PriceRangeValue[];
   partnershipOnly?: boolean;
+  openNow?: boolean;
   sort?: SortValue;
   origin?: Coordinates;
 };
@@ -25,6 +27,8 @@ export type RestaurantListItem = {
   latitude: number;
   longitude: number;
   isPartnershipActive: boolean;
+  /// 영업시간 데이터가 없는 식당은 "unknown" — "영업중만 보기" 필터에서 자동 제외된다.
+  openStatus: OpenStatus;
   avgRating: number | null;
   reviewCount: number;
   distanceKm: number;
@@ -94,6 +98,7 @@ export async function searchRestaurants(params: RestaurantSearchParams): Promise
       latitude: r.latitude,
       longitude: r.longitude,
       isPartnershipActive: isPartnershipActive(r.partnershipStartDate, r.partnershipEndDate),
+      openStatus: getOpenStatus(r.businessHours as BusinessHours | null),
       avgRating,
       reviewCount: r.reviews.length,
       distanceKm: haversineDistanceKm(origin, { latitude: r.latitude, longitude: r.longitude }),
@@ -101,7 +106,9 @@ export async function searchRestaurants(params: RestaurantSearchParams): Promise
     };
   });
 
-  return sortRestaurants(items, params.sort ?? "rating");
+  const filtered = params.openNow ? items.filter((item) => item.openStatus === "open") : items;
+
+  return sortRestaurants(filtered, params.sort ?? "rating");
 }
 
 function sortRestaurants(items: RestaurantListItem[], sort: SortValue): RestaurantListItem[] {

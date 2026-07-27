@@ -9,10 +9,12 @@ import { ReviewSection } from "@/components/review-section";
 import { FavoriteButton } from "@/components/favorite-button";
 import { ShareButton } from "@/components/share-button";
 import { RestaurantMap } from "@/components/restaurant-map";
+import { OpenStatusBadge } from "@/components/open-status-badge";
 import { getCurrentUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { isPartnershipActive } from "@/lib/partnership";
 import { calculateAverageRating } from "@/lib/reviews";
+import { DAY_KEYS, DAY_LABELS, formatDayHours, getOpenStatus, type BusinessHours } from "@/lib/business-hours";
 
 // 지도+목록 화면(map-explorer.tsx)에서 "상세보기"로 넘어올 때 함께 전달되는
 // 복귀 URL(현재 필터 + 이 식당의 선택 상태 포함). 다른 경로 값이 섞이지 않도록
@@ -58,6 +60,8 @@ export default async function RestaurantDetailPage({
     restaurant.partnershipEndDate
   );
   const avgRating = calculateAverageRating(reviews);
+  const businessHours = restaurant.businessHours as BusinessHours | null;
+  const openStatus = getOpenStatus(businessHours);
 
   return (
     <main className="flex flex-1 flex-col gap-6 p-8">
@@ -66,6 +70,7 @@ export default async function RestaurantDetailPage({
           <div className="flex items-center gap-2">
             <h1 className="text-2xl font-semibold">{restaurant.name}</h1>
             {partnershipActive && <Badge variant="secondary">제휴</Badge>}
+            <OpenStatusBadge status={openStatus} />
             <FavoriteButton
               restaurantId={restaurant.id}
               initialFavorited={favorite !== null}
@@ -149,6 +154,16 @@ export default async function RestaurantDetailPage({
             />
           </div>
           <p className="text-sm">{restaurant.address}</p>
+          {businessHours && (
+            <ul className="flex flex-col gap-0.5 rounded-md border p-3 text-sm">
+              {DAY_KEYS.map((day) => (
+                <li key={day} className="flex justify-between">
+                  <span className="text-muted-foreground">{DAY_LABELS[day]}</span>
+                  <span>{formatDayHours(businessHours[day])}</span>
+                </li>
+              ))}
+            </ul>
+          )}
           <Button
             nativeButton={false}
             render={

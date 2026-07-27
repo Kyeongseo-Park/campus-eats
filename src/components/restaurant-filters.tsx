@@ -76,6 +76,7 @@ export function RestaurantFilters() {
   const currentSort = searchParams.get("sort") ?? "rating";
   const currentSortLabel = SORT_OPTIONS.find((option) => option.value === currentSort)?.label ?? "평점순";
   const partnershipOnly = searchParams.get("partnership_only") === "true";
+  const openNow = searchParams.get("open_now") === "true";
 
   return (
     <div className="flex flex-col gap-2">
@@ -121,6 +122,14 @@ export function RestaurantFilters() {
             onCheckedChange={(checked) => navigate({ partnership_only: checked ? "true" : null })}
           />
           제휴이벤트 중인 식당만 보기
+        </Label>
+
+        <Label className="flex items-center gap-1.5">
+          <Checkbox
+            checked={openNow}
+            onCheckedChange={(checked) => navigate({ open_now: checked ? "true" : null })}
+          />
+          영업 중인 식당만 보기
         </Label>
       </div>
 

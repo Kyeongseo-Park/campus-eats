@@ -7,6 +7,7 @@ import type { KeyboardEvent } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { FavoriteButton } from "@/components/favorite-button";
+import { OpenStatusBadge } from "@/components/open-status-badge";
 import type { RestaurantListItem } from "@/lib/restaurants";
 import { formatMinPrice } from "@/lib/format";
 import type { SortValue } from "@/lib/constants";
@@ -82,11 +83,10 @@ export function RestaurantListPanel({
                     </span>
                   )}
                 </CardDescription>
-                {restaurant.isPartnershipActive && (
-                  <CardAction className="mr-8">
-                    <Badge variant="secondary">제휴</Badge>
-                  </CardAction>
-                )}
+                <CardAction className="mr-8 flex gap-1">
+                  {restaurant.isPartnershipActive && <Badge variant="secondary">제휴</Badge>}
+                  <OpenStatusBadge status={restaurant.openStatus} />
+                </CardAction>
               </CardHeader>
               <CardContent>
                 <p className="text-sm text-muted-foreground">

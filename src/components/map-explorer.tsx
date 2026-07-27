@@ -11,6 +11,7 @@ import { RestaurantFilters } from "@/components/restaurant-filters";
 import { RestaurantListPanel } from "@/components/restaurant-list-panel";
 import { BottomSheet } from "@/components/bottom-sheet";
 import { FavoriteButton } from "@/components/favorite-button";
+import { OpenStatusBadge } from "@/components/open-status-badge";
 import type { RestaurantListItem } from "@/lib/restaurants";
 import { formatMinPrice } from "@/lib/format";
 import type { SortValue } from "@/lib/constants";
@@ -156,6 +157,7 @@ function RestaurantDetailCard({
           <div className="flex items-center gap-2">
             <h2 className="text-lg font-semibold">{restaurant.name}</h2>
             {restaurant.isPartnershipActive && <Badge variant="secondary">제휴</Badge>}
+            <OpenStatusBadge status={restaurant.openStatus} />
           </div>
           <p className="mt-1 flex flex-wrap items-center gap-x-1.5 text-sm text-muted-foreground">
             <span className="font-medium text-primary">{restaurant.category}</span>

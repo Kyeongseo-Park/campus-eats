@@ -50,6 +50,11 @@ model Restaurant {
   partnershipEndDate   DateTime? @map("partnership_end_date") @db.Date
   partnershipInfo      String?   @map("partnership_info")
 
+  /// 카카오맵 "영업정보"에서 수집한 원본 텍스트(재파싱/디버깅용). 수집 안 된 식당은 null.
+  businessHoursRaw String? @map("business_hours_raw")
+  /// 요일별 영업시간(BusinessHours, src/lib/business-hours.ts 참고). 파싱 실패/미수집 시 null.
+  businessHours    Json?   @map("business_hours")
+
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 

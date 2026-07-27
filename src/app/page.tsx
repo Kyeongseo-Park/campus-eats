@@ -37,6 +37,7 @@ export default async function Home({
   const categories = parseMulti(sp.category);
   const priceRanges = parseMulti(sp.price_range) as PriceRangeValue[];
   const partnershipOnly = firstParam(sp.partnership_only) === "true";
+  const openNow = firstParam(sp.open_now) === "true";
 
   const sortRaw = firstParam(sp.sort);
   const sort = (sortRaw as SortValue) || "rating";
@@ -51,7 +52,7 @@ export default async function Home({
   const filterQuery = buildFilterQuery(sp);
 
   const [restaurants, currentUser] = await Promise.all([
-    searchRestaurants({ q, zones, categories, priceRanges, partnershipOnly, sort, origin }),
+    searchRestaurants({ q, zones, categories, priceRanges, partnershipOnly, openNow, sort, origin }),
     getCurrentUser(),
   ]);
 
