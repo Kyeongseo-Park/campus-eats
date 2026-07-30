@@ -13,19 +13,35 @@ datasource db {
 }
 
 model User {
-  id           String   @id @default(uuid()) @db.Uuid
-  email        String   @unique
-  passwordHash String   @map("password_hash")
-  nickname     String   @unique
+  id        String   @id @default(uuid()) @db.Uuid
+  nickname  String   @unique
   /// "user" | "admin" — defaults to user; admin is granted by manually updating this column.
-  role         String   @default("user")
-  createdAt    DateTime @default(now()) @map("created_at")
+  role      String   @default("user")
+  createdAt DateTime @default(now()) @map("created_at")
 
+  accounts           Account[]
   reviews            Review[]
   restaurantRequests RestaurantRequest[]
   favorites          Favorite[]
 
   @@map("users")
+}
+
+model Account {
+  id     String @id @default(uuid()) @db.Uuid
+  userId String @map("user_id") @db.Uuid
+  /// "kakao" | "google"
+  provider String
+  /// 제공자가 발급한 고유 회원 식별자 (카카오: 회원번호, 구글: sub). 이메일/프로필은
+  /// 받아오지 않으므로 이 값이 계정을 식별하는 유일한 근거다.
+  providerAccountId String @map("provider_account_id")
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@map("accounts")
 }
 
 model Restaurant {
@@ -135,18 +151,6 @@ model RestaurantRequest {
 
   @@index([status])
   @@map("restaurant_requests")
-}
-
-model PasswordResetRequest {
-  id    String @id @default(uuid()) @db.Uuid
-  email String
-  /// 대기 | 처리완료
-  status String @default("대기")
-
-  createdAt DateTime @default(now()) @map("created_at")
-
-  @@index([status])
-  @@map("password_requests")
 }
 
 model Favorite {
