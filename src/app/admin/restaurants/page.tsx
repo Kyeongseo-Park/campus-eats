@@ -27,7 +27,7 @@ export default async function AdminRestaurantsPage({
 }: {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }) {
-  await requireAdmin();
+  await requireAdmin("/admin/restaurants");
   const sp = await searchParams;
 
   const q = firstParam(sp.q) || "";

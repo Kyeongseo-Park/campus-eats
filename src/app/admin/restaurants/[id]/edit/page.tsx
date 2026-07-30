@@ -6,8 +6,8 @@ import { requireAdmin } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
 export default async function EditAdminRestaurantPage({ params }: { params: Promise<{ id: string }> }) {
-  await requireAdmin();
   const { id } = await params;
+  await requireAdmin(`/admin/restaurants/${id}/edit`);
 
   const restaurant = await prisma.restaurant.findUnique({ where: { id }, include: { menus: true } });
   if (!restaurant) notFound();

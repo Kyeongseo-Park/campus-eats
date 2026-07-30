@@ -20,7 +20,7 @@ export default async function AdminRequestsPage({
 }: {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }) {
-  await requireAdmin();
+  await requireAdmin("/admin/requests");
   const sp = await searchParams;
 
   // status 파라미터 자체가 없으면(첫 진입) 처리 대기 건부터 보여준다. 빈 문자열(?status=)은 "전체"를 뜻한다.

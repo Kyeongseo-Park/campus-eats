@@ -3,7 +3,7 @@ import { RestaurantRequestForm } from "@/components/restaurant-request-form";
 import { requireUser } from "@/lib/auth";
 
 export default async function NewRestaurantRequestPage() {
-  await requireUser();
+  await requireUser("/restaurant-requests/new");
 
   return (
     <main className="flex flex-1 flex-col items-center justify-center p-8">

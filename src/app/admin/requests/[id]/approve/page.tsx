@@ -7,8 +7,8 @@ import { prisma } from "@/lib/prisma";
 import { CATEGORIES } from "@/lib/constants";
 
 export default async function ApproveRestaurantRequestPage({ params }: { params: Promise<{ id: string }> }) {
-  await requireAdmin();
   const { id } = await params;
+  await requireAdmin(`/admin/requests/${id}/approve`);
 
   const request = await prisma.restaurantRequest.findUnique({ where: { id } });
   if (!request) notFound();

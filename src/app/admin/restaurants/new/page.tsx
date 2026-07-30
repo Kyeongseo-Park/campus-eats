@@ -3,7 +3,7 @@ import { AdminRestaurantForm } from "@/components/admin-restaurant-form";
 import { requireAdmin } from "@/lib/auth";
 
 export default async function NewAdminRestaurantPage() {
-  await requireAdmin();
+  await requireAdmin("/admin/restaurants/new");
 
   return (
     <main className="flex flex-1 flex-col items-center p-8">

@@ -5,7 +5,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { AdminPager } from "@/components/admin-pager";
-import { AdminResetPasswordButton } from "@/components/admin-reset-password-button";
 import { AdminRoleToggleButton } from "@/components/admin-role-toggle-button";
 import { requireAdmin } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
@@ -22,15 +21,13 @@ export default async function AdminMembersPage({
 }: {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }) {
-  const currentUser = await requireAdmin();
+  const currentUser = await requireAdmin("/admin/members");
   const sp = await searchParams;
 
   const q = firstParam(sp.q) || "";
   const page = Math.max(1, Number(firstParam(sp.page)) || 1);
 
-  const where: Prisma.UserWhereInput = q
-    ? { OR: [{ nickname: { contains: q, mode: "insensitive" } }, { email: { contains: q, mode: "insensitive" } }] }
-    : {};
+  const where: Prisma.UserWhereInput = q ? { nickname: { contains: q, mode: "insensitive" } } : {};
 
   const [members, total] = await Promise.all([
     prisma.user.findMany({
@@ -38,7 +35,7 @@ export default async function AdminMembersPage({
       orderBy: { createdAt: "desc" },
       skip: (page - 1) * PAGE_SIZE,
       take: PAGE_SIZE,
-      select: { id: true, nickname: true, email: true, role: true, createdAt: true },
+      select: { id: true, nickname: true, role: true, createdAt: true },
     }),
     prisma.user.count({ where }),
   ]);
@@ -65,9 +62,9 @@ export default async function AdminMembersPage({
         <form method="get" className="flex flex-wrap items-end gap-2">
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="q" className="text-xs text-muted-foreground">
-              닉네임 / 이메일 검색
+              닉네임 검색
             </Label>
-            <Input id="q" name="q" defaultValue={q} placeholder="닉네임 또는 이메일" className="w-56" />
+            <Input id="q" name="q" defaultValue={q} placeholder="닉네임" className="w-56" />
           </div>
           <Button type="submit" size="sm">
             검색
@@ -87,7 +84,6 @@ export default async function AdminMembersPage({
               <thead className="bg-muted/50 text-left text-muted-foreground">
                 <tr>
                   <th className="p-3 font-medium">닉네임</th>
-                  <th className="p-3 font-medium">이메일</th>
                   <th className="p-3 font-medium">역할</th>
                   <th className="p-3 font-medium">가입일</th>
                   <th className="p-3 font-medium">작업</th>
@@ -97,7 +93,6 @@ export default async function AdminMembersPage({
                 {members.map((member) => (
                   <tr key={member.id} className="border-t">
                     <td className="p-3 font-medium">{member.nickname}</td>
-                    <td className="p-3">{member.email}</td>
                     <td className="p-3">
                       {member.role === "admin" ? (
                         <Badge variant="secondary">admin</Badge>
@@ -108,7 +103,6 @@ export default async function AdminMembersPage({
                     <td className="p-3 whitespace-nowrap">{member.createdAt.toLocaleDateString("ko-KR")}</td>
                     <td className="p-3">
                       <div className="flex flex-wrap items-center gap-1.5">
-                        <AdminResetPasswordButton memberId={member.id} memberNickname={member.nickname} />
                         {member.id !== currentUser.id && (
                           <AdminRoleToggleButton
                             memberId={member.id}

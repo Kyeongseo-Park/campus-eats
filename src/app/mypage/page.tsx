@@ -11,7 +11,7 @@ import { REQUEST_STATUS_BADGE_VARIANT } from "@/lib/constants";
 const PREVIEW_COUNT = 3;
 
 export default async function MyPage() {
-  const user = await requireUser();
+  const user = await requireUser("/mypage");
 
   const [reviews, reviewCount, requests, requestCount, favorites, favoriteCount] = await Promise.all([
     prisma.review.findMany({
@@ -40,12 +40,7 @@ export default async function MyPage() {
     <main className="flex flex-1 flex-col gap-6 p-8">
       <div>
         <h1 className="text-2xl font-semibold">마이페이지</h1>
-        <p className="mt-2 text-muted-foreground">
-          {user.nickname}님 ({user.email})
-        </p>
-        <Link href="/mypage/password" className="mt-1 inline-block text-sm text-primary hover:underline">
-          비밀번호 변경
-        </Link>
+        <p className="mt-2 text-muted-foreground">{user.nickname}님</p>
       </div>
 
       <Card>

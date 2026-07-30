@@ -22,7 +22,7 @@ export default async function MyRequestsPage({
 }: {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }) {
-  const user = await requireUser();
+  const user = await requireUser("/mypage/requests");
   const sp = await searchParams;
 
   const q = firstParam(sp.q) || "";

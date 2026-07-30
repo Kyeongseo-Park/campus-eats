@@ -70,14 +70,9 @@ export default async function RootLayout({
                 <LogoutButton />
               </>
             ) : (
-              <>
-                <Link href="/login" className="font-medium text-muted-foreground transition-colors hover:text-primary">
-                  로그인
-                </Link>
-                <Link href="/signup" className="font-medium text-muted-foreground transition-colors hover:text-primary">
-                  회원가입
-                </Link>
-              </>
+              <Link href="/login" className="font-medium text-muted-foreground transition-colors hover:text-primary">
+                로그인
+              </Link>
             )}
           </nav>
         </header>

@@ -20,7 +20,7 @@ export default async function MyReviewsPage({
 }: {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }) {
-  const user = await requireUser();
+  const user = await requireUser("/mypage/reviews");
   const sp = await searchParams;
 
   const q = firstParam(sp.q) || "";
