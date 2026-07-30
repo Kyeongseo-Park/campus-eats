@@ -42,3 +42,10 @@ export const REQUEST_STATUS_BADGE_VARIANT: Record<string, "outline" | "secondary
   반려: "destructive",
 };
 
+// 리뷰 사진 첨부 제한 (docs/03_Design/# 리뷰 사진 추가 Design.md 스펙).
+export const REVIEW_IMAGE_MAX_COUNT = 3;
+export const REVIEW_IMAGE_MAX_SIZE_MB = 5;
+// HEIC 등 브라우저가 표시 못 하는 포맷은 제외 (src/lib/image-resize.ts가 jpeg로 변환 시도하되,
+// 변환 실패 시 원본이 그대로 남을 수 있어 업로드 단계에서 한 번 더 검증한다).
+export const REVIEW_IMAGE_ALLOWED_TYPES = ["image/png", "image/jpeg", "image/webp"] as const;
+
