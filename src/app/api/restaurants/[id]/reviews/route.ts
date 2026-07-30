@@ -8,7 +8,7 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
   const reviews = await prisma.review.findMany({
     where: { restaurantId: id },
     orderBy: { createdAt: "desc" },
-    include: { user: { select: { nickname: true } } },
+    include: { user: { select: { nickname: true } }, images: { orderBy: { order: "asc" } } },
   });
 
   return NextResponse.json({ reviews });

@@ -94,10 +94,26 @@ model Review {
 
   user       User       @relation(fields: [userId], references: [id], onDelete: Cascade)
   restaurant Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+  images     ReviewImage[]
 
   @@index([restaurantId])
   @@index([userId])
   @@map("reviews")
+}
+
+model ReviewImage {
+  id       String @id @default(uuid()) @db.Uuid
+  reviewId String @map("review_id") @db.Uuid
+  url      String
+  /// 리뷰 내 표시 순서 (0부터)
+  order    Int    @default(0)
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  review Review @relation(fields: [reviewId], references: [id], onDelete: Cascade)
+
+  @@index([reviewId])
+  @@map("review_images")
 }
 
 model RestaurantRequest {

@@ -7,6 +7,8 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { StarPicker, StaticStars } from "@/components/star-rating";
+import { ReviewImageUpload } from "@/components/review-image-upload";
+import { ReviewImageGallery } from "@/components/review-image-gallery";
 
 export type MyReviewItem = {
   id: string;
@@ -15,6 +17,7 @@ export type MyReviewItem = {
   createdAt: Date;
   updatedAt: Date;
   restaurant: { id: string; name: string };
+  images: { id: string; url: string; order: number }[];
 };
 
 export function MyReviewsSection({ reviews }: { reviews: MyReviewItem[] }) {
@@ -23,11 +26,13 @@ export function MyReviewsSection({ reviews }: { reviews: MyReviewItem[] }) {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editRating, setEditRating] = useState(5);
   const [editContent, setEditContent] = useState("");
+  const [editImages, setEditImages] = useState<string[]>([]);
 
   function startEditing(review: MyReviewItem) {
     setEditingId(review.id);
     setEditRating(review.rating);
     setEditContent(review.content);
+    setEditImages(review.images.map((image) => image.url));
   }
 
   async function handleEditSubmit(event: FormEvent<HTMLFormElement>, reviewId: string) {
@@ -37,7 +42,7 @@ export function MyReviewsSection({ reviews }: { reviews: MyReviewItem[] }) {
     const res = await fetch(`/api/reviews/${reviewId}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ rating: editRating, content: editContent }),
+      body: JSON.stringify({ rating: editRating, content: editContent, images: editImages }),
     });
 
     if (res.ok) {
@@ -70,6 +75,7 @@ export function MyReviewsSection({ reviews }: { reviews: MyReviewItem[] }) {
               </Link>
               <StarPicker value={editRating} onChange={setEditRating} />
               <Input value={editContent} onChange={(event) => setEditContent(event.target.value)} />
+              <ReviewImageUpload images={editImages} onChange={setEditImages} />
               <div className="flex gap-2">
                 <Button type="submit" size="sm">
                   저장
@@ -101,6 +107,7 @@ export function MyReviewsSection({ reviews }: { reviews: MyReviewItem[] }) {
                   <span className="ml-1 text-xs text-muted-foreground">(수정됨)</span>
                 )}
               </p>
+              <ReviewImageGallery images={review.images} />
             </>
           )}
         </li>

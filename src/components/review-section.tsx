@@ -7,6 +7,8 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { StarPicker, StaticStars } from "@/components/star-rating";
+import { ReviewImageUpload } from "@/components/review-image-upload";
+import { ReviewImageGallery } from "@/components/review-image-gallery";
 
 export type ReviewItem = {
   id: string;
@@ -16,6 +18,7 @@ export type ReviewItem = {
   createdAt: Date;
   updatedAt: Date;
   user: { nickname: string };
+  images: { id: string; url: string; order: number }[];
 };
 
 export function ReviewSection({
@@ -31,12 +34,14 @@ export function ReviewSection({
 
   const [rating, setRating] = useState(5);
   const [content, setContent] = useState("");
+  const [images, setImages] = useState<string[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editRating, setEditRating] = useState(5);
   const [editContent, setEditContent] = useState("");
+  const [editImages, setEditImages] = useState<string[]>([]);
 
   async function handleCreateSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -52,7 +57,7 @@ export function ReviewSection({
       const res = await fetch("/api/reviews", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ restaurantId, rating, content }),
+        body: JSON.stringify({ restaurantId, rating, content, images }),
       });
       const data = await res.json();
 
@@ -63,6 +68,7 @@ export function ReviewSection({
 
       setContent("");
       setRating(5);
+      setImages([]);
       router.refresh();
     } catch {
       setError("네트워크 오류가 발생했습니다. 다시 시도해주세요.");
@@ -75,6 +81,7 @@ export function ReviewSection({
     setEditingId(review.id);
     setEditRating(review.rating);
     setEditContent(review.content);
+    setEditImages(review.images.map((image) => image.url));
   }
 
   async function handleEditSubmit(event: FormEvent<HTMLFormElement>, reviewId: string) {
@@ -84,7 +91,7 @@ export function ReviewSection({
     const res = await fetch(`/api/reviews/${reviewId}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ rating: editRating, content: editContent }),
+      body: JSON.stringify({ rating: editRating, content: editContent, images: editImages }),
     });
 
     if (res.ok) {
@@ -114,6 +121,7 @@ export function ReviewSection({
                 <form onSubmit={(event) => handleEditSubmit(event, review.id)} className="flex flex-col gap-2">
                   <StarPicker value={editRating} onChange={setEditRating} />
                   <Input value={editContent} onChange={(event) => setEditContent(event.target.value)} />
+                  <ReviewImageUpload images={editImages} onChange={setEditImages} />
                   <div className="flex gap-2">
                     <Button type="submit" size="sm">
                       저장
@@ -147,6 +155,7 @@ export function ReviewSection({
                       <span className="ml-1 text-xs text-muted-foreground">(수정됨)</span>
                     )}
                   </p>
+                  <ReviewImageGallery images={review.images} />
                 </>
               )}
             </li>
@@ -163,6 +172,7 @@ export function ReviewSection({
             onChange={(event) => setContent(event.target.value)}
             placeholder="한줄평을 남겨주세요"
           />
+          <ReviewImageUpload images={images} onChange={setImages} disabled={isSubmitting} />
           {error && <p className="text-sm text-destructive">{error}</p>}
           <Button type="submit" disabled={isSubmitting} className="w-fit">
             {isSubmitting ? "등록 중..." : "리뷰 등록"}

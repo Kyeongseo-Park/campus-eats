@@ -39,7 +39,7 @@ export default async function MyReviewsPage({
       orderBy: { createdAt: "desc" },
       skip: (page - 1) * PAGE_SIZE,
       take: PAGE_SIZE,
-      include: { restaurant: { select: { id: true, name: true } } },
+      include: { restaurant: { select: { id: true, name: true } }, images: { orderBy: { order: "asc" } } },
     }),
     prisma.review.count({ where }),
   ]);

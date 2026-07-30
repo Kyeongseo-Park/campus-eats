@@ -40,7 +40,7 @@ export default async function RestaurantDetailPage({
     prisma.review.findMany({
       where: { restaurantId: id },
       orderBy: { createdAt: "desc" },
-      include: { user: { select: { nickname: true } } },
+      include: { user: { select: { nickname: true } }, images: { orderBy: { order: "asc" } } },
     }),
     getCurrentUser(),
   ]);
