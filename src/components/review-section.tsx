@@ -111,6 +111,30 @@ export function ReviewSection({
 
   return (
     <div className="flex flex-col gap-4">
+      {currentUserId ? (
+        <form onSubmit={handleCreateSubmit} className="flex flex-col gap-2 rounded-md border p-3">
+          <span className="text-sm font-medium">리뷰 작성</span>
+          <StarPicker value={rating} onChange={setRating} />
+          <Input
+            value={content}
+            onChange={(event) => setContent(event.target.value)}
+            placeholder="한줄평을 남겨주세요"
+          />
+          <ReviewImageUpload images={images} onChange={setImages} disabled={isSubmitting} />
+          {error && <p className="text-sm text-destructive">{error}</p>}
+          <Button type="submit" disabled={isSubmitting} className="w-fit">
+            {isSubmitting ? "등록 중..." : "리뷰 등록"}
+          </Button>
+        </form>
+      ) : (
+        <p className="text-sm text-muted-foreground">
+          <Link href="/login" className="underline">
+            로그인
+          </Link>{" "}
+          후 리뷰를 작성할 수 있어요.
+        </p>
+      )}
+
       {reviews.length === 0 ? (
         <p className="text-sm text-muted-foreground">아직 리뷰가 없어요.</p>
       ) : (
@@ -161,30 +185,6 @@ export function ReviewSection({
             </li>
           ))}
         </ul>
-      )}
-
-      {currentUserId ? (
-        <form onSubmit={handleCreateSubmit} className="flex flex-col gap-2 rounded-md border p-3">
-          <span className="text-sm font-medium">리뷰 작성</span>
-          <StarPicker value={rating} onChange={setRating} />
-          <Input
-            value={content}
-            onChange={(event) => setContent(event.target.value)}
-            placeholder="한줄평을 남겨주세요"
-          />
-          <ReviewImageUpload images={images} onChange={setImages} disabled={isSubmitting} />
-          {error && <p className="text-sm text-destructive">{error}</p>}
-          <Button type="submit" disabled={isSubmitting} className="w-fit">
-            {isSubmitting ? "등록 중..." : "리뷰 등록"}
-          </Button>
-        </form>
-      ) : (
-        <p className="text-sm text-muted-foreground">
-          <Link href="/login" className="underline">
-            로그인
-          </Link>{" "}
-          후 리뷰를 작성할 수 있어요.
-        </p>
       )}
     </div>
   );
