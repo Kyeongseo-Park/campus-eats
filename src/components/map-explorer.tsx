@@ -1,7 +1,6 @@
 "use client";
 
-import { Suspense, useLayoutEffect, useMemo, useRef, useState } from "react";
-import Link from "next/link";
+import { Suspense, useMemo, useRef, useState } from "react";
 import { Star, X } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
@@ -9,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { RestaurantMap } from "@/components/restaurant-map";
 import { RestaurantFilters } from "@/components/restaurant-filters";
 import { RestaurantListPanel } from "@/components/restaurant-list-panel";
+import { RestaurantDetailModal } from "@/components/restaurant-detail-modal";
 import { BottomSheet } from "@/components/bottom-sheet";
 import { FavoriteButton } from "@/components/favorite-button";
 import { OpenStatusBadge } from "@/components/open-status-badge";
@@ -26,74 +26,47 @@ export function MapExplorer({
   favoriteIds,
   sort,
   q,
-  filterQuery,
-  initialSelectedId,
 }: {
   restaurants: RestaurantListItem[];
   currentUserId: string | null;
   favoriteIds: string[];
   sort: SortValue;
   q?: string;
-  /** 현재 필터 쿼리스트링(`selected` 제외) — 상세 페이지로 이동할 때 돌아올 URL을 만드는 데 쓴다. */
-  filterQuery: string;
-  /** `/restaurants/{id}`에서 닫기(X)로 돌아왔을 때 복원할 선택 상태 (URL의 `selected` 파라미터). */
-  initialSelectedId?: string;
 }) {
-  const [selectedId, setSelectedId] = useState<string | null>(initialSelectedId ?? null);
-  const [sheetMode, setSheetMode] = useState<"list" | "detail">(initialSelectedId ? "detail" : "list");
+  // 지도 마커 클릭 → 바텀시트에 요약카드(previewId)를 보여준다. 그 카드의 "상세보기"를 누르거나
+  // 목록에서 카드를 바로 클릭하면 modalId가 열려 RestaurantDetailModal이 뜬다(페이지 이동 없음).
+  const [previewId, setPreviewId] = useState<string | null>(null);
+  const [modalId, setModalId] = useState<string | null>(null);
   const [sheetExpanded, setSheetExpanded] = useState(false);
 
   const favoriteIdSet = useMemo(() => new Set(favoriteIds), [favoriteIds]);
-
-  // 필터 변경 등으로 선택했던 식당이 결과에서 사라지면 선택을 무효화한다(렌더 중 파생, effect 불필요).
-  const selectedRestaurant = useMemo(
-    () => restaurants.find((r) => r.id === selectedId) ?? null,
-    [restaurants, selectedId]
-  );
-  const effectiveSheetMode: "list" | "detail" = sheetMode === "detail" && selectedRestaurant ? "detail" : "list";
-
-  // 목록 → 요약카드 전환 시 목록 스크롤 위치를 저장했다가, 카드를 닫으면 그 위치로 되돌린다.
   const listScrollRef = useRef<HTMLDivElement>(null);
-  const savedListScrollTopRef = useRef(0);
 
-  useLayoutEffect(() => {
-    if (effectiveSheetMode === "list" && listScrollRef.current) {
-      listScrollRef.current.scrollTop = savedListScrollTopRef.current;
-    }
-  }, [effectiveSheetMode]);
+  const previewRestaurant = useMemo(
+    () => restaurants.find((r) => r.id === previewId) ?? null,
+    [restaurants, previewId]
+  );
 
-  function selectRestaurant(id: string) {
-    if (effectiveSheetMode === "list" && listScrollRef.current) {
-      savedListScrollTopRef.current = listScrollRef.current.scrollTop;
-    }
-    setSelectedId(id);
-    setSheetMode("detail");
-    // 지도의 선택된 마커와 요약카드를 함께 볼 수 있도록 기본(resting) 위치로 되돌린다.
+  const highlightedId = modalId ?? previewId;
+
+  function handleMarkerClick(id: string) {
+    setPreviewId(id);
     setSheetExpanded(false);
-  }
-
-  function handleCloseDetail() {
-    setSheetMode("list");
-    setSelectedId(null);
   }
 
   return (
     <div className="relative h-full">
       <div className="px-3 pt-2" style={{ height: `${MAP_RESTING_VH}dvh` }}>
         <div className="h-full w-full overflow-hidden rounded-2xl ring-1 ring-foreground/10">
-          <RestaurantMap
-            restaurants={restaurants}
-            selectedId={selectedRestaurant?.id ?? null}
-            onMarkerClick={selectRestaurant}
-          />
+          <RestaurantMap restaurants={restaurants} selectedId={highlightedId} onMarkerClick={handleMarkerClick} />
         </div>
       </div>
 
       <div className="absolute inset-x-0 top-0 z-20 px-2 pb-2">
         <div className="max-h-[60vh] overflow-y-auto rounded-xl bg-background/95 p-2 shadow-md backdrop-blur">
-          {/* sheetMode가 바뀌면 리마운트되어 열려 있던 필터 패널이 자동으로 닫힌다. */}
+          {/* 요약카드 ↔ 목록 전환 시 리마운트되어 열려 있던 필터 패널이 자동으로 닫힌다. */}
           <Suspense>
-            <RestaurantFilters key={effectiveSheetMode} />
+            <RestaurantFilters key={previewId ? "preview" : "list"} />
           </Suspense>
         </div>
       </div>
@@ -104,14 +77,14 @@ export function MapExplorer({
         restingOffsetVh={MAP_RESTING_VH}
         contentRef={listScrollRef}
       >
-        {effectiveSheetMode === "detail" && selectedRestaurant ? (
-          <RestaurantDetailCard
-            restaurant={selectedRestaurant}
-            isFavorited={favoriteIdSet.has(selectedRestaurant.id)}
+        {previewRestaurant ? (
+          <RestaurantPreviewCard
+            restaurant={previewRestaurant}
+            isFavorited={favoriteIdSet.has(previewRestaurant.id)}
             isLoggedIn={!!currentUserId}
             sort={sort}
-            filterQuery={filterQuery}
-            onClose={handleCloseDetail}
+            onClose={() => setPreviewId(null)}
+            onViewDetail={() => setModalId(previewRestaurant.id)}
           />
         ) : (
           <RestaurantListPanel
@@ -120,36 +93,37 @@ export function MapExplorer({
             isLoggedIn={!!currentUserId}
             sort={sort}
             q={q}
-            selectedId={selectedRestaurant?.id ?? null}
-            onSelect={selectRestaurant}
+            selectedId={highlightedId}
+            onSelect={setModalId}
           />
         )}
       </BottomSheet>
+
+      <RestaurantDetailModal
+        restaurantId={modalId}
+        isLoggedIn={!!currentUserId}
+        currentUserId={currentUserId}
+        onClose={() => setModalId(null)}
+      />
     </div>
   );
 }
 
-function RestaurantDetailCard({
+function RestaurantPreviewCard({
   restaurant,
   isFavorited,
   isLoggedIn,
   sort,
-  filterQuery,
   onClose,
+  onViewDetail,
 }: {
   restaurant: RestaurantListItem;
   isFavorited: boolean;
   isLoggedIn: boolean;
   sort: SortValue;
-  filterQuery: string;
   onClose: () => void;
+  onViewDetail: () => void;
 }) {
-  // 상세 페이지에서 X(닫기)를 누르면 현재 필터 + 이 식당이 선택된 상태 그대로 돌아오도록
-  // 복귀 URL을 함께 넘긴다.
-  const returnParams = new URLSearchParams(filterQuery);
-  returnParams.set("selected", restaurant.id);
-  const detailHref = `/restaurants/${restaurant.id}?from=${encodeURIComponent(`/?${returnParams.toString()}`)}`;
-
   return (
     <div className="flex flex-col gap-2 pt-1">
       <div className="flex items-start justify-between gap-2">
@@ -192,7 +166,7 @@ function RestaurantDetailCard({
           ))}
         </ul>
       )}
-      <Button nativeButton={false} render={<Link href={detailHref} />} className="mt-1 w-fit">
+      <Button type="button" onClick={onViewDetail} className="mt-1 w-fit">
         상세보기
       </Button>
     </div>

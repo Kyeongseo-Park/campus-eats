@@ -5,14 +5,14 @@ import { Check, Share2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 
-export function ShareButton({ title }: { title: string }) {
+export function ShareButton({ title, path }: { title: string; path?: string }) {
   const [copied, setCopied] = useState(false);
 
   async function handleShare(event: MouseEvent) {
     event.preventDefault();
     event.stopPropagation();
 
-    const url = window.location.href;
+    const url = path ? `${window.location.origin}${path}` : window.location.href;
 
     if (navigator.share) {
       try {

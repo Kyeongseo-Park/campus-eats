@@ -13,35 +13,16 @@ import { OpenStatusBadge } from "@/components/open-status-badge";
 import { getCurrentUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { isPartnershipActive } from "@/lib/partnership";
-import { calculateAverageRating } from "@/lib/reviews";
 import { DAY_KEYS, DAY_LABELS, formatDayHours, getOpenStatus, type BusinessHours } from "@/lib/business-hours";
 
-// 지도+목록 화면(map-explorer.tsx)에서 "상세보기"로 넘어올 때 함께 전달되는
-// 복귀 URL(현재 필터 + 이 식당의 선택 상태 포함). 다른 경로 값이 섞이지 않도록
-// 같은 오리진의 절대 경로인지만 확인한다.
-function resolveBackHref(from: string | undefined): string {
-  if (from && from.startsWith("/") && !from.startsWith("//")) return from;
-  return "/";
-}
-
-export default async function RestaurantDetailPage({
-  params,
-  searchParams,
-}: {
-  params: Promise<{ id: string }>;
-  searchParams: Promise<{ from?: string }>;
-}) {
+// 목록/지도 화면(map-explorer.tsx)에서는 이제 이 페이지로 이동하지 않고 RestaurantDetailModal을
+// 바로 연다. 이 페이지는 공유 링크 등으로 직접 접근했을 때를 위해 남아 있다.
+export default async function RestaurantDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const { from } = await searchParams;
-  const backHref = resolveBackHref(from);
 
-  const [restaurant, reviews, currentUser] = await Promise.all([
+  const [restaurant, reviewAgg, currentUser] = await Promise.all([
     prisma.restaurant.findUnique({ where: { id }, include: { menus: true } }),
-    prisma.review.findMany({
-      where: { restaurantId: id },
-      orderBy: { createdAt: "desc" },
-      include: { user: { select: { nickname: true } }, images: { orderBy: { order: "asc" } } },
-    }),
+    prisma.review.aggregate({ where: { restaurantId: id }, _avg: { rating: true }, _count: { _all: true } }),
     getCurrentUser(),
   ]);
 
@@ -59,7 +40,8 @@ export default async function RestaurantDetailPage({
     restaurant.partnershipStartDate,
     restaurant.partnershipEndDate
   );
-  const avgRating = calculateAverageRating(reviews);
+  const avgRating = reviewAgg._avg.rating;
+  const reviewCount = reviewAgg._count._all;
   const businessHours = restaurant.businessHours as BusinessHours | null;
   const openStatus = getOpenStatus(businessHours);
 
@@ -78,19 +60,13 @@ export default async function RestaurantDetailPage({
             />
             <ShareButton title={restaurant.name} />
           </div>
-          <Button
-            nativeButton={false}
-            render={<Link href={backHref} />}
-            variant="ghost"
-            size="icon"
-            aria-label="닫기"
-          >
+          <Button nativeButton={false} render={<Link href="/" />} variant="ghost" size="icon" aria-label="닫기">
             <X className="size-4" />
           </Button>
         </div>
         <p className="mt-1 text-muted-foreground">
           {restaurant.zone} · {restaurant.category}
-          {avgRating !== null && ` · ★${avgRating.toFixed(1)} (${reviews.length})`}
+          {avgRating !== null && ` · ★${avgRating.toFixed(1)} (${reviewCount})`}
         </p>
         {restaurant.phone && (
           <p className="mt-1 flex items-center gap-1 text-sm text-muted-foreground">
@@ -115,7 +91,7 @@ export default async function RestaurantDetailPage({
       <Tabs defaultValue="menu">
         <TabsList>
           <TabsTrigger value="menu">메뉴</TabsTrigger>
-          <TabsTrigger value="review">리뷰 ({reviews.length})</TabsTrigger>
+          <TabsTrigger value="review">리뷰 ({reviewCount})</TabsTrigger>
           <TabsTrigger value="location">위치</TabsTrigger>
         </TabsList>
 
@@ -135,7 +111,11 @@ export default async function RestaurantDetailPage({
         </TabsContent>
 
         <TabsContent value="review">
-          <ReviewSection restaurantId={restaurant.id} reviews={reviews} currentUserId={currentUser?.id ?? null} />
+          <ReviewSection
+            restaurantId={restaurant.id}
+            isLoggedIn={!!currentUser}
+            currentUserId={currentUser?.id ?? null}
+          />
         </TabsContent>
 
         <TabsContent value="location" className="flex flex-col gap-3">

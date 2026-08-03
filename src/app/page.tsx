@@ -14,17 +14,6 @@ function parseMulti(value: string | string[] | undefined): string[] {
   return raw ? raw.split(",").filter(Boolean) : [];
 }
 
-// selected를 제외한 나머지 쿼리를 그대로 문자열로 재구성한다 — 상세 페이지에서
-// 돌아올 때 필터 상태를 그대로 복원하는 데 쓴다.
-function buildFilterQuery(sp: { [key: string]: string | string[] | undefined }): string {
-  const params = new URLSearchParams();
-  for (const [key, value] of Object.entries(sp)) {
-    if (key === "selected" || value === undefined) continue;
-    for (const v of Array.isArray(value) ? value : [value]) params.append(key, v);
-  }
-  return params.toString();
-}
-
 export default async function Home({
   searchParams,
 }: {
@@ -47,9 +36,6 @@ export default async function Home({
   const lat = latRaw ? Number(latRaw) : NaN;
   const lng = lngRaw ? Number(lngRaw) : NaN;
   const origin = Number.isFinite(lat) && Number.isFinite(lng) ? { latitude: lat, longitude: lng } : undefined;
-
-  const initialSelectedId = firstParam(sp.selected) || undefined;
-  const filterQuery = buildFilterQuery(sp);
 
   const [restaurants, currentUser] = await Promise.all([
     searchRestaurants({ q, zones, categories, priceRanges, partnershipOnly, openNow, sort, origin }),
@@ -75,8 +61,6 @@ export default async function Home({
           favoriteIds={favoriteIds}
           sort={sort}
           q={q}
-          filterQuery={filterQuery}
-          initialSelectedId={initialSelectedId}
         />
       </main>
     </>

@@ -38,6 +38,10 @@ function isWithinRange(minutes: number, startMin: number, endMinRaw: number): bo
   return false;
 }
 
+export function currentDayKey(now: Date = new Date()): DayKey {
+  return nowInKst(now).dayKey;
+}
+
 export function getOpenStatus(hours: BusinessHours | null | undefined, now: Date = new Date()): OpenStatus {
   if (!hours) return "unknown";
 
