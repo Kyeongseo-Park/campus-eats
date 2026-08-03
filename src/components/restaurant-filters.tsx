@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { ChevronDownIcon } from "lucide-react";
+import { ChevronDownIcon, Gift } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -116,21 +116,13 @@ export function RestaurantFilters() {
           onClick={() => togglePanel("sort")}
         />
 
-        <Label className="ml-2 flex items-center gap-1.5">
-          <Checkbox
-            checked={partnershipOnly}
-            onCheckedChange={(checked) => navigate({ partnership_only: checked ? "true" : null })}
+        <div className="ml-auto flex items-center gap-2">
+          <OpenNowChip active={openNow} onClick={() => navigate({ open_now: openNow ? null : "true" })} />
+          <PartnershipChip
+            active={partnershipOnly}
+            onClick={() => navigate({ partnership_only: partnershipOnly ? null : "true" })}
           />
-          제휴이벤트 중인 식당만 보기
-        </Label>
-
-        <Label className="flex items-center gap-1.5">
-          <Checkbox
-            checked={openNow}
-            onCheckedChange={(checked) => navigate({ open_now: checked ? "true" : null })}
-          />
-          영업 중인 식당만 보기
-        </Label>
+        </div>
       </div>
 
       {openPanel === "zone" && (
@@ -174,6 +166,49 @@ export function RestaurantFilters() {
         </div>
       )}
     </div>
+  );
+}
+
+function OpenNowChip({ active, onClick }: { active: boolean; onClick: () => void }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-pressed={active}
+      className={cn(
+        "flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-semibold transition-colors sm:text-sm",
+        active
+          ? "border-emerald-500 bg-emerald-50 text-emerald-700 shadow-2xs ring-1 ring-emerald-200"
+          : "border-gray-200 bg-white text-gray-600 hover:bg-gray-50"
+      )}
+    >
+      <span className="relative flex size-2">
+        {active && (
+          <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-500 opacity-75" />
+        )}
+        <span className={cn("relative inline-flex size-2 rounded-full", active ? "bg-emerald-500" : "bg-gray-300")} />
+      </span>
+      영업 중
+    </button>
+  );
+}
+
+function PartnershipChip({ active, onClick }: { active: boolean; onClick: () => void }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-pressed={active}
+      className={cn(
+        "flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-semibold transition-colors sm:text-sm",
+        active
+          ? "border-orange-500 bg-orange-50 text-orange-700 ring-1 ring-orange-200"
+          : "border-gray-200 bg-white text-gray-600 hover:bg-gray-50"
+      )}
+    >
+      <Gift className={cn("size-3.5", active ? "text-orange-600" : "text-gray-400")} />
+      제휴 혜택
+    </button>
   );
 }
 
