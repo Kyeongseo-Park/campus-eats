@@ -23,6 +23,7 @@ model User {
   reviews            Review[]
   restaurantRequests RestaurantRequest[]
   favorites          Favorite[]
+  reviewHelpfulVotes ReviewHelpful[]
 
   @@map("users")
 }
@@ -110,7 +111,8 @@ model Review {
 
   user       User       @relation(fields: [userId], references: [id], onDelete: Cascade)
   restaurant Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
-  images     ReviewImage[]
+  images       ReviewImage[]
+  helpfulVotes ReviewHelpful[]
 
   @@index([restaurantId])
   @@index([userId])
@@ -151,6 +153,19 @@ model RestaurantRequest {
 
   @@index([status])
   @@map("restaurant_requests")
+}
+
+model ReviewHelpful {
+  id        String   @id @default(uuid()) @db.Uuid
+  userId    String   @map("user_id") @db.Uuid
+  reviewId  String   @map("review_id") @db.Uuid
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  review Review @relation(fields: [reviewId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, reviewId])
+  @@map("review_helpfuls")
 }
 
 model Favorite {
