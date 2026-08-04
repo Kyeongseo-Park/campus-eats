@@ -46,10 +46,15 @@ export function ReviewImageGallery({ images }: { images: { id: string; url: stri
             key={image.id}
             type="button"
             onClick={() => setOpenIndex(index)}
-            className="h-[84px] w-[84px] shrink-0 overflow-hidden rounded-md"
+            className="relative h-[84px] w-[84px] shrink-0 overflow-hidden rounded-md"
           >
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={image.url} alt="" className="h-full w-full object-cover" />
+            {index === 0 && images.length > 1 && (
+              <span className="absolute top-1 left-1 rounded bg-primary px-1 py-0.5 text-[10px] font-bold text-primary-foreground">
+                대표
+              </span>
+            )}
           </button>
         ))}
       </div>

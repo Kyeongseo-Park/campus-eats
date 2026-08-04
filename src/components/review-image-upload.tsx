@@ -123,7 +123,7 @@ export function ReviewImageUpload({
           >
             <span>📷</span>
             <span>{phase === "converting" ? "변환 중" : phase === "uploading" ? "업로드 중" : "사진 추가"}</span>
-            <span className="text-[10px] font-normal text-gray-400">
+            <span className="text-xs font-normal text-gray-400">
               ({images.length}/{REVIEW_IMAGE_MAX_COUNT})
             </span>
           </button>
