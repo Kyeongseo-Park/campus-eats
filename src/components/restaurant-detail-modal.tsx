@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { ChevronDown, ChevronUp, Clock, MapPin, Navigation, X } from "lucide-react";
+import { ChevronDown, ChevronUp, Clock, Map, MapPin, Navigation, X } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -9,6 +9,7 @@ import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { FavoriteButton } from "@/components/favorite-button";
 import { ShareButton } from "@/components/share-button";
 import { OpenStatusBadge } from "@/components/open-status-badge";
+import { RestaurantMap } from "@/components/restaurant-map";
 import { ReviewSection } from "@/components/review-section";
 import {
   DAY_KEYS,
@@ -127,6 +128,13 @@ export function RestaurantDetailModal({
               </div>
 
               <div className="mt-3 flex flex-col gap-2.5">
+                <LocationMapAccordion
+                  id={data.id}
+                  name={data.name}
+                  category={data.category}
+                  latitude={data.latitude}
+                  longitude={data.longitude}
+                />
                 <HoursAccordion businessHours={data.businessHours} openStatus={data.openStatus} />
                 <AddressRow
                   name={data.name}
@@ -148,6 +156,44 @@ export function RestaurantDetailModal({
         )}
       </DialogContent>
     </Dialog>
+  );
+}
+
+function LocationMapAccordion({
+  id,
+  name,
+  category,
+  latitude,
+  longitude,
+}: {
+  id: string;
+  name: string;
+  category: string;
+  latitude: number;
+  longitude: number;
+}) {
+  const [expanded, setExpanded] = useState(false);
+
+  return (
+    <div>
+      <button
+        type="button"
+        onClick={() => setExpanded((prev) => !prev)}
+        className="flex w-full items-center justify-between rounded-xl border border-gray-200/90 bg-white px-3.5 py-2.5 text-sm transition-colors hover:bg-gray-50/80"
+      >
+        <span className="flex items-center gap-1.5 font-semibold text-gray-800">
+          <Map className="size-4 text-gray-400" />
+          {expanded ? "지도 접기" : "지도 펼치기"}
+        </span>
+        {expanded ? <ChevronUp className="size-4 text-gray-400" /> : <ChevronDown className="size-4 text-gray-400" />}
+      </button>
+
+      {expanded && (
+        <div className="mt-2 h-48 w-full overflow-hidden rounded-xl border border-gray-200/80">
+          <RestaurantMap restaurants={[{ id, name, category, latitude, longitude }]} selectedId={id} />
+        </div>
+      )}
+    </div>
   );
 }
 
