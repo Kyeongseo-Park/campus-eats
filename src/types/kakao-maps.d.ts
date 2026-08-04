@@ -26,6 +26,7 @@ declare global {
       ): void;
       setLevel(level: number, options?: { anchor?: LatLng; animate?: boolean }): void;
       getLevel(): number;
+      relayout(): void;
     }
 
     class Marker {

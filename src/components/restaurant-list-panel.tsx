@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Star } from "lucide-react";
+import { ChevronDown, ChevronUp, Star } from "lucide-react";
 import type { KeyboardEvent } from "react";
 
 import { Badge } from "@/components/ui/badge";
@@ -21,6 +21,8 @@ export function RestaurantListPanel({
   q,
   selectedId,
   onSelect,
+  listCollapsed,
+  onToggleList,
 }: {
   restaurants: RestaurantListItem[];
   favoriteIds: Set<string>;
@@ -29,24 +31,10 @@ export function RestaurantListPanel({
   q?: string;
   selectedId: string | null;
   onSelect: (id: string) => void;
+  /** 목록을 접어 지도를 넓게 보는 상태인지 (기본값 false = 목록이 펼쳐진 상태). */
+  listCollapsed: boolean;
+  onToggleList: () => void;
 }) {
-  if (restaurants.length === 0) {
-    return (
-      <p className="py-6 text-center text-sm text-muted-foreground">
-        {q ? (
-          <>
-            검색 결과가 없어요. 새로운{" "}
-            <Link href="/restaurant-requests/new" className="text-primary underline-offset-4 hover:underline">
-              식당을 제보해보세요!
-            </Link>
-          </>
-        ) : (
-          "조건에 맞는 식당이 없어요."
-        )}
-      </p>
-    );
-  }
-
   function handleKeyDown(event: KeyboardEvent<HTMLDivElement>, id: string) {
     if (event.key === "Enter" || event.key === " ") {
       event.preventDefault();
@@ -54,9 +42,43 @@ export function RestaurantListPanel({
     }
   }
 
+  const header = (
+    <div className="flex items-center justify-between py-2">
+      <p className="text-xs text-muted-foreground">{restaurants.length}개의 식당</p>
+      <button
+        type="button"
+        onClick={onToggleList}
+        className="flex items-center gap-1 text-xs font-medium text-muted-foreground hover:text-foreground"
+      >
+        {listCollapsed ? "목록 펼치기" : "목록 접기"}
+        {listCollapsed ? <ChevronUp className="size-3.5" /> : <ChevronDown className="size-3.5" />}
+      </button>
+    </div>
+  );
+
+  if (restaurants.length === 0) {
+    return (
+      <>
+        {header}
+        <p className="py-6 text-center text-sm text-muted-foreground">
+          {q ? (
+            <>
+              검색 결과가 없어요. 새로운{" "}
+              <Link href="/restaurant-requests/new" className="text-primary underline-offset-4 hover:underline">
+                식당을 제보해보세요!
+              </Link>
+            </>
+          ) : (
+            "조건에 맞는 식당이 없어요."
+          )}
+        </p>
+      </>
+    );
+  }
+
   return (
     <>
-      <p className="py-2 text-xs text-muted-foreground">{restaurants.length}개의 식당</p>
+      {header}
       <div className="grid grid-cols-1 gap-3 pb-2 sm:grid-cols-2">
         {restaurants.map((restaurant) => (
           <div key={restaurant.id} className="relative">

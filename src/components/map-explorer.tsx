@@ -16,9 +16,12 @@ import type { RestaurantListItem } from "@/lib/restaurants";
 import { formatMinPrice } from "@/lib/format";
 import type { SortValue } from "@/lib/constants";
 
-// 바텀시트 기본(resting) 위치 — 지도 박스 높이와 동일한 값을 써서 시트 상단이 지도 박스 바로
-// 아래에 정확히 맞물리게 한다(지도가 화면의 이 비율만큼 보인다).
-const MAP_RESTING_VH = 50;
+// 목록 접기·펼치기에 따른 지도 영역 높이(dvh). 바텀시트의 resting 위치도 항상 이 값과 같게
+// 맞춰서(아래 mapHeightVh), 시트 상단이 지도 박스 바로 아래에 정확히 맞물리게 한다.
+const MAP_RESTING_VH = 50; // 기본 크기 (목록 펼쳐짐)
+// 목록 접힘: 카드 목록은 안 보이고 핸들+토글 줄만 딱 보일 만큼만 남긴다(그 이상 안 내려감).
+const LIST_PEEK_VH = 13;
+const MAP_HEIGHT_LIST_COLLAPSED_VH = 100 - LIST_PEEK_VH;
 
 export function MapExplorer({
   restaurants,
@@ -37,7 +40,13 @@ export function MapExplorer({
   // 목록에서 카드를 바로 클릭하면 modalId가 열려 RestaurantDetailModal이 뜬다(페이지 이동 없음).
   const [previewId, setPreviewId] = useState<string | null>(null);
   const [modalId, setModalId] = useState<string | null>(null);
-  const [sheetExpanded, setSheetExpanded] = useState(false);
+
+  // 드래그로 목록을 완전히 끝까지 펼치는 것은 listCollapsed와 별개(resting 위치와 무관하게
+  // 항상 화면 전체를 덮는 임시 상태).
+  const [listCollapsed, setListCollapsed] = useState(false);
+  const [dragExpanded, setDragExpanded] = useState(false);
+
+  const mapHeightVh = listCollapsed ? MAP_HEIGHT_LIST_COLLAPSED_VH : MAP_RESTING_VH;
 
   const favoriteIdSet = useMemo(() => new Set(favoriteIds), [favoriteIds]);
   const listScrollRef = useRef<HTMLDivElement>(null);
@@ -51,12 +60,17 @@ export function MapExplorer({
 
   function handleMarkerClick(id: string) {
     setPreviewId(id);
-    setSheetExpanded(false);
+    setDragExpanded(false);
+    // 목록이 접혀 있으면 요약카드가 보일 공간이 없으므로 다시 펼쳐준다.
+    setListCollapsed(false);
   }
 
   return (
     <div className="relative h-full">
-      <div className="px-3 pt-2" style={{ height: `${MAP_RESTING_VH}dvh` }}>
+      <div
+        className="px-3 pt-2 transition-[height] duration-200 ease-out"
+        style={{ height: `${mapHeightVh}dvh` }}
+      >
         <div className="h-full w-full overflow-hidden rounded-2xl ring-1 ring-foreground/10">
           <RestaurantMap restaurants={restaurants} selectedId={highlightedId} onMarkerClick={handleMarkerClick} />
         </div>
@@ -72,9 +86,9 @@ export function MapExplorer({
       </div>
 
       <BottomSheet
-        expanded={sheetExpanded}
-        onExpandedChange={setSheetExpanded}
-        restingOffsetVh={MAP_RESTING_VH}
+        expanded={dragExpanded}
+        onExpandedChange={setDragExpanded}
+        restingOffsetVh={mapHeightVh}
         contentRef={listScrollRef}
       >
         {previewRestaurant ? (
@@ -95,6 +109,8 @@ export function MapExplorer({
             q={q}
             selectedId={highlightedId}
             onSelect={setModalId}
+            listCollapsed={listCollapsed}
+            onToggleList={() => setListCollapsed((prev) => !prev)}
           />
         )}
       </BottomSheet>

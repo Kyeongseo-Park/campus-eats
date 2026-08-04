@@ -199,6 +199,20 @@ export function RestaurantMap({
     });
   }
 
+  // 지도 컨테이너 높이가 애니메이션으로 바뀔 때(지도/목록 접기·펼치기) 카카오맵이 새 크기에
+  // 맞춰 다시 그려지도록 한다 — relayout을 호출하지 않으면 컨테이너 크기만 바뀌고 지도 캔버스는
+  // 예전 크기로 남아 여백이 생긴다.
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container || !isMapReady) return;
+
+    const observer = new ResizeObserver(() => {
+      mapObjRef.current?.relayout();
+    });
+    observer.observe(container);
+    return () => observer.disconnect();
+  }, [isMapReady]);
+
   useEffect(() => {
     const map = mapObjRef.current;
     const clusterer = clustererRef.current;
