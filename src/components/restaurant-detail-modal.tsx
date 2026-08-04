@@ -150,7 +150,12 @@ export function RestaurantDetailModal({
 
               <div className="my-4 border-t border-gray-100" />
 
-              <ReviewSection restaurantId={data.id} isLoggedIn={isLoggedIn} currentUserId={currentUserId} />
+              <ReviewSection
+                restaurantId={data.id}
+                isLoggedIn={isLoggedIn}
+                currentUserId={currentUserId}
+                avgRating={data.avgRating}
+              />
             </div>
           </>
         )}

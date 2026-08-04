@@ -2,14 +2,16 @@
 
 import { useCallback, useEffect, useState, type FormEvent } from "react";
 import Link from "next/link";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, Star } from "lucide-react";
 
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { StarPicker, StaticStars } from "@/components/star-rating";
 import { ReviewImageUpload } from "@/components/review-image-upload";
 import { ReviewImageGallery } from "@/components/review-image-gallery";
 import { ReviewHelpfulButton } from "@/components/review-helpful-button";
+import { ReviewReportButton } from "@/components/review-report-button";
 import { cn } from "@/lib/utils";
 
 export type ReviewItem = {
@@ -29,7 +31,7 @@ type SortOption = "recent" | "helpful_desc" | "rating_desc" | "rating_asc";
 
 const SORT_LABELS: Record<SortOption, string> = {
   recent: "최신순",
-  helpful_desc: "도움돼요순",
+  helpful_desc: "추천순",
   rating_desc: "별점 높은순",
   rating_asc: "별점 낮은순",
 };
@@ -42,10 +44,12 @@ export function ReviewSection({
   restaurantId,
   isLoggedIn,
   currentUserId,
+  avgRating,
 }: {
   restaurantId: string;
   isLoggedIn: boolean;
   currentUserId: string | null;
+  avgRating: number | null;
 }) {
   const [sort, setSort] = useState<SortOption>("recent");
   const [page, setPage] = useState(1);
@@ -166,13 +170,28 @@ export function ReviewSection({
 
   return (
     <div className="flex flex-col gap-3">
-      <div className="flex items-center justify-between gap-2">
-        <h3 className="text-base font-bold text-gray-900">리뷰 ({totalCount})</h3>
-        <div className="flex items-center gap-2">
+      <div className="flex flex-col gap-2">
+        <div>
+          <h3 className="text-base font-bold text-gray-900">리뷰 {totalCount}개</h3>
+          {avgRating !== null && (
+            <div className="mt-1.5 flex items-center gap-2">
+              <span className="flex shrink-0 items-center gap-1 text-sm font-bold text-gray-900">
+                <Star className="size-4 fill-yellow-400 text-yellow-400" />
+                {avgRating.toFixed(1)}
+              </span>
+              <div className="h-2 w-full max-w-[140px] overflow-hidden rounded-full bg-gray-100">
+                <div className="h-full rounded-full bg-primary" style={{ width: `${(avgRating / 5) * 100}%` }} />
+              </div>
+              <span className="shrink-0 text-xs text-gray-400">({avgRating.toFixed(1)} / 5)</span>
+            </div>
+          )}
+        </div>
+
+        <div className="flex items-center justify-between gap-2">
           <select
             value={sort}
             onChange={(event) => handleSortChange(event.target.value as SortOption)}
-            className="cursor-pointer rounded-lg border border-gray-200 bg-gray-50 px-2 py-1 text-xs font-medium text-gray-700 focus:outline-none focus:ring-1 focus:ring-orange-500"
+            className="h-8 cursor-pointer rounded-lg border border-gray-200 bg-white px-2.5 text-sm font-medium text-gray-700 focus:outline-none focus:ring-1 focus:ring-orange-500"
           >
             {(Object.entries(SORT_LABELS) as [SortOption, string][]).map(([value, label]) => (
               <option key={value} value={value}>
@@ -219,11 +238,31 @@ export function ReviewSection({
       {loading ? (
         <p className="py-4 text-center text-sm text-gray-400">불러오는 중...</p>
       ) : reviews.length === 0 ? (
-        <p className="py-4 text-center text-sm text-gray-400">아직 리뷰가 없어요.</p>
+        <div className="rounded-md border border-gray-200 p-8 text-center">
+          <p className="text-3xl">🥣</p>
+          <p className="mt-2 text-sm text-gray-500">아직 등록된 리뷰가 없어요.</p>
+          <p className="text-sm text-gray-500">이 식당의 첫 번째 쩝쩝박사가 되어보세요!</p>
+          {isLoggedIn ? (
+            <button
+              type="button"
+              onClick={() => setShowForm(true)}
+              className="mt-4 h-10 rounded-lg bg-primary px-4 text-sm font-bold text-primary-foreground"
+            >
+              첫 리뷰 작성하기
+            </button>
+          ) : (
+            <Link
+              href="/login"
+              className="mt-4 inline-flex h-10 items-center rounded-lg bg-primary px-4 text-sm font-bold text-primary-foreground"
+            >
+              첫 리뷰 작성하기
+            </Link>
+          )}
+        </div>
       ) : (
         <ul className="flex flex-col gap-2.5">
           {reviews.map((review) => (
-            <li key={review.id} className="rounded-2xl border border-gray-200/80 bg-white p-3.5 shadow-2xs">
+            <li key={review.id} className="rounded-md border border-gray-200 p-4">
               {editingId === review.id ? (
                 <form onSubmit={(event) => handleEditSubmit(event, review.id)} className="flex flex-col gap-2">
                   <StarPicker value={editRating} onChange={setEditRating} />
@@ -242,26 +281,31 @@ export function ReviewSection({
                 <>
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
+                      <Avatar size="sm" className="size-7">
+                        <AvatarFallback className="text-xs">{review.user.nickname.slice(0, 1)}</AvatarFallback>
+                      </Avatar>
                       <span className="text-sm font-bold text-gray-900">{review.user.nickname}</span>
                       <StaticStars rating={review.rating} />
                     </div>
-                    <span className="text-[11px] font-normal text-gray-400">{formatDate(review.createdAt)}</span>
+                    <span className="text-xs font-normal text-gray-500">{formatDate(review.createdAt)}</span>
                   </div>
-                  <p className="mt-1.5 text-sm leading-normal text-gray-700">
+                  <p className="mt-1.5 text-sm leading-relaxed text-gray-700">
                     {review.content}
                     {review.updatedAt !== review.createdAt && (
                       <span className="ml-1 text-xs text-muted-foreground">(수정됨)</span>
                     )}
                   </p>
                   <ReviewImageGallery images={review.images} />
-                  <div className="mt-1 flex items-center justify-between">
-                    <ReviewHelpfulButton
-                      reviewId={review.id}
-                      initialCount={review.helpfulCount}
-                      initialVoted={review.isHelpful}
-                      isLoggedIn={isLoggedIn}
-                      className="-ml-2 w-fit"
-                    />
+                  <div className="mt-2 flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <ReviewHelpfulButton
+                        reviewId={review.id}
+                        initialCount={review.helpfulCount}
+                        initialVoted={review.isHelpful}
+                        isLoggedIn={isLoggedIn}
+                      />
+                      <ReviewReportButton isLoggedIn={isLoggedIn} />
+                    </div>
                     {currentUserId === review.userId && (
                       <div className="flex gap-1">
                         <Button size="xs" variant="ghost" onClick={() => startEditing(review)}>

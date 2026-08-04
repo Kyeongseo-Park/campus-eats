@@ -4,7 +4,6 @@ import { useState, type MouseEvent } from "react";
 import { useRouter } from "next/navigation";
 import { ThumbsUp } from "lucide-react";
 
-import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 export function ReviewHelpfulButton({
@@ -57,17 +56,19 @@ export function ReviewHelpfulButton({
   }
 
   return (
-    <Button
+    <button
       type="button"
-      variant="ghost"
-      size="sm"
-      aria-label={voted ? "도움돼요 취소" : "도움돼요"}
+      aria-label={voted ? "추천 취소" : "추천"}
       aria-pressed={voted}
       onClick={toggle}
-      className={cn("gap-1", className)}
+      className={cn(
+        "flex items-center gap-1 rounded-[6px] px-2 py-1 text-xs font-semibold text-orange-600 transition-colors",
+        voted ? "bg-orange-100" : "bg-orange-50 hover:bg-orange-100",
+        className
+      )}
     >
-      <ThumbsUp className={cn("size-4", voted && "fill-blue-500 text-blue-500")} />
-      도움돼요 {count}
-    </Button>
+      <ThumbsUp className={cn("size-3.5", voted && "fill-orange-600")} />
+      추천 {count}
+    </button>
   );
 }

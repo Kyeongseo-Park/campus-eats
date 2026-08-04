@@ -115,6 +115,7 @@ export default async function RestaurantDetailPage({ params }: { params: Promise
             restaurantId={restaurant.id}
             isLoggedIn={!!currentUser}
             currentUserId={currentUser?.id ?? null}
+            avgRating={avgRating}
           />
         </TabsContent>
 
