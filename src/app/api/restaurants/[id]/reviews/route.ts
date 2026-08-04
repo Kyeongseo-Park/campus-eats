@@ -6,10 +6,10 @@ import { getCurrentUser } from "@/lib/auth";
 
 export const REVIEW_PAGE_SIZE = 10;
 
-type SortOption = "recent" | "rating_desc" | "rating_asc";
+type SortOption = "recent" | "helpful_desc" | "rating_desc" | "rating_asc";
 
 function parseSort(value: string | null): SortOption {
-  if (value === "rating_desc" || value === "rating_asc") return value;
+  if (value === "helpful_desc" || value === "rating_desc" || value === "rating_asc") return value;
   return "recent";
 }
 
@@ -20,6 +20,7 @@ function parsePage(value: string | null): number {
 
 const ORDER_BY: Record<SortOption, Prisma.ReviewOrderByWithRelationInput[]> = {
   recent: [{ createdAt: "desc" }],
+  helpful_desc: [{ helpfulVotes: { _count: "desc" } }, { createdAt: "desc" }],
   rating_desc: [{ rating: "desc" }, { createdAt: "desc" }],
   rating_asc: [{ rating: "asc" }, { createdAt: "desc" }],
 };

@@ -25,10 +25,11 @@ export type ReviewItem = {
   isHelpful: boolean;
 };
 
-type SortOption = "recent" | "rating_desc" | "rating_asc";
+type SortOption = "recent" | "helpful_desc" | "rating_desc" | "rating_asc";
 
 const SORT_LABELS: Record<SortOption, string> = {
   recent: "최신순",
+  helpful_desc: "도움돼요순",
   rating_desc: "별점 높은순",
   rating_asc: "별점 낮은순",
 };
