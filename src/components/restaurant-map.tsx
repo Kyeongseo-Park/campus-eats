@@ -22,9 +22,12 @@ type MarkerKind = "cafe" | "food";
 // 일반 마커는 옅고 반투명하게 두어 지도 위 도로명/건물명이 비쳐 보이게 하고,
 // 선택된 마커만 크고 진하게 강조한다.
 const PIN_NORMAL_SIZE = 21;
-const PIN_SELECTED_SIZE = 30;
+const PIN_SELECTED_SIZE = 36;
 const PIN_COLOR_NORMAL = "#FF6B00";
-const PIN_COLOR_SELECTED = "#EF4444";
+const PIN_COLOR_SELECTED = "#DC2626";
+// 마커가 겹칠 때 선택된 마커가 항상 다른 마커 위로 오도록 z-index를 확실히 높게 둔다.
+const MARKER_Z_NORMAL = 1;
+const MARKER_Z_SELECTED = 100;
 const MY_LOCATION_COLOR = "#3B82F6";
 const MY_LOCATION_SIZE = 18;
 
@@ -48,10 +51,12 @@ const UTENSILS_ICON_SVG =
 function buildPinImageSrc(
   kind: MarkerKind,
   size: number,
-  { fillOpacity, strokeWidth, color }: { fillOpacity: number; strokeWidth: number; color: string }
+  { fillOpacity, strokeWidth, color, glow = false }: { fillOpacity: number; strokeWidth: number; color: string; glow?: boolean }
 ) {
   const icon = kind === "cafe" ? COFFEE_ICON_SVG : UTENSILS_ICON_SVG;
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="${color}" fill-opacity="${fillOpacity}" stroke="#ffffff" stroke-width="${strokeWidth}" />${icon}</svg>`;
+  // 선택된 마커는 본체 뒤에 옅은 후광을 한 겹 더 깔아, 지도에 마커가 많아도 눈에 확 띄게 한다.
+  const glowLayer = glow ? `<circle cx="12" cy="12" r="11.5" fill="${color}" fill-opacity="0.3" />` : "";
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 24 24">${glowLayer}<circle cx="12" cy="12" r="10" fill="${color}" fill-opacity="${fillOpacity}" stroke="#ffffff" stroke-width="${strokeWidth}" />${icon}</svg>`;
   return `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`;
 }
 
@@ -89,11 +94,16 @@ type MarkerEntry = { marker: kakao.maps.Marker; isCafe: boolean };
 type MarkerImageSet = { normal: kakao.maps.MarkerImage; selected: kakao.maps.MarkerImage };
 type MarkerImages = { food: MarkerImageSet; cafe: MarkerImageSet };
 
+// 목록에서 식당을 선택했을 때 확대해서 보여줄 줌 레벨(숫자가 작을수록 확대). 지도 생성 시
+// 기본 레벨(4)보다 한 단계 더 확대한 값이라 "선택한 식당 중심으로 확대"한 느낌을 준다.
+const FOCUS_ZOOM_LEVEL = 3;
+
 export function RestaurantMap({
   restaurants,
   selectedId,
   onMarkerClick,
   locateButtonBottomOffsetPx = 16,
+  focusRequest,
 }: {
   restaurants: RestaurantMapPoint[];
   selectedId: string | null;
@@ -103,6 +113,9 @@ export function RestaurantMap({
   onMarkerClick?: (id: string) => void;
   // "내 위치로 돌아가기" 버튼의 하단 여백.
   locateButtonBottomOffsetPx?: number;
+  // 목록에서 식당을 선택했을 때만 전달 — 전달될 때마다(같은 식당이어도) 그 식당 위치로
+  // 확대+이동한다. 마커를 직접 클릭했을 때(selectedId만 바뀔 때)는 확대 없이 중심만 이동한다.
+  focusRequest?: { id: string } | null;
 }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapObjRef = useRef<kakao.maps.Map | null>(null);
@@ -138,7 +151,7 @@ export function RestaurantMap({
       const makeImage = (
         kind: MarkerKind,
         size: number,
-        opts: { fillOpacity: number; strokeWidth: number; color: string }
+        opts: { fillOpacity: number; strokeWidth: number; color: string; glow?: boolean }
       ) =>
         new window.kakao.maps.MarkerImage(buildPinImageSrc(kind, size, opts), new window.kakao.maps.Size(size, size), {
           offset: new window.kakao.maps.Point(size / 2, size / 2),
@@ -147,11 +160,21 @@ export function RestaurantMap({
       markerImagesRef.current = {
         food: {
           normal: makeImage("food", PIN_NORMAL_SIZE, { fillOpacity: 0.75, strokeWidth: 1.6, color: PIN_COLOR_NORMAL }),
-          selected: makeImage("food", PIN_SELECTED_SIZE, { fillOpacity: 1, strokeWidth: 2.2, color: PIN_COLOR_SELECTED }),
+          selected: makeImage("food", PIN_SELECTED_SIZE, {
+            fillOpacity: 1,
+            strokeWidth: 2.2,
+            color: PIN_COLOR_SELECTED,
+            glow: true,
+          }),
         },
         cafe: {
           normal: makeImage("cafe", PIN_NORMAL_SIZE, { fillOpacity: 0.75, strokeWidth: 1.6, color: PIN_COLOR_NORMAL }),
-          selected: makeImage("cafe", PIN_SELECTED_SIZE, { fillOpacity: 1, strokeWidth: 2.2, color: PIN_COLOR_SELECTED }),
+          selected: makeImage("cafe", PIN_SELECTED_SIZE, {
+            fillOpacity: 1,
+            strokeWidth: 2.2,
+            color: PIN_COLOR_SELECTED,
+            glow: true,
+          }),
         },
       };
       // 지도를 축소해 넓은 지역을 볼 때(레벨 6 이상)만 마커를 클러스터로 묶는다.
@@ -233,9 +256,11 @@ export function RestaurantMap({
 
       const isCafe = restaurant.category === CAFE_CATEGORY;
       const imageSet = isCafe ? images.cafe : images.food;
+      const isSelected = restaurant.id === selectedIdRef.current;
       const marker = new window.kakao.maps.Marker({
         position,
-        image: restaurant.id === selectedIdRef.current ? imageSet.selected : imageSet.normal,
+        image: isSelected ? imageSet.selected : imageSet.normal,
+        zIndex: isSelected ? MARKER_Z_SELECTED : MARKER_Z_NORMAL,
       });
       window.kakao.maps.event.addListener(marker, "click", () => onMarkerClickRef.current?.(restaurant.id));
 
@@ -270,13 +295,19 @@ export function RestaurantMap({
 
     if (previousId && previousId !== selectedId) {
       const prev = markersRef.current.get(previousId);
-      if (prev) prev.marker.setImage(prev.isCafe ? images.cafe.normal : images.food.normal);
+      if (prev) {
+        prev.marker.setImage(prev.isCafe ? images.cafe.normal : images.food.normal);
+        prev.marker.setZIndex(MARKER_Z_NORMAL);
+      }
     }
 
     if (!selectedId) return;
 
     const current = markersRef.current.get(selectedId);
-    if (current) current.marker.setImage(current.isCafe ? images.cafe.selected : images.food.selected);
+    if (current) {
+      current.marker.setImage(current.isCafe ? images.cafe.selected : images.food.selected);
+      current.marker.setZIndex(MARKER_Z_SELECTED);
+    }
 
     const restaurant = restaurants.find((r) => r.id === selectedId);
     if (!restaurant) return;
@@ -284,6 +315,21 @@ export function RestaurantMap({
     // 줌 레벨은 건드리지 않고 중심 좌표만 부드럽게 이동시켜 선택한 마커를 정중앙에 맞춘다.
     map.panTo(new window.kakao.maps.LatLng(restaurant.latitude, restaurant.longitude));
   }, [selectedId, isMapReady, restaurants]);
+
+  // 목록에서 식당을 선택했을 때만 그 식당 위치로 확대한다.
+  useEffect(() => {
+    const map = mapObjRef.current;
+    if (!map || !isMapReady || !focusRequest) return;
+
+    const restaurant = restaurants.find((r) => r.id === focusRequest.id);
+    if (!restaurant) return;
+
+    const position = new window.kakao.maps.LatLng(restaurant.latitude, restaurant.longitude);
+    map.setLevel(FOCUS_ZOOM_LEVEL, { anchor: position, animate: true });
+    map.panTo(position);
+    // focusRequest는 매번 새 객체이므로 같은 식당을 다시 선택해도 이 effect가 다시 실행된다.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [focusRequest, isMapReady]);
 
   if (!appKey) {
     return (

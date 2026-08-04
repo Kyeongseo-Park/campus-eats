@@ -30,10 +30,11 @@ declare global {
     }
 
     class Marker {
-      constructor(options: { position: LatLng; map?: Map; image?: MarkerImage });
+      constructor(options: { position: LatLng; map?: Map; image?: MarkerImage; zIndex?: number });
       setMap(map: Map | null): void;
       setPosition(latlng: LatLng): void;
       setImage(image: MarkerImage): void;
+      setZIndex(zIndex: number): void;
     }
 
     class CustomOverlay {

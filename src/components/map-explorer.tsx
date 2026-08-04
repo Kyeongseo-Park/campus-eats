@@ -40,6 +40,12 @@ export function MapExplorer({
   // 목록에서 카드를 바로 클릭하면 modalId가 열려 RestaurantDetailModal이 뜬다(페이지 이동 없음).
   const [previewId, setPreviewId] = useState<string | null>(null);
   const [modalId, setModalId] = useState<string | null>(null);
+  // "마지막으로 선택한 식당" — 지도 마커/목록 카드 강조 표시에 쓰인다. modalId/previewId와
+  // 달리 요약카드나 상세 모달을 닫아도 초기화되지 않고, 다른 식당을 새로 선택했을 때만 바뀐다.
+  const [selectedRestaurantId, setSelectedRestaurantId] = useState<string | null>(null);
+  // 목록에서 식당을 선택했을 때만 지도가 그 식당 위치로 확대되도록 하는 별도 트리거.
+  // 매번 새 객체를 만들어서 같은 식당을 연달아 선택해도 항상 다시 확대되게 한다.
+  const [focusRequest, setFocusRequest] = useState<{ id: string } | null>(null);
 
   // 드래그로 목록을 완전히 끝까지 펼치는 것은 listCollapsed와 별개(resting 위치와 무관하게
   // 항상 화면 전체를 덮는 임시 상태).
@@ -56,13 +62,18 @@ export function MapExplorer({
     [restaurants, previewId]
   );
 
-  const highlightedId = modalId ?? previewId;
-
   function handleMarkerClick(id: string) {
     setPreviewId(id);
+    setSelectedRestaurantId(id);
     setDragExpanded(false);
     // 목록이 접혀 있으면 요약카드가 보일 공간이 없으므로 다시 펼쳐준다.
     setListCollapsed(false);
+  }
+
+  function handleListSelect(id: string) {
+    setModalId(id);
+    setSelectedRestaurantId(id);
+    setFocusRequest({ id });
   }
 
   return (
@@ -72,7 +83,12 @@ export function MapExplorer({
         style={{ height: `${mapHeightVh}dvh` }}
       >
         <div className="h-full w-full overflow-hidden rounded-2xl ring-1 ring-foreground/10">
-          <RestaurantMap restaurants={restaurants} selectedId={highlightedId} onMarkerClick={handleMarkerClick} />
+          <RestaurantMap
+            restaurants={restaurants}
+            selectedId={selectedRestaurantId}
+            onMarkerClick={handleMarkerClick}
+            focusRequest={focusRequest}
+          />
         </div>
       </div>
 
@@ -107,8 +123,8 @@ export function MapExplorer({
             isLoggedIn={!!currentUserId}
             sort={sort}
             q={q}
-            selectedId={highlightedId}
-            onSelect={setModalId}
+            selectedId={selectedRestaurantId}
+            onSelect={handleListSelect}
             listCollapsed={listCollapsed}
             onToggleList={() => setListCollapsed((prev) => !prev)}
           />
