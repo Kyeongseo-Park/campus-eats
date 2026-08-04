@@ -152,11 +152,16 @@ function RestaurantPreviewCard({
           <p className="mt-1 flex flex-wrap items-center gap-x-1.5 text-sm text-muted-foreground">
             <span className="font-medium text-primary">{restaurant.category}</span>
             <span>· {restaurant.zone}</span>
-            {restaurant.avgRating !== null && (
+            {restaurant.avgRating !== null ? (
               <span className="flex items-center gap-0.5 font-semibold text-foreground">
                 <Star className="size-3.5 fill-yellow-400 text-yellow-400" />
                 {restaurant.avgRating.toFixed(1)}
                 <span className="font-normal text-muted-foreground">(리뷰 {restaurant.reviewCount}개)</span>
+              </span>
+            ) : (
+              <span className="flex items-center gap-0.5 text-muted-foreground">
+                <Star className="size-3.5" />
+                리뷰 없음
               </span>
             )}
           </p>
