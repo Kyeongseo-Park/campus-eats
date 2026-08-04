@@ -7,6 +7,7 @@ import { StaticStars } from "@/components/star-rating";
 import { requireUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { REQUEST_STATUS_BADGE_VARIANT } from "@/lib/constants";
+import { getDisplayContent } from "@/lib/profanity";
 
 const PREVIEW_COUNT = 3;
 
@@ -62,7 +63,9 @@ export default async function MyPage() {
                   </Link>
                   <div className="flex items-center gap-2">
                     <StaticStars rating={review.rating} />
-                    <span className="max-w-[10rem] truncate text-sm text-muted-foreground">{review.content}</span>
+                    <span className="max-w-[10rem] truncate text-sm text-muted-foreground">
+                      {getDisplayContent(review.content, review.containsProfanity)}
+                    </span>
                   </div>
                 </li>
               ))}

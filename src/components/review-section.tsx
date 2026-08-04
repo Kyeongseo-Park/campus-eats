@@ -19,12 +19,14 @@ export type ReviewItem = {
   userId: string;
   rating: number;
   content: string;
+  displayContent: string;
   createdAt: string;
   updatedAt: string;
   user: { nickname: string };
   images: { id: string; url: string; order: number }[];
   helpfulCount: number;
   isHelpful: boolean;
+  isReported: boolean;
 };
 
 type SortOption = "recent" | "helpful_desc" | "rating_desc" | "rating_asc";
@@ -290,7 +292,7 @@ export function ReviewSection({
                     <span className="text-xs font-normal text-gray-500">{formatDate(review.createdAt)}</span>
                   </div>
                   <p className="mt-1.5 text-sm leading-relaxed text-gray-700">
-                    {review.content}
+                    {review.displayContent}
                     {review.updatedAt !== review.createdAt && (
                       <span className="ml-1 text-xs text-muted-foreground">(수정됨)</span>
                     )}
@@ -304,7 +306,11 @@ export function ReviewSection({
                         initialVoted={review.isHelpful}
                         isLoggedIn={isLoggedIn}
                       />
-                      <ReviewReportButton isLoggedIn={isLoggedIn} />
+                      <ReviewReportButton
+                        reviewId={review.id}
+                        isLoggedIn={isLoggedIn}
+                        initialReported={review.isReported}
+                      />
                     </div>
                     {currentUserId === review.userId && (
                       <div className="flex gap-1">

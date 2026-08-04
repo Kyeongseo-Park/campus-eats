@@ -5,13 +5,22 @@ import { useRouter } from "next/navigation";
 
 import { cn } from "@/lib/utils";
 
-// 신고 접수/관리 백엔드(모델·API)는 아직 없다. 지금은 UI 토글만 두고, 실제 신고 처리는
-// 팀원 확인 후 별도로 구현한다 — 클릭하면 로컬 상태만 "신고완료"로 바뀌고 서버에는 전달되지 않는다.
-export function ReviewReportButton({ isLoggedIn, className }: { isLoggedIn: boolean; className?: string }) {
+export function ReviewReportButton({
+  reviewId,
+  isLoggedIn,
+  initialReported,
+  className,
+}: {
+  reviewId: string;
+  isLoggedIn: boolean;
+  initialReported: boolean;
+  className?: string;
+}) {
   const router = useRouter();
-  const [reported, setReported] = useState(false);
+  const [reported, setReported] = useState(initialReported);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  function handleClick(event: MouseEvent) {
+  async function handleClick(event: MouseEvent) {
     event.preventDefault();
     event.stopPropagation();
 
@@ -19,10 +28,29 @@ export function ReviewReportButton({ isLoggedIn, className }: { isLoggedIn: bool
       router.push("/login");
       return;
     }
-    if (reported) return;
-    if (!confirm("이 리뷰를 신고하시겠어요?")) return;
+    if (reported || isSubmitting) return;
 
-    setReported(true);
+    const reason = prompt("신고 사유를 입력해주세요.")?.trim();
+    if (!reason) return;
+
+    setIsSubmitting(true);
+    try {
+      const res = await fetch(`/api/reviews/${reviewId}/report`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ reason }),
+      });
+
+      if (res.ok || res.status === 409) {
+        setReported(true);
+      } else {
+        alert("신고 접수에 실패했습니다.");
+      }
+    } catch {
+      alert("네트워크 오류가 발생했습니다. 다시 시도해주세요.");
+    } finally {
+      setIsSubmitting(false);
+    }
   }
 
   return (
@@ -30,7 +58,7 @@ export function ReviewReportButton({ isLoggedIn, className }: { isLoggedIn: bool
       type="button"
       aria-pressed={reported}
       onClick={handleClick}
-      disabled={reported}
+      disabled={reported || isSubmitting}
       className={cn(
         "text-xs font-medium text-gray-500 transition-colors hover:text-gray-700 disabled:text-gray-400",
         className

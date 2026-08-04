@@ -24,6 +24,7 @@ model User {
   restaurantRequests RestaurantRequest[]
   favorites          Favorite[]
   reviewHelpfulVotes ReviewHelpful[]
+  reports            Report[]
 
   @@map("users")
 }
@@ -105,6 +106,8 @@ model Review {
   /// 1~5 정수
   rating       Int
   content      String
+  /// badwords-ko 필터 결과. true면 일반 유저 화면에는 clean() 마스킹 버전으로 노출된다.
+  containsProfanity Boolean @default(false) @map("contains_profanity")
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
@@ -113,6 +116,7 @@ model Review {
   restaurant Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
   images       ReviewImage[]
   helpfulVotes ReviewHelpful[]
+  reports      Report[]
 
   @@index([restaurantId])
   @@index([userId])
@@ -166,6 +170,21 @@ model ReviewHelpful {
 
   @@unique([userId, reviewId])
   @@map("review_helpfuls")
+}
+
+model Report {
+  id        String   @id @default(uuid()) @db.Uuid
+  userId    String   @map("user_id") @db.Uuid
+  reviewId  String   @map("review_id") @db.Uuid
+  reason    String
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  review Review @relation(fields: [reviewId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, reviewId])
+  @@index([reviewId])
+  @@map("reports")
 }
 
 model Favorite {

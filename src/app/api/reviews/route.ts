@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { getCurrentUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { REVIEW_IMAGE_MAX_COUNT } from "@/lib/constants";
+import { isProfane } from "@/lib/profanity";
 
 function parseRating(value: unknown): number | null {
   const rating = Number(value);
@@ -53,6 +54,7 @@ export async function POST(request: Request) {
       restaurantId,
       rating,
       content,
+      containsProfanity: isProfane(content),
       images: { create: images.map((url, order) => ({ url, order })) },
     },
     include: { user: { select: { nickname: true } }, images: { orderBy: { order: "asc" } } },
