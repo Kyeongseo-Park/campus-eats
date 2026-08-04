@@ -44,6 +44,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
       include: {
         user: { select: { nickname: true } },
         images: { orderBy: { order: "asc" } },
+        reviewTags: { include: { tag: true }, orderBy: { tag: { order: "asc" } } },
         _count: { select: { helpfulVotes: true } },
       },
     }),
@@ -77,6 +78,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
     updatedAt: review.updatedAt,
     user: review.user,
     images: review.images,
+    tags: review.reviewTags.map((rt) => ({ id: rt.tag.id, label: rt.tag.label })),
     helpfulCount: review._count.helpfulVotes,
     isHelpful: helpfulReviewIdSet.has(review.id),
     isReported: reportedReviewIdSet.has(review.id),
