@@ -13,7 +13,7 @@ import { BottomSheet } from "@/components/bottom-sheet";
 import { FavoriteButton } from "@/components/favorite-button";
 import { OpenStatusBadge } from "@/components/open-status-badge";
 import type { RestaurantListItem } from "@/lib/restaurants";
-import type { SortValue } from "@/lib/constants";
+import { ZONE_CENTERS, type SortValue, type Zone } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 
 // 목록 접기·펼치기에 따른 지도 영역 높이(%, 이 컴포넌트 루트 기준 — 헤더를 뺀 실제 사용
@@ -59,9 +59,11 @@ export function MapExplorer({
   // "마지막으로 선택한 식당" — 지도 마커/목록 카드 강조 표시에 쓰인다. modalId/previewId와
   // 달리 요약카드나 상세 모달을 닫아도 초기화되지 않고, 다른 식당을 새로 선택했을 때만 바뀐다.
   const [selectedRestaurantId, setSelectedRestaurantId] = useState<string | null>(null);
-  // 목록에서 식당을 선택했을 때만 지도가 그 식당 위치로 확대되도록 하는 별도 트리거.
-  // 매번 새 객체를 만들어서 같은 식당을 연달아 선택해도 항상 다시 확대되게 한다.
-  const [focusRequest, setFocusRequest] = useState<{ id: string } | null>(null);
+  // 목록에서 식당을 선택했거나 구역 필터를 선택했을 때 지도가 그 위치로 확대되도록 하는
+  // 별도 트리거. 매번 새 객체를 만들어서 같은 대상을 연달아 선택해도 항상 다시 확대되게 한다.
+  const [focusRequest, setFocusRequest] = useState<{ id: string } | { latitude: number; longitude: number } | null>(
+    null
+  );
 
   // 드래그로 목록을 완전히 끝까지 펼치는 것은 listCollapsed와 별개(resting 위치와 무관하게
   // 항상 화면 전체를 덮는 임시 상태).
@@ -84,6 +86,14 @@ export function MapExplorer({
     setDragExpanded(false);
     // 목록이 접혀 있으면 요약카드가 보일 공간이 없으므로 다시 펼쳐준다.
     setListCollapsed(false);
+  }
+
+  // 구역 필터를 선택하면 제일 먼저 선택했던 구역(배열의 첫 항목) 위치로 지도를 이동한다.
+  // 여러 구역을 선택해도 처음 고른 구역은 순서상 그대로 배열 맨 앞에 남아있다.
+  function handleZoneChange(zones: string[]) {
+    const firstZone = zones[0];
+    if (!firstZone || !(firstZone in ZONE_CENTERS)) return;
+    setFocusRequest(ZONE_CENTERS[firstZone as Zone]);
   }
 
   function handleListSelect(id: string) {
@@ -123,7 +133,7 @@ export function MapExplorer({
         <div className="max-h-[60vh] overflow-y-auto rounded-xl bg-background/95 p-2 shadow-md backdrop-blur">
           {/* 요약카드 ↔ 목록 전환 시 리마운트되어 열려 있던 필터 패널이 자동으로 닫힌다. */}
           <Suspense>
-            <RestaurantFilters key={previewId ? "preview" : "list"} />
+            <RestaurantFilters key={previewId ? "preview" : "list"} onZoneChange={handleZoneChange} />
           </Suspense>
         </div>
       </div>

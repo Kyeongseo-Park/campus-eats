@@ -113,9 +113,10 @@ export function RestaurantMap({
   onMarkerClick?: (id: string) => void;
   // "내 위치로 돌아가기" 버튼의 하단 여백.
   locateButtonBottomOffsetPx?: number;
-  // 목록에서 식당을 선택했을 때만 전달 — 전달될 때마다(같은 식당이어도) 그 식당 위치로
-  // 확대+이동한다. 마커를 직접 클릭했을 때(selectedId만 바뀔 때)는 확대 없이 중심만 이동한다.
-  focusRequest?: { id: string } | null;
+  // 목록에서 식당을 선택했거나 구역 필터를 선택했을 때만 전달 — 전달될 때마다(같은 대상이어도)
+  // 그 위치로 확대+이동한다. 마커를 직접 클릭했을 때(selectedId만 바뀔 때)는 확대 없이 중심만
+  // 이동한다.
+  focusRequest?: { id: string } | { latitude: number; longitude: number } | null;
 }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapObjRef = useRef<kakao.maps.Map | null>(null);
@@ -316,18 +317,19 @@ export function RestaurantMap({
     map.panTo(new window.kakao.maps.LatLng(restaurant.latitude, restaurant.longitude));
   }, [selectedId, isMapReady, restaurants]);
 
-  // 목록에서 식당을 선택했을 때만 그 식당 위치로 확대한다.
+  // 목록에서 식당을 선택했거나 구역 필터를 선택했을 때 그 위치로 확대한다.
   useEffect(() => {
     const map = mapObjRef.current;
     if (!map || !isMapReady || !focusRequest) return;
 
-    const restaurant = restaurants.find((r) => r.id === focusRequest.id);
-    if (!restaurant) return;
+    const coords =
+      "id" in focusRequest ? restaurants.find((r) => r.id === focusRequest.id) ?? null : focusRequest;
+    if (!coords) return;
 
-    const position = new window.kakao.maps.LatLng(restaurant.latitude, restaurant.longitude);
+    const position = new window.kakao.maps.LatLng(coords.latitude, coords.longitude);
     map.setLevel(FOCUS_ZOOM_LEVEL, { anchor: position, animate: true });
     map.panTo(position);
-    // focusRequest는 매번 새 객체이므로 같은 식당을 다시 선택해도 이 effect가 다시 실행된다.
+    // focusRequest는 매번 새 객체이므로 같은 대상을 다시 선택해도 이 effect가 다시 실행된다.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [focusRequest, isMapReady]);
 

@@ -21,7 +21,7 @@ function parseMulti(value: string | null): string[] {
   return value ? value.split(",").filter(Boolean) : [];
 }
 
-export function RestaurantFilters() {
+export function RestaurantFilters({ onZoneChange }: { onZoneChange?: (zones: string[]) => void }) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -45,6 +45,7 @@ export function RestaurantFilters() {
     const current = parseMulti(searchParams.get(key));
     const next = current.includes(value) ? current.filter((v) => v !== value) : [...current, value];
     navigate({ [key]: next.length > 0 ? next.join(",") : null });
+    if (key === "zone") onZoneChange?.(next);
   }
 
   function handleSearchSubmit(event: React.FormEvent<HTMLFormElement>) {
