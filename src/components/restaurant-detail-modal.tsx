@@ -44,11 +44,14 @@ export function RestaurantDetailModal({
   restaurantId,
   isLoggedIn,
   currentUserId,
+  openReviewForm = false,
   onClose,
 }: {
   restaurantId: string | null;
   isLoggedIn: boolean;
   currentUserId: string | null;
+  /// true면 모달이 열리자마자 리뷰 작성 폼이 펼쳐진 상태로 보인다(요약카드의 "리뷰 작성" 버튼용).
+  openReviewForm?: boolean;
   onClose: () => void;
 }) {
   const [data, setData] = useState<ModalRestaurant | null>(null);
@@ -155,6 +158,7 @@ export function RestaurantDetailModal({
                 isLoggedIn={isLoggedIn}
                 currentUserId={currentUserId}
                 avgRating={data.avgRating}
+                openReviewForm={openReviewForm}
               />
             </div>
           </>

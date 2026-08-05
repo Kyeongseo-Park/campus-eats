@@ -22,6 +22,7 @@ export type RestaurantListItem = {
   name: string;
   category: string;
   zone: string;
+  phone: string | null;
   /// 메뉴 정보가 없는 식당은 null ("가격 정보 없음"). formatMinPrice로 표시한다.
   minPrice: number | null;
   latitude: number;
@@ -94,6 +95,7 @@ export async function searchRestaurants(params: RestaurantSearchParams): Promise
       name: r.name,
       category: r.category,
       zone: r.zone,
+      phone: r.phone,
       minPrice: r.minPrice,
       latitude: r.latitude,
       longitude: r.longitude,

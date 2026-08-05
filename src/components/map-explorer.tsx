@@ -1,7 +1,7 @@
 "use client";
 
 import { Suspense, useMemo, useRef, useState } from "react";
-import { Star, X } from "lucide-react";
+import { MapPin, Navigation, Pencil, Phone, Star, X } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -15,6 +15,7 @@ import { OpenStatusBadge } from "@/components/open-status-badge";
 import type { RestaurantListItem } from "@/lib/restaurants";
 import { formatMinPrice } from "@/lib/format";
 import type { SortValue } from "@/lib/constants";
+import { cn } from "@/lib/utils";
 
 // 목록 접기·펼치기에 따른 지도 영역 높이(dvh). 바텀시트의 resting 위치도 항상 이 값과 같게
 // 맞춰서(아래 mapHeightVh), 시트 상단이 지도 박스 바로 아래에 정확히 맞물리게 한다.
@@ -22,6 +23,17 @@ const MAP_RESTING_VH = 50; // 기본 크기 (목록 펼쳐짐)
 // 목록 접힘: 카드 목록은 안 보이고 핸들+토글 줄만 딱 보일 만큼만 남긴다(그 이상 안 내려감).
 const LIST_PEEK_VH = 13;
 const MAP_HEIGHT_LIST_COLLAPSED_VH = 100 - LIST_PEEK_VH;
+
+const CATEGORY_EMOJI: Record<string, string> = {
+  한식: "🍱",
+  중식: "🥡",
+  일식: "🍣",
+  양식: "🍝",
+  분식: "🍢",
+  카페: "☕",
+  패스트푸드: "🍔",
+  기타: "🍽️",
+};
 
 export function MapExplorer({
   restaurants,
@@ -40,6 +52,9 @@ export function MapExplorer({
   // 목록에서 카드를 바로 클릭하면 modalId가 열려 RestaurantDetailModal이 뜬다(페이지 이동 없음).
   const [previewId, setPreviewId] = useState<string | null>(null);
   const [modalId, setModalId] = useState<string | null>(null);
+  // 요약카드의 "리뷰 작성" 버튼으로 상세 모달을 열었을 때만 true — 모달이 열리자마자
+  // 리뷰 작성 폼이 펼쳐진 상태로 보이게 한다.
+  const [openReviewFormOnOpen, setOpenReviewFormOnOpen] = useState(false);
   // "마지막으로 선택한 식당" — 지도 마커/목록 카드 강조 표시에 쓰인다. modalId/previewId와
   // 달리 요약카드나 상세 모달을 닫아도 초기화되지 않고, 다른 식당을 새로 선택했을 때만 바뀐다.
   const [selectedRestaurantId, setSelectedRestaurantId] = useState<string | null>(null);
@@ -72,8 +87,19 @@ export function MapExplorer({
 
   function handleListSelect(id: string) {
     setModalId(id);
+    setOpenReviewFormOnOpen(false);
     setSelectedRestaurantId(id);
     setFocusRequest({ id });
+  }
+
+  function handleViewDetail(id: string) {
+    setModalId(id);
+    setOpenReviewFormOnOpen(false);
+  }
+
+  function handleWriteReview(id: string) {
+    setModalId(id);
+    setOpenReviewFormOnOpen(true);
   }
 
   return (
@@ -114,7 +140,8 @@ export function MapExplorer({
             isLoggedIn={!!currentUserId}
             sort={sort}
             onClose={() => setPreviewId(null)}
-            onViewDetail={() => setModalId(previewRestaurant.id)}
+            onViewDetail={() => handleViewDetail(previewRestaurant.id)}
+            onWriteReview={() => handleWriteReview(previewRestaurant.id)}
           />
         ) : (
           <RestaurantListPanel
@@ -135,7 +162,11 @@ export function MapExplorer({
         restaurantId={modalId}
         isLoggedIn={!!currentUserId}
         currentUserId={currentUserId}
-        onClose={() => setModalId(null)}
+        openReviewForm={openReviewFormOnOpen}
+        onClose={() => {
+          setModalId(null);
+          setOpenReviewFormOnOpen(false);
+        }}
       />
     </div>
   );
@@ -148,6 +179,7 @@ function RestaurantPreviewCard({
   sort,
   onClose,
   onViewDetail,
+  onWriteReview,
 }: {
   restaurant: RestaurantListItem;
   isFavorited: boolean;
@@ -155,36 +187,22 @@ function RestaurantPreviewCard({
   sort: SortValue;
   onClose: () => void;
   onViewDetail: () => void;
+  onWriteReview: () => void;
 }) {
+  const actionButtonClassName = "h-10 flex-1 text-[13px]";
+
   return (
     <div className="flex flex-col gap-2 pt-1">
+      <span className="inline-flex w-fit items-center gap-1 rounded-md bg-gray-100 px-2 py-[3px] text-xs font-bold text-gray-700">
+        <span aria-hidden>{CATEGORY_EMOJI[restaurant.category] ?? "🍽️"}</span>
+        {restaurant.category}
+      </span>
+
       <div className="flex items-start justify-between gap-2">
-        <div>
-          <div className="flex items-center gap-2">
-            <h2 className="text-lg font-semibold">{restaurant.name}</h2>
-            {restaurant.isPartnershipActive && <Badge variant="secondary">제휴</Badge>}
-            <OpenStatusBadge status={restaurant.openStatus} />
-          </div>
-          <p className="mt-1 flex flex-wrap items-center gap-x-1.5 text-sm text-muted-foreground">
-            <span className="font-medium text-primary">{restaurant.category}</span>
-            <span>· {restaurant.zone}</span>
-            {restaurant.avgRating !== null ? (
-              <span className="flex items-center gap-0.5 font-semibold text-foreground">
-                <Star className="size-3.5 fill-yellow-400 text-yellow-400" />
-                {restaurant.avgRating.toFixed(1)}
-                <span className="font-normal text-muted-foreground">(리뷰 {restaurant.reviewCount}개)</span>
-              </span>
-            ) : (
-              <span className="flex items-center gap-0.5 text-muted-foreground">
-                <Star className="size-3.5" />
-                리뷰 없음
-              </span>
-            )}
-          </p>
-          <p className="text-sm text-muted-foreground">
-            {formatMinPrice(restaurant.minPrice)}
-            {sort === "distance" && ` · ${restaurant.distanceKm.toFixed(1)}km`}
-          </p>
+        <div className="flex flex-wrap items-center gap-2">
+          <h2 className="text-xl font-extrabold tracking-tight text-gray-900">{restaurant.name}</h2>
+          {restaurant.isPartnershipActive && <Badge variant="secondary">제휴</Badge>}
+          <OpenStatusBadge status={restaurant.openStatus} />
         </div>
         <div className="flex items-center gap-1">
           <FavoriteButton restaurantId={restaurant.id} initialFavorited={isFavorited} isLoggedIn={isLoggedIn} />
@@ -193,6 +211,32 @@ function RestaurantPreviewCard({
           </Button>
         </div>
       </div>
+
+      <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm">
+        {restaurant.avgRating !== null ? (
+          <span className="flex items-center gap-1">
+            <Star className="size-3.5 fill-primary text-primary" />
+            <span className="font-bold text-gray-900">{restaurant.avgRating.toFixed(1)}</span>
+            <span className="text-gray-500">(리뷰 {restaurant.reviewCount}개)</span>
+          </span>
+        ) : (
+          <span className="flex items-center gap-1 text-gray-500">
+            <Star className="size-3.5" />
+            리뷰 없음
+          </span>
+        )}
+        <span className="text-gray-200">|</span>
+        <span className="flex items-center gap-1 font-medium text-gray-700">
+          <MapPin className="size-3.5 text-primary" />
+          {restaurant.zone}
+        </span>
+      </div>
+
+      <p className="text-sm text-muted-foreground">
+        {formatMinPrice(restaurant.minPrice)}
+        {sort === "distance" && ` · ${restaurant.distanceKm.toFixed(1)}km`}
+      </p>
+
       {restaurant.menus.length > 0 && (
         <ul className="flex flex-col gap-0.5">
           {restaurant.menus.map((menu) => (
@@ -203,9 +247,57 @@ function RestaurantPreviewCard({
           ))}
         </ul>
       )}
-      <Button type="button" onClick={onViewDetail} className="mt-1 w-fit">
-        상세보기
-      </Button>
+
+      <div className="mt-1 flex gap-1.5">
+        {restaurant.phone ? (
+          <Button
+            nativeButton={false}
+            render={<a href={`tel:${restaurant.phone}`} />}
+            variant="outline"
+            className={cn(actionButtonClassName, "border-transparent bg-gray-100 text-gray-700 hover:bg-gray-200")}
+          >
+            <Phone className="size-3.5" />
+            전화
+          </Button>
+        ) : (
+          <Button
+            type="button"
+            variant="outline"
+            disabled
+            className={cn(actionButtonClassName, "border-transparent bg-gray-100 text-gray-700")}
+          >
+            <Phone className="size-3.5" />
+            전화
+          </Button>
+        )}
+        <Button
+          nativeButton={false}
+          render={
+            <a
+              href={`https://map.kakao.com/link/to/${encodeURIComponent(restaurant.name)},${restaurant.latitude},${restaurant.longitude}`}
+              target="_blank"
+              rel="noopener noreferrer"
+            />
+          }
+          variant="outline"
+          className={cn(actionButtonClassName, "border-transparent bg-gray-100 text-gray-700 hover:bg-gray-200")}
+        >
+          <Navigation className="size-3.5" />
+          길찾기
+        </Button>
+        <Button
+          type="button"
+          variant="secondary"
+          onClick={onWriteReview}
+          className={cn(actionButtonClassName, "border border-orange-300")}
+        >
+          <Pencil className="size-3.5" />
+          리뷰 작성
+        </Button>
+        <Button type="button" onClick={onViewDetail} className={cn("h-10 flex-[1.5] text-[13px]")}>
+          상세 정보 보기
+        </Button>
+      </div>
     </div>
   );
 }

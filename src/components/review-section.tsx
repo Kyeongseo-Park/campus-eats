@@ -45,11 +45,14 @@ export function ReviewSection({
   isLoggedIn,
   currentUserId,
   avgRating,
+  openReviewForm = false,
 }: {
   restaurantId: string;
   isLoggedIn: boolean;
   currentUserId: string | null;
   avgRating: number | null;
+  /// true면 마운트 시 작성 폼을 자동으로 펼친다(요약카드의 "리뷰 작성" 버튼용).
+  openReviewForm?: boolean;
 }) {
   const [sort, setSort] = useState<SortOption>("recent");
   const [page, setPage] = useState(1);
@@ -90,6 +93,13 @@ export function ReviewSection({
     // eslint-disable-next-line react-hooks/set-state-in-effect
     loadReviews(page, sort);
   }, [page, sort, loadReviews]);
+
+  useEffect(() => {
+    if (openReviewForm) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setShowForm(true);
+    }
+  }, [openReviewForm]);
 
   function handleSortChange(next: SortOption) {
     setSort(next);
