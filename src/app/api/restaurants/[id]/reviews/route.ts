@@ -3,6 +3,7 @@ import type { Prisma } from "@/generated/prisma/client";
 
 import { prisma } from "@/lib/prisma";
 import { getCurrentUser } from "@/lib/auth";
+import { getDisplayContent } from "@/lib/profanity";
 
 export const REVIEW_PAGE_SIZE = 10;
 
@@ -43,30 +44,44 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
       include: {
         user: { select: { nickname: true } },
         images: { orderBy: { order: "asc" } },
+        reviewTags: { include: { tag: true }, orderBy: { tag: { order: "asc" } } },
         _count: { select: { helpfulVotes: true } },
       },
     }),
   ]);
 
-  const helpfulReviewIds = currentUser
-    ? await prisma.reviewHelpful.findMany({
-        where: { userId: currentUser.id, reviewId: { in: reviewRows.map((review) => review.id) } },
-        select: { reviewId: true },
-      })
-    : [];
+  const [helpfulReviewIds, reportedReviewIds] = await Promise.all([
+    currentUser
+      ? prisma.reviewHelpful.findMany({
+          where: { userId: currentUser.id, reviewId: { in: reviewRows.map((review) => review.id) } },
+          select: { reviewId: true },
+        })
+      : Promise.resolve([]),
+    currentUser
+      ? prisma.report.findMany({
+          where: { userId: currentUser.id, reviewId: { in: reviewRows.map((review) => review.id) } },
+          select: { reviewId: true },
+        })
+      : Promise.resolve([]),
+  ]);
   const helpfulReviewIdSet = new Set(helpfulReviewIds.map((row) => row.reviewId));
+  const reportedReviewIdSet = new Set(reportedReviewIds.map((row) => row.reviewId));
 
   const reviews = reviewRows.map((review) => ({
     id: review.id,
     userId: review.userId,
     rating: review.rating,
+    // 원문은 그대로(본인 리뷰 수정 시 사용), displayContent는 마스킹된 표시용.
     content: review.content,
+    displayContent: getDisplayContent(review.content, review.containsProfanity),
     createdAt: review.createdAt,
     updatedAt: review.updatedAt,
     user: review.user,
     images: review.images,
+    tags: review.reviewTags.map((rt) => ({ id: rt.tag.id, label: rt.tag.label })),
     helpfulCount: review._count.helpfulVotes,
     isHelpful: helpfulReviewIdSet.has(review.id),
+    isReported: reportedReviewIdSet.has(review.id),
   }));
 
   return NextResponse.json({

@@ -9,11 +9,13 @@ import { Input } from "@/components/ui/input";
 import { StarPicker, StaticStars } from "@/components/star-rating";
 import { ReviewImageUpload } from "@/components/review-image-upload";
 import { ReviewImageGallery } from "@/components/review-image-gallery";
+import { getDisplayContent } from "@/lib/profanity";
 
 export type MyReviewItem = {
   id: string;
   rating: number;
   content: string;
+  containsProfanity: boolean;
   createdAt: Date;
   updatedAt: Date;
   restaurant: { id: string; name: string };
@@ -102,7 +104,7 @@ export function MyReviewsSection({ reviews }: { reviews: MyReviewItem[] }) {
               </div>
               <StaticStars rating={review.rating} />
               <p className="mt-1 text-sm">
-                {review.content}
+                {getDisplayContent(review.content, review.containsProfanity)}
                 {review.updatedAt.getTime() !== review.createdAt.getTime() && (
                   <span className="ml-1 text-xs text-muted-foreground">(수정됨)</span>
                 )}

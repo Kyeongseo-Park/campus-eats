@@ -12,6 +12,7 @@ import { ReviewImageUpload } from "@/components/review-image-upload";
 import { ReviewImageGallery } from "@/components/review-image-gallery";
 import { ReviewHelpfulButton } from "@/components/review-helpful-button";
 import { ReviewReportButton } from "@/components/review-report-button";
+import { ReviewWriteModal } from "@/components/review-write-modal";
 import { cn } from "@/lib/utils";
 
 export type ReviewItem = {
@@ -19,12 +20,15 @@ export type ReviewItem = {
   userId: string;
   rating: number;
   content: string;
+  displayContent: string;
   createdAt: string;
   updatedAt: string;
   user: { nickname: string };
   images: { id: string; url: string; order: number }[];
+  tags: { id: string; label: string }[];
   helpfulCount: number;
   isHelpful: boolean;
+  isReported: boolean;
 };
 
 type SortOption = "recent" | "helpful_desc" | "rating_desc" | "rating_asc";
@@ -64,12 +68,7 @@ export function ReviewSection({
   const [loadedKey, setLoadedKey] = useState<string | null>(null);
   const loading = loadedKey !== `${page}:${sort}`;
 
-  const [showForm, setShowForm] = useState(false);
-  const [rating, setRating] = useState(5);
-  const [content, setContent] = useState("");
-  const [images, setImages] = useState<string[]>([]);
-  const [error, setError] = useState<string | null>(null);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [writeModalOpen, setWriteModalOpen] = useState(false);
 
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editRating, setEditRating] = useState(5);
@@ -97,7 +96,7 @@ export function ReviewSection({
   useEffect(() => {
     if (openReviewForm) {
       // eslint-disable-next-line react-hooks/set-state-in-effect
-      setShowForm(true);
+      setWriteModalOpen(true);
     }
   }, [openReviewForm]);
 
@@ -106,41 +105,10 @@ export function ReviewSection({
     setPage(1);
   }
 
-  async function handleCreateSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    setError(null);
-
-    if (!content.trim()) {
-      setError("한줄평을 입력해주세요.");
-      return;
-    }
-
-    setIsSubmitting(true);
-    try {
-      const res = await fetch("/api/reviews", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ restaurantId, rating, content, images }),
-      });
-      const data = await res.json();
-
-      if (!res.ok) {
-        setError(data.error ?? "리뷰 작성에 실패했습니다.");
-        return;
-      }
-
-      setContent("");
-      setRating(5);
-      setImages([]);
-      setShowForm(false);
-      setSort("recent");
-      setPage(1);
-      await loadReviews(1, "recent");
-    } catch {
-      setError("네트워크 오류가 발생했습니다. 다시 시도해주세요.");
-    } finally {
-      setIsSubmitting(false);
-    }
+  async function handleCreated() {
+    setSort("recent");
+    setPage(1);
+    await loadReviews(1, "recent");
   }
 
   function startEditing(review: ReviewItem) {
@@ -212,7 +180,7 @@ export function ReviewSection({
           {isLoggedIn ? (
             <button
               type="button"
-              onClick={() => setShowForm((prev) => !prev)}
+              onClick={() => setWriteModalOpen(true)}
               className="flex cursor-pointer items-center gap-1 rounded-lg border border-orange-200 bg-orange-50 px-2.5 py-1 text-xs font-semibold text-orange-600 transition-colors hover:bg-orange-100 hover:text-orange-700"
             >
               + 리뷰 작성
@@ -228,23 +196,6 @@ export function ReviewSection({
         </div>
       </div>
 
-      {showForm && (
-        <form onSubmit={handleCreateSubmit} className="flex flex-col gap-2 rounded-md border p-3">
-          <span className="text-sm font-medium">리뷰 작성</span>
-          <StarPicker value={rating} onChange={setRating} />
-          <Input
-            value={content}
-            onChange={(event) => setContent(event.target.value)}
-            placeholder="한줄평을 남겨주세요"
-          />
-          <ReviewImageUpload images={images} onChange={setImages} disabled={isSubmitting} />
-          {error && <p className="text-sm text-destructive">{error}</p>}
-          <Button type="submit" disabled={isSubmitting} className="w-fit">
-            {isSubmitting ? "등록 중..." : "리뷰 등록"}
-          </Button>
-        </form>
-      )}
-
       {loading ? (
         <p className="py-4 text-center text-sm text-gray-400">불러오는 중...</p>
       ) : reviews.length === 0 ? (
@@ -255,7 +206,7 @@ export function ReviewSection({
           {isLoggedIn ? (
             <button
               type="button"
-              onClick={() => setShowForm(true)}
+              onClick={() => setWriteModalOpen(true)}
               className="mt-4 h-10 rounded-lg bg-primary px-4 text-sm font-bold text-primary-foreground"
             >
               첫 리뷰 작성하기
@@ -299,8 +250,17 @@ export function ReviewSection({
                     </div>
                     <span className="text-xs font-normal text-gray-500">{formatDate(review.createdAt)}</span>
                   </div>
+                  {review.tags.length > 0 && (
+                    <div className="mt-1.5 flex flex-wrap gap-1">
+                      {review.tags.map((tag) => (
+                        <span key={tag.id} className="rounded-full bg-gray-100 px-2 py-0.5 text-[12px] text-gray-600">
+                          {tag.label}
+                        </span>
+                      ))}
+                    </div>
+                  )}
                   <p className="mt-1.5 text-sm leading-relaxed text-gray-700">
-                    {review.content}
+                    {review.displayContent}
                     {review.updatedAt !== review.createdAt && (
                       <span className="ml-1 text-xs text-muted-foreground">(수정됨)</span>
                     )}
@@ -314,7 +274,11 @@ export function ReviewSection({
                         initialVoted={review.isHelpful}
                         isLoggedIn={isLoggedIn}
                       />
-                      <ReviewReportButton isLoggedIn={isLoggedIn} />
+                      <ReviewReportButton
+                        reviewId={review.id}
+                        isLoggedIn={isLoggedIn}
+                        initialReported={review.isReported}
+                      />
                     </div>
                     {currentUserId === review.userId && (
                       <div className="flex gap-1">
@@ -335,6 +299,13 @@ export function ReviewSection({
       )}
 
       {totalPages > 1 && <ReviewPagination page={page} totalPages={totalPages} onChange={setPage} />}
+
+      <ReviewWriteModal
+        restaurantId={restaurantId}
+        open={writeModalOpen}
+        onClose={() => setWriteModalOpen(false)}
+        onCreated={handleCreated}
+      />
     </div>
   );
 }

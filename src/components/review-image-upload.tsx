@@ -92,6 +92,7 @@ export function ReviewImageUpload({
       <span className="text-xs font-medium text-muted-foreground">
         📷 사진 첨부 ({images.length}/{REVIEW_IMAGE_MAX_COUNT})
       </span>
+      <p className="text-xs text-muted-foreground">최대 {REVIEW_IMAGE_MAX_COUNT}장까지 등록 가능합니다.</p>
       <div className="flex gap-2 overflow-x-auto">
         {images.map((url, index) => (
           <div key={url} className="relative h-[84px] w-[84px] shrink-0 overflow-hidden rounded-md">
@@ -132,7 +133,7 @@ export function ReviewImageUpload({
 
       <input ref={inputRef} type="file" accept="image/*" multiple className="hidden" onChange={handleFilesSelect} />
       <p className="text-xs text-muted-foreground">
-        * 사진 용량에 따라 업로드에 시간이 조금 걸릴 수 있어요. 잠시만 기다려주세요.
+        * {REVIEW_IMAGE_MAX_SIZE_MB}MB 이하의 이미지 파일만 업로드할 수 있습니다.
       </p>
       {error && <p className="text-xs text-destructive">{error}</p>}
     </div>
