@@ -35,6 +35,8 @@ export type RestaurantListItem = {
   distanceKm: number;
   /// 요약카드에 보여줄 대표메뉴 최대 3개.
   menus: { name: string; price: number }[];
+  /// 리뷰에서 가장 많이 선택된 태그 라벨 Top 3 (많은 순). 태그가 하나도 없으면 빈 배열.
+  topTags: string[];
 };
 
 // 가격대는 배타적 구간이다. 여러 개를 체크하면 각 구간을 OR로 묶어서 보여준다
@@ -80,7 +82,7 @@ export async function searchRestaurants(params: RestaurantSearchParams): Promise
   const restaurants = await prisma.restaurant.findMany({
     where,
     include: {
-      reviews: { select: { rating: true } },
+      reviews: { select: { rating: true, reviewTags: { select: { tag: { select: { label: true } } } } } },
       menus: { select: { name: true, price: true }, take: 3 },
     },
   });
@@ -105,12 +107,29 @@ export async function searchRestaurants(params: RestaurantSearchParams): Promise
       reviewCount: r.reviews.length,
       distanceKm: haversineDistanceKm(origin, { latitude: r.latitude, longitude: r.longitude }),
       menus: r.menus,
+      topTags: computeTopTags(r.reviews),
     };
   });
 
   const filtered = params.openNow ? items.filter((item) => item.openStatus === "open") : items;
 
   return sortRestaurants(filtered, params.sort ?? "rating");
+}
+
+// 리뷰 전체에서 태그 라벨 등장 횟수를 세어 많이 선택된 순으로 Top 3를 뽑는다.
+function computeTopTags(reviews: { reviewTags: { tag: { label: string } }[] }[]): string[] {
+  const counts = new Map<string, number>();
+
+  for (const review of reviews) {
+    for (const { tag } of review.reviewTags) {
+      counts.set(tag.label, (counts.get(tag.label) ?? 0) + 1);
+    }
+  }
+
+  return [...counts.entries()]
+    .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0], "ko"))
+    .slice(0, 3)
+    .map(([label]) => label);
 }
 
 function sortRestaurants(items: RestaurantListItem[], sort: SortValue): RestaurantListItem[] {

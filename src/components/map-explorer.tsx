@@ -192,7 +192,9 @@ function RestaurantPreviewCard({
   const actionButtonClassName = "h-10 flex-1 text-[13px]";
 
   return (
-    <div className="flex flex-col gap-2 pt-1">
+    // min-h는 태그·메뉴가 없는 식당도 버튼 줄(mt-auto)이 항상 같은 높이에 오도록 맞춘
+    // 여유값이다 — 태그 2줄 + 대표메뉴 3개까지 있는 카드 기준으로 잡았다.
+    <div className="flex min-h-[275px] flex-col gap-2 pt-1">
       <span className="inline-flex w-fit items-center gap-1 rounded-md bg-gray-100 px-2 py-[3px] text-xs font-bold text-gray-700">
         <span aria-hidden>{CATEGORY_EMOJI[restaurant.category] ?? "🍽️"}</span>
         {restaurant.category}
@@ -232,6 +234,21 @@ function RestaurantPreviewCard({
         </span>
       </div>
 
+      {restaurant.topTags.length > 0 ? (
+        <div className="flex flex-wrap gap-1.5">
+          {restaurant.topTags.map((label) => (
+            <span
+              key={label}
+              className="rounded-full border border-orange-100 bg-orange-50 px-2.5 py-1 text-xs font-semibold text-orange-600"
+            >
+              {label}
+            </span>
+          ))}
+        </div>
+      ) : (
+        <p className="text-sm text-muted-foreground">첫 리뷰 작성자가 되어보세요! ✏️</p>
+      )}
+
       <p className="text-sm text-muted-foreground">
         {formatMinPrice(restaurant.minPrice)}
         {sort === "distance" && ` · ${restaurant.distanceKm.toFixed(1)}km`}
@@ -248,7 +265,7 @@ function RestaurantPreviewCard({
         </ul>
       )}
 
-      <div className="mt-1 flex gap-1.5">
+      <div className="mt-auto flex gap-1.5 pt-1">
         {restaurant.phone ? (
           <Button
             nativeButton={false}
