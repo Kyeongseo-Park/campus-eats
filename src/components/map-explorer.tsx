@@ -13,7 +13,6 @@ import { BottomSheet } from "@/components/bottom-sheet";
 import { FavoriteButton } from "@/components/favorite-button";
 import { OpenStatusBadge } from "@/components/open-status-badge";
 import type { RestaurantListItem } from "@/lib/restaurants";
-import { formatMinPrice } from "@/lib/format";
 import type { SortValue } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 
@@ -21,7 +20,7 @@ import { cn } from "@/lib/utils";
 // 가능 높이라 dvh와 달리 헤더 높이·화면 크기에 관계없이 항상 정확하다). 바텀시트의 resting
 // 위치도 항상 이 값과 같게 맞춰서(아래 mapHeightVh), 시트 상단이 지도 박스 바로 아래에
 // 정확히 맞물리게 한다.
-const MAP_RESTING_VH = 50; // 기본 크기 (목록 펼쳐짐)
+const MAP_RESTING_VH = 55; // 기본 크기 (목록 펼쳐짐)
 // 목록 접힘: 카드 목록은 안 보이고 핸들+토글 줄만 딱 보일 만큼만 남긴다(그 이상 안 내려감).
 const LIST_PEEK_VH = 13;
 const MAP_HEIGHT_LIST_COLLAPSED_VH = 100 - LIST_PEEK_VH;
@@ -140,7 +139,6 @@ export function MapExplorer({
             restaurant={previewRestaurant}
             isFavorited={favoriteIdSet.has(previewRestaurant.id)}
             isLoggedIn={!!currentUserId}
-            sort={sort}
             onClose={() => setPreviewId(null)}
             onViewDetail={() => handleViewDetail(previewRestaurant.id)}
             onWriteReview={() => handleWriteReview(previewRestaurant.id)}
@@ -178,7 +176,6 @@ function RestaurantPreviewCard({
   restaurant,
   isFavorited,
   isLoggedIn,
-  sort,
   onClose,
   onViewDetail,
   onWriteReview,
@@ -186,7 +183,6 @@ function RestaurantPreviewCard({
   restaurant: RestaurantListItem;
   isFavorited: boolean;
   isLoggedIn: boolean;
-  sort: SortValue;
   onClose: () => void;
   onViewDetail: () => void;
   onWriteReview: () => void;
@@ -194,9 +190,7 @@ function RestaurantPreviewCard({
   const actionButtonClassName = "h-10 flex-1 text-[13px]";
 
   return (
-    // min-h는 태그·메뉴가 없는 식당도 버튼 줄(mt-auto)이 항상 같은 높이에 오도록 맞춘
-    // 여유값이다 — 태그 2줄 + 대표메뉴 3개까지 있는 카드 기준으로 잡았다.
-    <div className="flex min-h-[275px] flex-col gap-2 pt-1">
+    <div className="flex flex-col gap-2 pt-1">
       <span className="inline-flex w-fit items-center gap-1 rounded-md bg-gray-100 px-2 py-[3px] text-xs font-bold text-gray-700">
         <span aria-hidden>{CATEGORY_EMOJI[restaurant.category] ?? "🍽️"}</span>
         {restaurant.category}
@@ -251,23 +245,7 @@ function RestaurantPreviewCard({
         <p className="text-sm text-muted-foreground">첫 리뷰 작성자가 되어보세요! ✏️</p>
       )}
 
-      <p className="text-sm text-muted-foreground">
-        {formatMinPrice(restaurant.minPrice)}
-        {sort === "distance" && ` · ${restaurant.distanceKm.toFixed(1)}km`}
-      </p>
-
-      {restaurant.menus.length > 0 && (
-        <ul className="flex flex-col gap-0.5">
-          {restaurant.menus.map((menu) => (
-            <li key={menu.name} className="flex justify-between text-sm">
-              <span>{menu.name}</span>
-              <span className="text-muted-foreground">{menu.price.toLocaleString()}원</span>
-            </li>
-          ))}
-        </ul>
-      )}
-
-      <div className="mt-auto flex gap-1.5 pt-1">
+      <div className="mt-1 flex gap-1.5 border-t border-gray-100 pt-3">
         {restaurant.phone ? (
           <Button
             nativeButton={false}
