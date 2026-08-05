@@ -12,7 +12,8 @@ export function BottomSheet({
   /** true면 목록이 전체화면까지 확장된 상태, false면 지도가 보이는 기본(resting) 상태. */
   expanded: boolean;
   onExpandedChange: (expanded: boolean) => void;
-  /** 기본(resting) 위치에서 시트 상단이 위치할 지점(dvh) — 이 값만큼 위쪽에 지도가 보인다. */
+  /** 기본(resting) 위치에서 시트 상단이 위치할 지점(시트 자신의 높이 대비 %) — 이 값만큼
+   *  위쪽에 지도가 보인다. */
   restingOffsetVh: number;
   /** 스크롤 가능한 콘텐츠 영역(dev)에 대한 ref — 호출부에서 스크롤 위치를 저장/복원하는 데 쓴다. */
   contentRef?: RefObject<HTMLDivElement | null>;
@@ -60,7 +61,7 @@ export function BottomSheet({
     ? `translateY(${dragTranslate}px)`
     : expanded
       ? "translateY(0)"
-      : `translateY(${restingOffsetVh}dvh)`;
+      : `translateY(${restingOffsetVh}%)`;
 
   return (
     <div

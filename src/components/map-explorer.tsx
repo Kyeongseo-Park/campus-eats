@@ -17,8 +17,10 @@ import { formatMinPrice } from "@/lib/format";
 import type { SortValue } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 
-// 목록 접기·펼치기에 따른 지도 영역 높이(dvh). 바텀시트의 resting 위치도 항상 이 값과 같게
-// 맞춰서(아래 mapHeightVh), 시트 상단이 지도 박스 바로 아래에 정확히 맞물리게 한다.
+// 목록 접기·펼치기에 따른 지도 영역 높이(%, 이 컴포넌트 루트 기준 — 헤더를 뺀 실제 사용
+// 가능 높이라 dvh와 달리 헤더 높이·화면 크기에 관계없이 항상 정확하다). 바텀시트의 resting
+// 위치도 항상 이 값과 같게 맞춰서(아래 mapHeightVh), 시트 상단이 지도 박스 바로 아래에
+// 정확히 맞물리게 한다.
 const MAP_RESTING_VH = 50; // 기본 크기 (목록 펼쳐짐)
 // 목록 접힘: 카드 목록은 안 보이고 핸들+토글 줄만 딱 보일 만큼만 남긴다(그 이상 안 내려감).
 const LIST_PEEK_VH = 13;
@@ -106,7 +108,7 @@ export function MapExplorer({
     <div className="relative h-full">
       <div
         className="px-3 pt-2 transition-[height] duration-200 ease-out"
-        style={{ height: `${mapHeightVh}dvh` }}
+        style={{ height: `${mapHeightVh}%` }}
       >
         <div className="h-full w-full overflow-hidden rounded-2xl ring-1 ring-foreground/10">
           <RestaurantMap
