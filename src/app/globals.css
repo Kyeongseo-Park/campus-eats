@@ -132,7 +132,7 @@
   /* 작은 폰 화면(400px 이하)에서 전체 텍스트 크기를 줄임 (text-* 클래스는 rem 기준이라 함께 축소됨) */
   @media (max-width: 400px) {
     html {
-      font-size: 12.5px;
+      font-size: 13px;
     }
   }
 }
