@@ -128,4 +128,11 @@
   html {
     @apply font-sans overscroll-none;
   }
+
+  /* 작은 폰 화면(400px 이하)에서 전체 텍스트 크기를 한 단계 줄임 (text-* 클래스는 rem 기준이라 함께 축소됨) */
+  @media (max-width: 400px) {
+    html {
+      font-size: 14px;
+    }
+  }
 }
