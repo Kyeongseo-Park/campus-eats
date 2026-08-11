@@ -3,6 +3,7 @@ import fs from "node:fs";
 import path from "node:path";
 
 import { prisma } from "../src/lib/prisma";
+import type { Prisma } from "../src/generated/prisma/client";
 
 // data/restaurants_with_menu.csv(전체메뉴_가격 컬럼 포함)를 읽어, 기존 식당 레코드를
 // kakaoId(CSV의 "id" 컬럼) 기준으로 찾아 Menu(+minPrice)만 갱신하는 스크립트.
@@ -170,7 +171,7 @@ async function main() {
   // kakaoId로 기존 식당 조회 (id 매칭). 매칭 안 되는 행은 건너뛰고 목록으로 보고한다.
   // 전체메뉴_가격이 빈 칸인 행(아직 수집 안 된 식당)도 건너뛰고 기존 DB 값을 그대로 둔다 —
   // 빈 값으로 덮어써서 기존 메뉴가 삭제되는 걸 방지한다.
-  const matched: { row: ParsedRow; existing: NonNullable<Awaited<ReturnType<typeof prisma.restaurant.findUnique>>> }[] = [];
+  const matched: { row: ParsedRow; existing: Prisma.RestaurantGetPayload<{ include: { menus: true } }> }[] = [];
   const notFound: ParsedRow[] = [];
   const emptySkipped: ParsedRow[] = [];
 
