@@ -1,16 +1,17 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { ChevronDown, ChevronUp, Star } from "lucide-react";
-import type { KeyboardEvent } from "react";
+import { useState, type KeyboardEvent } from "react";
 
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { FavoriteButton } from "@/components/favorite-button";
 import { OpenStatusBadge } from "@/components/open-status-badge";
 import type { RestaurantListItem } from "@/lib/restaurants";
-import { formatMinPrice } from "@/lib/format";
-import type { SortValue } from "@/lib/constants";
+import { SORT_OPTIONS, type SortValue } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 
 export function RestaurantListPanel({
@@ -35,6 +36,13 @@ export function RestaurantListPanel({
   listCollapsed: boolean;
   onToggleList: () => void;
 }) {
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const [sortPanelOpen, setSortPanelOpen] = useState(false);
+
+  const currentSortLabel = SORT_OPTIONS.find((option) => option.value === sort)?.label ?? "평점순";
+
   function handleKeyDown(event: KeyboardEvent<HTMLDivElement>, id: string) {
     if (event.key === "Enter" || event.key === " ") {
       event.preventDefault();
@@ -42,17 +50,69 @@ export function RestaurantListPanel({
     }
   }
 
+  function handleSortSelect(value: string) {
+    const params = new URLSearchParams(searchParams.toString());
+    params.delete("lat");
+    params.delete("lng");
+    if (value === "distance" && typeof navigator !== "undefined" && navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          params.set("sort", "distance");
+          params.set("lat", String(position.coords.latitude));
+          params.set("lng", String(position.coords.longitude));
+          router.push(`${pathname}?${params.toString()}`);
+        },
+        () => {
+          // 권한 거부 시 좌표 없이 이동 → 서버가 학교 정문 좌표로 대체
+          params.set("sort", "distance");
+          router.push(`${pathname}?${params.toString()}`);
+        }
+      );
+    } else {
+      params.set("sort", value);
+      router.push(`${pathname}?${params.toString()}`);
+    }
+    setSortPanelOpen(false);
+  }
+
   const header = (
-    <div className="sticky top-0 z-10 flex items-center justify-between bg-background py-2">
-      <p className="text-xs text-muted-foreground">{restaurants.length}개의 식당</p>
-      <button
-        type="button"
-        onClick={onToggleList}
-        className="flex items-center gap-1 text-xs font-medium text-muted-foreground hover:text-foreground"
-      >
-        {listCollapsed ? "목록 펼치기" : "목록 접기"}
-        {listCollapsed ? <ChevronUp className="size-3.5" /> : <ChevronDown className="size-3.5" />}
-      </button>
+    <div className="sticky top-0 z-10 flex flex-col gap-2 bg-background py-2">
+      <div className="flex items-center justify-between">
+        <Button
+          type="button"
+          variant={sortPanelOpen ? "secondary" : "outline"}
+          size="sm"
+          onClick={() => setSortPanelOpen((prev) => !prev)}
+          className="rounded-full"
+        >
+          정렬: {currentSortLabel}
+          <ChevronDown className={cn("size-3.5 transition-transform", sortPanelOpen && "rotate-180")} />
+        </Button>
+        <button
+          type="button"
+          onClick={onToggleList}
+          className="flex items-center gap-1 text-xs font-medium text-muted-foreground hover:text-foreground"
+        >
+          {listCollapsed ? "목록 펼치기" : "목록 접기"}
+          {listCollapsed ? <ChevronUp className="size-3.5" /> : <ChevronDown className="size-3.5" />}
+        </button>
+      </div>
+      {sortPanelOpen && (
+        <div className="flex flex-wrap gap-1.5 rounded-md border border-border/60 bg-muted/20 p-3">
+          {SORT_OPTIONS.map((option) => (
+            <Button
+              key={option.value}
+              type="button"
+              size="sm"
+              variant={sort === option.value ? "default" : "outline"}
+              onClick={() => handleSortSelect(option.value)}
+              className="rounded-full"
+            >
+              {option.label}
+            </Button>
+          ))}
+        </div>
+      )}
     </div>
   );
 
@@ -110,12 +170,11 @@ export function RestaurantListPanel({
                   <OpenStatusBadge status={restaurant.openStatus} />
                 </CardAction>
               </CardHeader>
-              <CardContent>
-                <p className="text-sm text-muted-foreground">
-                  {formatMinPrice(restaurant.minPrice)}
-                  {sort === "distance" && ` · ${restaurant.distanceKm.toFixed(1)}km`}
-                </p>
-              </CardContent>
+              {sort === "distance" && (
+                <CardContent>
+                  <p className="text-sm text-muted-foreground">{restaurant.distanceKm.toFixed(1)}km</p>
+                </CardContent>
+              )}
             </Card>
             <div className="absolute right-2 top-2">
               <FavoriteButton

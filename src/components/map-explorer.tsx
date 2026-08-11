@@ -154,17 +154,19 @@ export function MapExplorer({
             onWriteReview={() => handleWriteReview(previewRestaurant.id)}
           />
         ) : (
-          <RestaurantListPanel
-            restaurants={restaurants}
-            favoriteIds={favoriteIdSet}
-            isLoggedIn={!!currentUserId}
-            sort={sort}
-            q={q}
-            selectedId={selectedRestaurantId}
-            onSelect={handleListSelect}
-            listCollapsed={listCollapsed}
-            onToggleList={() => setListCollapsed((prev) => !prev)}
-          />
+          <Suspense>
+            <RestaurantListPanel
+              restaurants={restaurants}
+              favoriteIds={favoriteIdSet}
+              isLoggedIn={!!currentUserId}
+              sort={sort}
+              q={q}
+              selectedId={selectedRestaurantId}
+              onSelect={handleListSelect}
+              listCollapsed={listCollapsed}
+              onToggleList={() => setListCollapsed((prev) => !prev)}
+            />
+          </Suspense>
         )}
       </BottomSheet>
 
