@@ -5,14 +5,12 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { ChevronDownIcon, Gift } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { CATEGORIES, PRICE_RANGES, SORT_OPTIONS, ZONES } from "@/lib/constants";
+import { CATEGORIES, PRICE_RANGES, ZONES } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 
 type Option = { value: string; label: string };
-type FilterKey = "zone" | "category" | "price_range" | "sort";
+type FilterKey = "zone" | "category" | "price_range";
 
 const ZONE_OPTIONS: Option[] = ZONES.map((zone) => ({ value: zone, label: zone }));
 const CATEGORY_OPTIONS: Option[] = CATEGORIES.map((category) => ({ value: category, label: category }));
@@ -53,31 +51,10 @@ export function RestaurantFilters({ onZoneChange }: { onZoneChange?: (zones: str
     navigate({ q: qInput });
   }
 
-  function handleSortSelect(value: string) {
-    if (value === "distance" && typeof navigator !== "undefined" && navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          navigate({
-            sort: "distance",
-            lat: String(position.coords.latitude),
-            lng: String(position.coords.longitude),
-          });
-        },
-        () => navigate({ sort: "distance", lat: null, lng: null }) // 권한 거부 시 좌표 없이 이동 → 서버가 학교 정문 좌표로 대체
-      );
-    } else {
-      navigate({ sort: value, lat: null, lng: null });
-    }
-    setOpenPanel(null);
-  }
-
   const selectedZones = parseMulti(searchParams.get("zone"));
   const selectedCategories = parseMulti(searchParams.get("category"));
   const selectedPriceRanges = parseMulti(searchParams.get("price_range"));
-  const currentSort = searchParams.get("sort") ?? "rating";
-  const currentSortLabel = SORT_OPTIONS.find((option) => option.value === currentSort)?.label ?? "평점순";
   const partnershipOnly = searchParams.get("partnership_only") === "true";
-  const openNow = searchParams.get("open_now") === "true";
 
   return (
     <div className="flex flex-col gap-2">
@@ -111,14 +88,8 @@ export function RestaurantFilters({ onZoneChange }: { onZoneChange?: (zones: str
           isOpen={openPanel === "price_range"}
           onClick={() => togglePanel("price_range")}
         />
-        <FilterMenuButton
-          label={`정렬: ${currentSortLabel}`}
-          isOpen={openPanel === "sort"}
-          onClick={() => togglePanel("sort")}
-        />
 
         <div className="ml-auto flex items-center gap-2">
-          <OpenNowChip active={openNow} onClick={() => navigate({ open_now: openNow ? null : "true" })} />
           <PartnershipChip
             active={partnershipOnly}
             onClick={() => navigate({ partnership_only: partnershipOnly ? null : "true" })}
@@ -150,47 +121,7 @@ export function RestaurantFilters({ onZoneChange }: { onZoneChange?: (zones: str
           onSelectAll={() => navigate({ price_range: null })}
         />
       )}
-      {openPanel === "sort" && (
-        <div className="flex flex-wrap gap-1.5 rounded-md border border-border/60 bg-muted/20 p-3">
-          {SORT_OPTIONS.map((option) => (
-            <Button
-              key={option.value}
-              type="button"
-              size="sm"
-              variant={currentSort === option.value ? "default" : "outline"}
-              onClick={() => handleSortSelect(option.value)}
-              className="rounded-full"
-            >
-              {option.label}
-            </Button>
-          ))}
-        </div>
-      )}
     </div>
-  );
-}
-
-function OpenNowChip({ active, onClick }: { active: boolean; onClick: () => void }) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      aria-pressed={active}
-      className={cn(
-        "flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-semibold transition-colors sm:text-sm",
-        active
-          ? "border-emerald-500 bg-emerald-50 text-emerald-700 shadow-2xs ring-1 ring-emerald-200"
-          : "border-gray-200 bg-white text-gray-600 hover:bg-gray-50"
-      )}
-    >
-      <span className="relative flex size-2">
-        {active && (
-          <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-500 opacity-75" />
-        )}
-        <span className={cn("relative inline-flex size-2 rounded-full", active ? "bg-emerald-500" : "bg-gray-300")} />
-      </span>
-      영업 중
-    </button>
   );
 }
 
@@ -275,23 +206,18 @@ function FilterChip({
   onCheckedChange: () => void;
 }) {
   return (
-    <Label
+    <button
+      type="button"
+      onClick={onCheckedChange}
+      aria-pressed={checked}
       className={cn(
-        "cursor-pointer gap-1.5 rounded-full border px-3 py-1.5 text-xs font-medium transition-colors",
+        "rounded-full border px-3 py-1.5 text-xs font-medium transition-colors",
         checked
           ? "border-primary bg-primary text-primary-foreground"
           : "border-border bg-background text-muted-foreground hover:border-primary/30 hover:text-foreground"
       )}
     >
-      <Checkbox
-        checked={checked}
-        onCheckedChange={onCheckedChange}
-        className={cn(
-          "size-3.5",
-          checked && "border-white/70 bg-transparent data-checked:border-white data-checked:bg-white/90 data-checked:text-primary"
-        )}
-      />
       {label}
-    </Label>
+    </button>
   );
 }
