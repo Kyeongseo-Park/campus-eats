@@ -43,7 +43,7 @@ export function RestaurantListPanel({
   }
 
   const header = (
-    <div className="flex items-center justify-between py-2">
+    <div className="sticky top-0 z-10 flex items-center justify-between bg-background py-2">
       <p className="text-xs text-muted-foreground">{restaurants.length}개의 식당</p>
       <button
         type="button"
