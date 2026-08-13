@@ -9,6 +9,7 @@ import { RestaurantMap } from "@/components/restaurant-map";
 import { RestaurantFilters } from "@/components/restaurant-filters";
 import { RestaurantListPanel } from "@/components/restaurant-list-panel";
 import { RestaurantDetailModal } from "@/components/restaurant-detail-modal";
+import { RestaurantRoulette } from "@/components/restaurant-roulette";
 import { BottomSheet, type SheetState } from "@/components/bottom-sheet";
 import { FavoriteButton } from "@/components/favorite-button";
 import { OpenStatusBadge } from "@/components/open-status-badge";
@@ -25,7 +26,7 @@ const MAP_RESTING_VH = 55; // 기본 크기 (목록 기본 상태)
 const LIST_PEEK_VH = 7;
 const MAP_HEIGHT_LIST_COLLAPSED_VH = 100 - LIST_PEEK_VH;
 
-const CATEGORY_EMOJI: Record<string, string> = {
+export const CATEGORY_EMOJI: Record<string, string> = {
   한식: "🍱",
   중식: "🥡",
   일식: "🍣",
@@ -106,6 +107,15 @@ export function MapExplorer({
     setOpenReviewFormOnOpen(false);
   }
 
+  // 룰렛 결과의 "지도에서 보기" 버튼 전용 — 마커 클릭과 동일하게 지도를 확대·이동시키고
+  // 요약카드를 띄운다(상세 모달은 열지 않음).
+  function handleFocusOnMap(id: string) {
+    setPreviewId(id);
+    setSelectedRestaurantId(id);
+    setFocusRequest({ id });
+    setSheetState("default");
+  }
+
   function handleWriteReview(id: string) {
     setModalId(id);
     setOpenReviewFormOnOpen(true);
@@ -117,13 +127,14 @@ export function MapExplorer({
         className="px-3 pt-2 transition-[height] duration-200 ease-out"
         style={{ height: `${mapHeightVh}%` }}
       >
-        <div className="h-full w-full overflow-hidden rounded-2xl ring-1 ring-foreground/10">
+        <div className="relative h-full w-full overflow-hidden rounded-2xl ring-1 ring-foreground/10">
           <RestaurantMap
             restaurants={restaurants}
             selectedId={selectedRestaurantId}
             onMarkerClick={handleMarkerClick}
             focusRequest={focusRequest}
           />
+          <RestaurantRoulette restaurants={restaurants} onViewDetail={handleViewDetail} onFocusMap={handleFocusOnMap} />
         </div>
       </div>
 

@@ -9,11 +9,11 @@ import { Input } from "@/components/ui/input";
 import { CATEGORIES, PRICE_RANGES, ZONES } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 
-type Option = { value: string; label: string };
+export type Option = { value: string; label: string };
 type FilterKey = "zone" | "category" | "price_range";
 
-const ZONE_OPTIONS: Option[] = ZONES.map((zone) => ({ value: zone, label: zone }));
-const CATEGORY_OPTIONS: Option[] = CATEGORIES.map((category) => ({ value: category, label: category }));
+export const ZONE_OPTIONS: Option[] = ZONES.map((zone) => ({ value: zone, label: zone }));
+export const CATEGORY_OPTIONS: Option[] = CATEGORIES.map((category) => ({ value: category, label: category }));
 
 function parseMulti(value: string | null): string[] {
   return value ? value.split(",").filter(Boolean) : [];
@@ -144,7 +144,7 @@ function PartnershipChip({ active, onClick }: { active: boolean; onClick: () => 
   );
 }
 
-function FilterMenuButton({
+export function FilterMenuButton({
   label,
   count,
   isOpen,
@@ -170,7 +170,7 @@ function FilterMenuButton({
   );
 }
 
-function CheckboxPanel({
+export function CheckboxPanel({
   options,
   selected,
   onToggle,
@@ -196,7 +196,7 @@ function CheckboxPanel({
   );
 }
 
-function FilterChip({
+export function FilterChip({
   label,
   checked,
   onCheckedChange,
