@@ -4,6 +4,7 @@ import { ChevronRight } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { StaticStars } from "@/components/star-rating";
+import { LogoutButton } from "@/components/logout-button";
 import { requireUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { REQUEST_STATUS_BADGE_VARIANT } from "@/lib/constants";
@@ -39,9 +40,22 @@ export default async function MyPage() {
 
   return (
     <main className="flex flex-1 flex-col gap-6 p-8">
-      <div>
-        <h1 className="text-2xl font-semibold">마이페이지</h1>
-        <p className="mt-2 text-muted-foreground">{user.nickname}님</p>
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-semibold">마이페이지</h1>
+          <p className="mt-2 text-muted-foreground">{user.nickname}님</p>
+        </div>
+        <div className="flex shrink-0 items-center gap-1">
+          {user.role === "admin" && (
+            <Link
+              href="/admin"
+              className="rounded-md px-3 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:text-primary"
+            >
+              관리자
+            </Link>
+          )}
+          <LogoutButton />
+        </div>
       </div>
 
       <Card>
