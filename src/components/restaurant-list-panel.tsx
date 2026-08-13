@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { ChevronDown, ChevronUp, Star } from "lucide-react";
+import { ChevronDown, Star } from "lucide-react";
 import { useState, type KeyboardEvent } from "react";
 
 import { Badge } from "@/components/ui/badge";
@@ -22,8 +22,6 @@ export function RestaurantListPanel({
   q,
   selectedId,
   onSelect,
-  listCollapsed,
-  onToggleList,
 }: {
   restaurants: RestaurantListItem[];
   favoriteIds: Set<string>;
@@ -32,9 +30,6 @@ export function RestaurantListPanel({
   q?: string;
   selectedId: string | null;
   onSelect: (id: string) => void;
-  /** 목록을 접어 지도를 넓게 보는 상태인지 (기본값 false = 목록이 펼쳐진 상태). */
-  listCollapsed: boolean;
-  onToggleList: () => void;
 }) {
   const router = useRouter();
   const pathname = usePathname();
@@ -77,7 +72,7 @@ export function RestaurantListPanel({
 
   const header = (
     <div className="sticky top-0 z-10 flex flex-col gap-2 bg-background py-2">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center">
         <Button
           type="button"
           variant={sortPanelOpen ? "secondary" : "outline"}
@@ -88,14 +83,6 @@ export function RestaurantListPanel({
           정렬: {currentSortLabel}
           <ChevronDown className={cn("size-3.5 transition-transform", sortPanelOpen && "rotate-180")} />
         </Button>
-        <button
-          type="button"
-          onClick={onToggleList}
-          className="flex items-center gap-1 text-xs font-medium text-muted-foreground hover:text-foreground"
-        >
-          {listCollapsed ? "목록 펼치기" : "목록 접기"}
-          {listCollapsed ? <ChevronUp className="size-3.5" /> : <ChevronDown className="size-3.5" />}
-        </button>
       </div>
       {sortPanelOpen && (
         <div className="flex flex-wrap gap-1.5 rounded-md border border-border/60 bg-muted/20 p-3">
