@@ -43,6 +43,7 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
       menus: restaurant.menus.map((menu) => ({ id: menu.id, name: menu.name, price: menu.price })),
       isFavorited: favorite !== null,
       isPartnershipActive: partnershipActive,
+      partnershipInfo: restaurant.partnershipInfo,
     },
     isLoggedIn: !!currentUser,
     currentUserId: currentUser?.id ?? null,

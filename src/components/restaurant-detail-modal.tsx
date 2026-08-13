@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { ChevronDown, ChevronUp, Clock, Map, MapPin, Navigation, X } from "lucide-react";
+import { ChevronDown, ChevronUp, Clock, Handshake, Map, MapPin, Navigation, X } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -35,6 +35,7 @@ type ModalRestaurant = {
   menus: { id: string; name: string; price: number }[];
   isFavorited: boolean;
   isPartnershipActive: boolean;
+  partnershipInfo: string | null;
 };
 
 // 지도/목록에서 식당을 선택하면 이 모달이 즉시 열려 위치·메뉴·리뷰를 한 화면에서 보여준다
@@ -148,6 +149,13 @@ export function RestaurantDetailModal({
               </div>
 
               <div className="my-4 border-t border-gray-100" />
+
+              {data.isPartnershipActive && data.partnershipInfo && (
+                <>
+                  <PartnershipSection info={data.partnershipInfo} />
+                  <div className="my-4 border-t border-gray-100" />
+                </>
+              )}
 
               <MenuSection menus={data.menus} />
 
@@ -306,6 +314,21 @@ function AddressRow({
         <Navigation className="size-3.5" />
         길찾기
       </Button>
+    </div>
+  );
+}
+
+function PartnershipSection({ info }: { info: string }) {
+  return (
+    <div>
+      <h3 className="mb-2 flex items-center gap-1.5 text-sm font-bold text-gray-900">
+        <Handshake className="size-4 text-orange-500" />
+        제휴 혜택
+      </h3>
+      <div className="flex items-start gap-2.5 rounded-2xl border border-orange-200/80 bg-orange-50/60 p-3.5 shadow-sm">
+        <span className="shrink-0 rounded-md bg-orange-500 px-2 py-0.5 text-[10px] font-bold text-white">제휴 혜택</span>
+        <p className="text-xs font-semibold leading-relaxed text-orange-950">{info}</p>
+      </div>
     </div>
   );
 }
