@@ -91,7 +91,7 @@ export function RestaurantRoulette({
   }
 
   function roll() {
-    if (pool.length < 2) return;
+    if (pool.length === 0) return;
     if (timerRef.current) clearInterval(timerRef.current);
 
     setRolling(true);
@@ -194,7 +194,7 @@ export function RestaurantRoulette({
               )}
 
               <p className="text-xs text-muted-foreground">이 조건에 맞는 식당 {pool.length}곳 중에서 뽑아요.</p>
-              <Button type="button" className="w-full" disabled={pool.length < 2} onClick={roll}>
+              <Button type="button" className="w-full" disabled={pool.length === 0} onClick={roll}>
                 <Dices className="size-4" />
                 룰렛 돌리기
               </Button>
