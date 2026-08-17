@@ -132,9 +132,7 @@ export function ReviewImageUpload({
       </div>
 
       <input ref={inputRef} type="file" accept="image/*" multiple className="hidden" onChange={handleFilesSelect} />
-      <p className="text-xs text-muted-foreground">
-        * {REVIEW_IMAGE_MAX_SIZE_MB}MB 이하의 이미지 파일만 업로드할 수 있습니다.
-      </p>
+      <p className="text-xs text-muted-foreground">* 환경에 따라 업로드에 시간이 조금 걸릴 수 있어요.</p>
       {error && <p className="text-xs text-destructive">{error}</p>}
     </div>
   );
