@@ -14,7 +14,7 @@ import { BottomSheet, type SheetState } from "@/components/bottom-sheet";
 import { FavoriteButton } from "@/components/favorite-button";
 import { OpenStatusBadge } from "@/components/open-status-badge";
 import type { RestaurantListItem } from "@/lib/restaurants";
-import { ZONE_CENTERS, type SortValue, type Zone } from "@/lib/constants";
+import { REVIEW_PROMPT_MESSAGES, ZONE_CENTERS, type SortValue, type Zone } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 
 // 목록 상태(펼침/기본/접힘)에 따른 지도 영역 높이(%, 이 컴포넌트 루트 기준 — 헤더를 뺀 실제
@@ -208,6 +208,11 @@ function RestaurantPreviewCard({
   onWriteReview: () => void;
 }) {
   const actionButtonClassName = "h-10 flex-1 text-[13px]";
+  // 식당이 바뀔 때마다(마커를 새로 클릭할 때마다) 새로 랜덤 선택.
+  const promptMessage = useMemo(
+    () => REVIEW_PROMPT_MESSAGES[Math.floor(Math.random() * REVIEW_PROMPT_MESSAGES.length)],
+    [restaurant.id]
+  );
 
   return (
     <div className="flex flex-col gap-2 pt-1">
@@ -262,7 +267,12 @@ function RestaurantPreviewCard({
           ))}
         </div>
       ) : (
-        <p className="text-sm text-muted-foreground">첫 리뷰 작성자가 되어보세요! ✏️</p>
+        <div className="flex flex-col gap-0.5">
+          {restaurant.reviewCount === 0 && (
+            <p className="text-sm text-muted-foreground">아직 등록된 리뷰가 없어요.</p>
+          )}
+          <p className="text-sm text-muted-foreground">{promptMessage}</p>
+        </div>
       )}
 
       <div className="mt-1 flex gap-1.5 border-t border-gray-100 pt-3">

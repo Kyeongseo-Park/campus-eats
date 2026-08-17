@@ -13,6 +13,7 @@ import { ReviewImageGallery } from "@/components/review-image-gallery";
 import { ReviewHelpfulButton } from "@/components/review-helpful-button";
 import { ReviewReportButton } from "@/components/review-report-button";
 import { ReviewWriteModal } from "@/components/review-write-modal";
+import { REVIEW_PROMPT_MESSAGES } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 
 export type ReviewItem = {
@@ -69,6 +70,10 @@ export function ReviewSection({
   const loading = loadedKey !== `${page}:${sort}`;
 
   const [writeModalOpen, setWriteModalOpen] = useState(false);
+  // 빈 상태 유도 멘트 — 모달이 열려 이 컴포넌트가 새로 마운트될 때마다 한 번 랜덤 선택.
+  const [promptMessage] = useState(
+    () => REVIEW_PROMPT_MESSAGES[Math.floor(Math.random() * REVIEW_PROMPT_MESSAGES.length)]
+  );
 
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editRating, setEditRating] = useState(5);
@@ -202,7 +207,7 @@ export function ReviewSection({
         <div className="rounded-md border border-gray-200 p-8 text-center">
           <p className="text-3xl">🥣</p>
           <p className="mt-2 text-sm text-gray-500">아직 등록된 리뷰가 없어요.</p>
-          <p className="text-sm text-gray-500">이 식당의 첫 번째 쩝쩝박사가 되어보세요!</p>
+          <p className="text-sm text-gray-500">{promptMessage}</p>
           {isLoggedIn ? (
             <button
               type="button"

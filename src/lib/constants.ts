@@ -52,3 +52,11 @@ export const REVIEW_IMAGE_ALLOWED_TYPES = ["image/png", "image/jpeg", "image/web
 // 리뷰 작성 모달의 키워드 태그 선택 개수 제한 (docs/03_Design 리뷰 화면 개선 스펙).
 export const REVIEW_TAG_MAX_COUNT = 5;
 
+// 리뷰 0개 빈 상태 카드에 랜덤으로 노출되는 리뷰 유도 멘트.
+export const REVIEW_PROMPT_MESSAGES = [
+  "이 식당의 첫 번째 쩝쩝박사가 되어보세요!",
+  "첫 리뷰 작성자가 되어보세요! ✏️",
+  "쩝쩝박사님, 오늘의 맛 평가를 들려주세요!",
+  "여러분의 리뷰가 캠퍼스 맛집 지도를 완성합니다!",
+] as const;
+
