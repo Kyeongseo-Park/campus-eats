@@ -58,7 +58,12 @@ export default async function RestaurantDetailPage({ params }: { params: Promise
               initialFavorited={favorite !== null}
               isLoggedIn={!!currentUser}
             />
-            <ShareButton title={restaurant.name} />
+            <ShareButton
+              title={restaurant.name}
+              category={restaurant.category}
+              avgRating={avgRating}
+              reviewCount={reviewCount}
+            />
           </div>
           <Button nativeButton={false} render={<Link href="/" />} variant="ghost" size="icon" aria-label="닫기">
             <X className="size-4" />

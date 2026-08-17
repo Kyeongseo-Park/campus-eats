@@ -1,40 +1,79 @@
 "use client";
 
 import { useState, type MouseEvent } from "react";
-import { Check, Share2 } from "lucide-react";
+import Script from "next/script";
+import { Share2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { CATEGORY_SHARE_IMAGE } from "@/lib/constants";
 
-export function ShareButton({ title, path }: { title: string; path?: string }) {
-  const [copied, setCopied] = useState(false);
+const KAKAO_SDK_SRC = "https://t1.kakaocdn.net/kakao_js_sdk/2.8.2/kakao.min.js";
 
-  async function handleShare(event: MouseEvent) {
+// StaticStars(src/components/star-rating.tsx)와 동일한 기준(star <= rating)으로 채운다.
+function buildStarsText(rating: number): string {
+  return [1, 2, 3, 4, 5].map((star) => (star <= rating ? "★" : "☆")).join("");
+}
+
+export function ShareButton({
+  title,
+  path,
+  category,
+  avgRating,
+  reviewCount,
+}: {
+  title: string;
+  path?: string;
+  category: string;
+  avgRating: number | null;
+  reviewCount: number;
+}) {
+  const [isSdkReady, setIsSdkReady] = useState(false);
+  const appKey = process.env.NEXT_PUBLIC_KAKAO_MAP_APP_KEY;
+
+  function handleShare(event: MouseEvent) {
     event.preventDefault();
     event.stopPropagation();
+    if (!appKey || !isSdkReady) return;
+
+    if (!window.Kakao.isInitialized()) {
+      window.Kakao.init(appKey);
+    }
 
     const url = path ? `${window.location.origin}${path}` : window.location.href;
+    const link = { webUrl: url, mobileWebUrl: url };
+    const description =
+      avgRating !== null
+        ? `${buildStarsText(avgRating)} ${avgRating.toFixed(1)} (${reviewCount})`
+        : "아직 등록된 리뷰가 없어요.";
 
-    if (navigator.share) {
-      try {
-        await navigator.share({ title, url });
-      } catch {
-        // 사용자가 공유 시트를 취소한 경우 등은 무시한다.
-      }
-      return;
-    }
-
-    try {
-      await navigator.clipboard.writeText(url);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 1500);
-    } catch {
-      // 클립보드 권한이 없는 환경은 조용히 무시한다.
-    }
+    window.Kakao.Share.sendDefault({
+      objectType: "feed",
+      content: {
+        title,
+        description,
+        imageUrl: `${window.location.origin}${CATEGORY_SHARE_IMAGE[category] ?? CATEGORY_SHARE_IMAGE.기타}`,
+        imageWidth: 800,
+        imageHeight: 400,
+        link,
+      },
+      buttons: [{ title: "앱에서 보기", link }],
+    });
   }
 
   return (
-    <Button type="button" variant="ghost" size="icon" aria-label="공유하기" onClick={handleShare}>
-      {copied ? <Check className="size-4 text-green-600" /> : <Share2 className="size-4" />}
-    </Button>
+    <>
+      {appKey && <Script src={KAKAO_SDK_SRC} strategy="afterInteractive" onReady={() => setIsSdkReady(true)} />}
+      <Button
+        type="button"
+        variant="ghost"
+        size="icon"
+        aria-label="카카오톡으로 공유하기"
+        disabled={!appKey}
+        title={appKey ? undefined : "카카오톡 공유를 사용하려면 NEXT_PUBLIC_KAKAO_MAP_APP_KEY 환경변수가 필요합니다"}
+        onClick={handleShare}
+      >
+        <Share2 className="size-4" />
+      </Button>
+    </>
   );
 }

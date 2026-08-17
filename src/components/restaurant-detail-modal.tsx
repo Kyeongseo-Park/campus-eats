@@ -103,7 +103,13 @@ export function RestaurantDetailModal({
               </span>
               <div className="flex items-center gap-1">
                 <FavoriteButton restaurantId={data.id} initialFavorited={data.isFavorited} isLoggedIn={isLoggedIn} />
-                <ShareButton title={data.name} path={`/restaurants/${data.id}`} />
+                <ShareButton
+                  title={data.name}
+                  path={`/restaurants/${data.id}`}
+                  category={data.category}
+                  avgRating={data.avgRating}
+                  reviewCount={data.reviewCount}
+                />
                 <Button type="button" variant="ghost" size="icon" aria-label="닫기" onClick={onClose}>
                   <X className="size-4" />
                 </Button>

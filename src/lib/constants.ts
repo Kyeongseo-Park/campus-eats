@@ -4,6 +4,19 @@ export type Zone = (typeof ZONES)[number];
 export const CATEGORIES = ["한식", "중식", "일식", "양식", "분식", "카페", "패스트푸드", "기타"] as const;
 export type Category = (typeof CATEGORIES)[number];
 
+// 카카오톡 공유 카드(Feed 템플릿)에 쓰는 카테고리별 일러스트. 800×400px, public/images/kakao-share/
+// 아래 이 경로 그대로 이미지 파일을 넣어야 한다(디자인 스펙: docs 카카오 공유 카드 스펙 참고).
+export const CATEGORY_SHARE_IMAGE: Record<string, string> = {
+  한식: "/images/kakao-share/korean.png",
+  중식: "/images/kakao-share/chinese.png",
+  일식: "/images/kakao-share/japanese.png",
+  양식: "/images/kakao-share/western.png",
+  분식: "/images/kakao-share/snack.png",
+  카페: "/images/kakao-share/cafe.png",
+  패스트푸드: "/images/kakao-share/fastfood.png",
+  기타: "/images/kakao-share/etc.png",
+};
+
 // 전남대(용봉동) 근처, 구역별로 실제 존재하는 랜드마크 상호의 좌표를 기준점으로 쓴다
 // (Kakao Local API 키워드 검색으로 조회). Kakao Local API는 zone을 주지 않으므로,
 // 수집된 좌표를 이 기준점과 비교해 가장 가까운 구역으로 분류한다
