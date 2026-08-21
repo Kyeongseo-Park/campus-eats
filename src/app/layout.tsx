@@ -6,6 +6,8 @@ import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 
 import { BottomTabBar } from "@/components/bottom-tab-bar";
+import { CapacitorAuthBridge } from "@/components/capacitor-auth-bridge";
+import { Toaster } from "@/components/ui/sonner";
 
 const plusJakartaSans = Plus_Jakarta_Sans({
   variable: "--font-plus-jakarta-sans",
@@ -50,6 +52,8 @@ export default function RootLayout({
         <div className="min-h-0 flex-1 overflow-y-auto">{children}</div>
         <BottomTabBar />
         <Analytics />
+        <CapacitorAuthBridge />
+        <Toaster />
       </body>
     </html>
   );

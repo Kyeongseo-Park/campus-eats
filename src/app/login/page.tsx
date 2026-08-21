@@ -1,6 +1,5 @@
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { signIn } from "@/lib/next-auth";
+import { SocialLoginButtons } from "@/components/social-login-buttons";
 
 export default async function LoginPage({
   searchParams,
@@ -18,28 +17,7 @@ export default async function LoginPage({
           <CardTitle className="text-2xl">로그인</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="flex flex-col gap-3">
-            <form
-              action={async () => {
-                "use server";
-                await signIn("kakao", { redirectTo: callbackUrl });
-              }}
-            >
-              <Button type="submit" className="w-full">
-                카카오로 시작하기
-              </Button>
-            </form>
-            <form
-              action={async () => {
-                "use server";
-                await signIn("google", { redirectTo: callbackUrl });
-              }}
-            >
-              <Button type="submit" variant="outline" className="w-full">
-                구글로 시작하기
-              </Button>
-            </form>
-          </div>
+          <SocialLoginButtons callbackUrl={callbackUrl} />
         </CardContent>
       </Card>
     </main>

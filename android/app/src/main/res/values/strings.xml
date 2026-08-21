@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">학식 말고 뭐 먹지?</string>
+    <string name="title_activity_main">학식 말고 뭐 먹지?</string>
+    <string name="package_name">kr.co.campuseats.app</string>
+    <string name="custom_url_scheme">kr.co.campuseats.app</string>
+</resources>
