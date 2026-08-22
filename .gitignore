@@ -45,3 +45,6 @@ next-env.d.ts
 
 # IDE
 /.idea
+
+# 개인 작업 기록 (Claude 세션 노트 등, 팀 문서 아님)
+docs/02_Development/NativeApp_Capacitor.md
