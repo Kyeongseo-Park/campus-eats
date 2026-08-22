@@ -24,6 +24,8 @@
 	<string>$(CURRENT_PROJECT_VERSION)</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>내 주변 식당을 지도에 표시하기 위해 위치 정보가 필요합니다.</string>
 	<!-- 아래 3개는 리뷰 사진 첨부(@capacitor/camera)용 권한 안내 문구.
 	     iOS는 이 문구가 없으면 앱이 그 자리에서 종료되고, App Store 심사도 통과하지 못한다.
 	     사용자에게 그대로 보이는 문장이므로 한국어로 적는다. -->
@@ -75,5 +77,16 @@
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<true/>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleURLName</key>
+			<string>com.rainbow.campuseats</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>campuseats</string>
+			</array>
+		</dict>
+	</array>
 </dict>
 </plist>

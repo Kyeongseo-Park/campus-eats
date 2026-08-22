@@ -6,6 +6,7 @@ import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 
 import { BottomTabBar } from "@/components/bottom-tab-bar";
+import { CapacitorAuthBridge } from "@/components/capacitor-auth-bridge";
 import { PushNotificationsSetup } from "@/components/push-notifications-setup";
 import { Toaster } from "@/components/ui/sonner";
 import { getCurrentUser } from "@/lib/auth";
@@ -56,10 +57,10 @@ export default async function RootLayout({
         </header>
         <div className="min-h-0 flex-1 overflow-y-auto">{children}</div>
         <BottomTabBar />
-        {/* 하단에는 탭바가 있어서 토스트를 위쪽에 띄운다. */}
-        <Toaster position="top-center" />
-        <PushNotificationsSetup isLoggedIn={Boolean(user)} />
         <Analytics />
+        <CapacitorAuthBridge />
+        <Toaster />
+        <PushNotificationsSetup isLoggedIn={Boolean(user)} />
       </body>
     </html>
   );
