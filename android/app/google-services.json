@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "414272526346",
+    "project_id": "campus-eats-67265",
+    "storage_bucket": "campus-eats-67265.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:414272526346:android:b3b6ef0a79454c1ab767f3",
+        "android_client_info": {
+          "package_name": "com.rainbow.campuseats"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAmWge1frj0BMPhDcJspXm53ukYoVOKYIY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
