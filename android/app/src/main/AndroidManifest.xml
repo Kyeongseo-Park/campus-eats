@@ -22,6 +22,14 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
 
+            <!-- 시스템 브라우저(Custom Tabs)에서 소셜로그인 완료 후 앱으로 복귀하는 딥링크. -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="campuseats" android:host="auth-callback" />
+            </intent-filter>
+
         </activity>
 
         <provider
@@ -38,4 +46,7 @@
     <!-- Permissions -->
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <!-- 카카오맵의 "내 위치" 기능(navigator.geolocation)이 웹뷰 안에서 동작하려면 필요. -->
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
 </manifest>
