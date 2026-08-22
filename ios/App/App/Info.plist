@@ -24,6 +24,15 @@
 	<string>$(CURRENT_PROJECT_VERSION)</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<!-- 아래 3개는 리뷰 사진 첨부(@capacitor/camera)용 권한 안내 문구.
+	     iOS는 이 문구가 없으면 앱이 그 자리에서 종료되고, App Store 심사도 통과하지 못한다.
+	     사용자에게 그대로 보이는 문장이므로 한국어로 적는다. -->
+	<key>NSCameraUsageDescription</key>
+	<string>리뷰에 첨부할 사진을 촬영하기 위해 카메라를 사용합니다.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>리뷰에 첨부할 사진을 선택하기 위해 사진 보관함에 접근합니다.</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>촬영한 사진을 사진 보관함에 저장하기 위해 접근합니다.</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>

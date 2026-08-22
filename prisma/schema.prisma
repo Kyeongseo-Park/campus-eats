@@ -25,8 +25,29 @@ model User {
   favorites          Favorite[]
   reviewHelpfulVotes ReviewHelpful[]
   reports            Report[]
+  deviceTokens       DeviceToken[]
 
   @@map("users")
+}
+
+/// 네이티브 앱 푸시알림을 보낼 대상 기기 목록 (@capacitor/push-notifications).
+/// 웹 브라우저 사용자는 여기에 기록되지 않는다.
+model DeviceToken {
+  id     String @id @default(uuid()) @db.Uuid
+  userId String @map("user_id") @db.Uuid
+  /// FCM(Android)/APNs(iOS)가 발급한 기기 토큰. 재설치·앱 데이터 삭제 시 값이 바뀌므로
+  /// 영구 식별자로 쓰면 안 되고, 로그인할 때마다 갱신해서 저장한다.
+  token  String @unique
+  /// "android" | "ios"
+  platform String
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("device_tokens")
 }
 
 model Account {

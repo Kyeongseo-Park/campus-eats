@@ -12,8 +12,10 @@
   "dependencies": {
     "@base-ui/react": "^1.6.0",
     "@capacitor/android": "^8.5.0",
+    "@capacitor/camera": "^8.2.3",
     "@capacitor/core": "^8.5.0",
     "@capacitor/ios": "^8.5.0",
+    "@capacitor/push-notifications": "^8.1.2",
     "@neondatabase/serverless": "^1.1.0",
     "@prisma/adapter-neon": "^7.8.0",
     "@prisma/client": "^7.8.0",

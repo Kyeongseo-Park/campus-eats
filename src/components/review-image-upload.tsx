@@ -5,6 +5,8 @@ import { upload } from "@vercel/blob/client";
 
 import { REVIEW_IMAGE_ALLOWED_TYPES, REVIEW_IMAGE_MAX_COUNT, REVIEW_IMAGE_MAX_SIZE_MB } from "@/lib/constants";
 import { isHeic, preloadHeicConverter, resizeImageForUpload } from "@/lib/image-resize";
+import { useIsNativeApp } from "@/lib/native";
+import { isCameraCancelled, isCameraPermissionDenied, takeNativePhoto } from "@/lib/native-camera";
 
 type Phase = "idle" | "converting" | "uploading";
 
@@ -20,14 +22,18 @@ export function ReviewImageUpload({
   const inputRef = useRef<HTMLInputElement>(null);
   const [phase, setPhase] = useState<Phase>("idle");
   const [error, setError] = useState<string | null>(null);
+  const isNative = useIsNativeApp();
 
   const canAddMore = images.length < REVIEW_IMAGE_MAX_COUNT;
   const isUploading = phase !== "idle";
 
   // HEIC 변환용 WASM 모듈은 용량이 커서, 사용자가 파일을 고르기 전에 미리 받아둔다.
+  // 네이티브에서는 Camera 플러그인이 jpeg로 돌려주므로 HEIC 변환이 필요 없다.
   useEffect(() => {
-    preloadHeicConverter();
-  }, []);
+    if (!isNative) {
+      preloadHeicConverter();
+    }
+  }, [isNative]);
 
   async function uploadOne(file: File): Promise<string> {
     const resized = await resizeImageForUpload(file);
@@ -83,6 +89,45 @@ export function ReviewImageUpload({
     }
   }
 
+  /**
+   * 네이티브 앱에서는 파일 선택창 대신 OS 기본 시트(촬영/앨범)를 띄우고, 사진 1장을 받아
+   * 웹과 똑같은 uploadOne()에 넘긴다. 업로드/검증 로직은 공유하므로 제한 규칙도 동일하다.
+   */
+  async function handleNativeAdd() {
+    setError(null);
+
+    let file: File;
+    try {
+      file = await takeNativePhoto();
+    } catch (cameraError) {
+      if (isCameraCancelled(cameraError)) return;
+      setError(
+        isCameraPermissionDenied(cameraError)
+          ? "설정에서 카메라와 사진 접근 권한을 허용해주세요."
+          : "사진을 가져오지 못했습니다. 다시 시도해주세요.",
+      );
+      return;
+    }
+
+    setPhase("uploading");
+    try {
+      const url = await uploadOne(file);
+      onChange([...images, url]);
+    } catch (uploadError) {
+      setError(uploadError instanceof Error ? uploadError.message : "업로드에 실패했습니다.");
+    } finally {
+      setPhase("idle");
+    }
+  }
+
+  function handleAddClick() {
+    if (isNative) {
+      void handleNativeAdd();
+      return;
+    }
+    inputRef.current?.click();
+  }
+
   function handleRemove(index: number) {
     onChange(images.filter((_, i) => i !== index));
   }
@@ -118,7 +163,7 @@ export function ReviewImageUpload({
         {canAddMore && (
           <button
             type="button"
-            onClick={() => inputRef.current?.click()}
+            onClick={handleAddClick}
             disabled={disabled || isUploading}
             className="flex h-[84px] w-[84px] shrink-0 flex-col items-center justify-center gap-0.5 rounded-md border border-dashed border-gray-300 bg-gray-50 text-xs font-bold text-gray-700 disabled:opacity-50"
           >

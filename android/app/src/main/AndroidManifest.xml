@@ -38,4 +38,14 @@
     <!-- Permissions -->
 
     <uses-permission android:name="android.permission.INTERNET" />
+
+    <!-- 리뷰 사진 첨부용 (@capacitor/camera). 촬영은 CAMERA, 앨범 선택은 Android 12 이하에서만
+         READ_EXTERNAL_STORAGE가 필요하다. Android 13(SDK 33)부터는 사진 선택기가 권한 없이 동작한다. -->
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission
+        android:name="android.permission.READ_EXTERNAL_STORAGE"
+        android:maxSdkVersion="32" />
+
+    <!-- 카메라가 없는 기기(일부 태블릿/에뮬레이터)에서도 설치는 가능하도록 required=false -->
+    <uses-feature android:name="android.hardware.camera" android:required="false" />
 </manifest>
