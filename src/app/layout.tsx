@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Plus_Jakarta_Sans, Noto_Sans_KR, Geist_Mono } from "next/font/google";
-import { UtensilsCrossed } from "lucide-react";
 import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 
@@ -26,8 +25,19 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://campus-eats-lime.vercel.app"),
   title: "학식 말고 뭐 먹지?",
   description: "학교 주변 식당 정보를 한곳에서 제공하는 서비스",
+  openGraph: {
+    title: "학식 말고 뭐 먹지?",
+    description: "학교 주변 식당 정보를 한곳에서 제공하는 서비스",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "학식 말고 뭐 먹지?",
+    description: "학교 주변 식당 정보를 한곳에서 제공하는 서비스",
+  },
 };
 
 export default function RootLayout({
@@ -43,9 +53,8 @@ export default function RootLayout({
       <body className="flex h-dvh flex-col overflow-hidden">
         <header className="flex shrink-0 items-center border-b px-4 py-2">
           <Link href="/" className="flex items-center gap-2">
-            <span className="flex size-7 shrink-0 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-              <UtensilsCrossed className="size-4" />
-            </span>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/images/logo.png" alt="" className="size-7 shrink-0 rounded-lg" />
             <span className="text-lg font-bold tracking-tight">학식 말고 뭐 먹지?</span>
           </Link>
         </header>
