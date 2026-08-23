@@ -1,10 +1,10 @@
 apply plugin: 'com.android.application'
 
 android {
-    namespace = "kr.co.campuseats.app"
+    namespace = "com.rainbow.campuseats"
     compileSdk = rootProject.ext.compileSdkVersion
     defaultConfig {
-        applicationId "kr.co.campuseats.app"
+        applicationId "com.rainbow.campuseats"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1

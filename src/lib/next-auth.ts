@@ -11,8 +11,7 @@ import { generateNickname } from "@/lib/nickname";
 const ACCOUNT_CREATE_RETRIES = 5;
 
 // Capacitor 앱(웹뷰)에서 시스템 브라우저로 로그인한 뒤 세션을 웹뷰 쪽으로 옮겨오기 위한
-// 일회용 교환 코드 전용 provider. 자세한 흐름은
-// docs/02_Development/NativeApp_Capacitor.md 5번 항목 참고.
+// 일회용 교환 코드 전용 provider.
 // 세션 쿠키(session-token)와는 완전히 별도의 salt를 써서, 이 코드가 유출돼도
 // 세션 쿠키 자체를 위조하는 데는 쓰일 수 없다.
 export const MOBILE_EXCHANGE_SALT = "campuseats.mobile-exchange";

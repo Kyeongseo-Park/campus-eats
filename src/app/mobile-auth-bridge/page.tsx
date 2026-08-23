@@ -8,7 +8,6 @@ import { AutoRedirect } from "@/components/auto-redirect";
 // (시스템 브라우저 안, 세션 쿠키가 막 발급된 상태). 여기서 일회용 교환 코드를 만들어
 // 커스텀 URL 스킴(campuseats://)으로 앱에 돌려보내면, 앱 안의 웹뷰가 그 코드를
 // /api/auth/callback/mobile-exchange로 교환해서 웹뷰 쪽에도 세션을 심는다.
-// 자세한 배경: docs/02_Development/NativeApp_Capacitor.md 5번 항목
 export default async function MobileAuthBridgePage({
   searchParams,
 }: {

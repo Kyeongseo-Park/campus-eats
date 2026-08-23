@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
 <resources>
-    <string name="app_name">학식 말고 뭐 먹지?</string>
-    <string name="title_activity_main">학식 말고 뭐 먹지?</string>
-    <string name="package_name">kr.co.campuseats.app</string>
-    <string name="custom_url_scheme">kr.co.campuseats.app</string>
+    <string name="app_name">학식말고뭐먹지</string>
+    <string name="title_activity_main">학식말고뭐먹지</string>
+    <string name="package_name">com.rainbow.campuseats</string>
+    <string name="custom_url_scheme">com.rainbow.campuseats</string>
 </resources>

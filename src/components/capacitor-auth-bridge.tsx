@@ -9,7 +9,6 @@ import { toast } from "sonner";
 // 앱 전역(RootLayout)에 마운트해두는 컴포넌트. 시스템 브라우저에서 로그인을 마치고
 // campuseats://auth-callback 딥링크로 앱에 돌아오면, 그 안의 일회용 코드를
 // /api/auth/callback/mobile-exchange로 교환해 이 웹뷰 쪽에도 세션 쿠키를 심는다.
-// 흐름 전체 설명: docs/02_Development/NativeApp_Capacitor.md 5번 항목
 export function CapacitorAuthBridge() {
   const router = useRouter();
 

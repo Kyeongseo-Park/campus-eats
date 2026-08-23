@@ -11,7 +11,6 @@ import { Button } from "@/components/ui/button";
 // Capacitor 앱(웹뷰) 안에서는 구글이 임베디드 웹뷰의 OAuth 요청을 차단하고 카카오도
 // 세션 유지가 불안정해서, 시스템 브라우저(@capacitor/browser)를 열어 그 안에서
 // OAuth를 진행한 뒤 커스텀 URL 스킴으로 앱에 복귀시킨다.
-// 자세한 배경: docs/02_Development/NativeApp_Capacitor.md 5번 항목
 export function SocialLoginButtons({ callbackUrl }: { callbackUrl: string }) {
   const [pending, setPending] = useState<"kakao" | "google" | null>(null);
 

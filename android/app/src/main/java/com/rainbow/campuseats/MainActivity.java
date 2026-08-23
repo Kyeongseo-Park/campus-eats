@@ -1,4 +1,4 @@
-package kr.co.campuseats.app;
+package com.rainbow.campuseats;
 
 import com.getcapacitor.BridgeActivity;
 
