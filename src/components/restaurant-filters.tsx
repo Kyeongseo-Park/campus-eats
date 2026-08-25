@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { ChevronDownIcon, Gift } from "lucide-react";
+import { ChevronDownIcon, RefreshCw } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -54,7 +54,16 @@ export function RestaurantFilters({ onZoneChange }: { onZoneChange?: (zones: str
   const selectedZones = parseMulti(searchParams.get("zone"));
   const selectedCategories = parseMulti(searchParams.get("category"));
   const selectedPriceRanges = parseMulti(searchParams.get("price_range"));
+  // 초기화 버튼 노출 여부 판단에만 쓴다 — 제휴/영업중 토글 UI는 각각 하단 시트 헤더, (아직 없음)
+  // 다른 곳에 있어서 이 컴포넌트에서 값을 직접 켜지는 않는다.
   const partnershipOnly = searchParams.get("partnership_only") === "true";
+  const openNow = searchParams.get("open_now") === "true";
+  const hasAnyFilter = selectedZones.length > 0 || selectedCategories.length > 0 || selectedPriceRanges.length > 0 || partnershipOnly || openNow;
+
+  function handleReset() {
+    navigate({ zone: null, category: null, price_range: null, partnership_only: null, open_now: null });
+    onZoneChange?.([]);
+  }
 
   return (
     <div className="flex flex-col gap-2">
@@ -89,12 +98,7 @@ export function RestaurantFilters({ onZoneChange }: { onZoneChange?: (zones: str
           onClick={() => togglePanel("price_range")}
         />
 
-        <div className="ml-auto flex items-center gap-2">
-          <PartnershipChip
-            active={partnershipOnly}
-            onClick={() => navigate({ partnership_only: partnershipOnly ? null : "true" })}
-          />
-        </div>
+        {hasAnyFilter && <ResetFiltersButton onClick={handleReset} />}
       </div>
 
       {openPanel === "zone" && (
@@ -125,22 +129,34 @@ export function RestaurantFilters({ onZoneChange }: { onZoneChange?: (zones: str
   );
 }
 
-function PartnershipChip({ active, onClick }: { active: boolean; onClick: () => void }) {
+// 구역/카테고리/가격대/제휴/영업중 중 하나라도 켜져 있을 때만 필터 버튼들 옆에 나타난다.
+// 제휴·영업중 토글 UI는 이 컴포넌트가 아니라 하단 시트 헤더(제휴) 등 다른 곳에 있지만,
+// 초기화는 이 화면의 검색 조건 전체(zone/category/price_range/partnership_only/open_now)를
+// 한 번에 지운다(검색어 q는 대상이 아니다 — 시안 4번 규칙).
+function ResetFiltersButton({ onClick }: { onClick: () => void }) {
+  // 클릭할 때마다 아이콘을 remount해서 1회성 360도 회전 애니메이션을 다시 재생시킨다
+  // (restaurant-roulette.tsx의 ConfettiBurst와 동일한 key remount 패턴).
+  const [spinKey, setSpinKey] = useState(0);
+
   return (
-    <button
-      type="button"
-      onClick={onClick}
-      aria-pressed={active}
-      className={cn(
-        "flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-semibold transition-colors sm:text-sm",
-        active
-          ? "border-orange-500 bg-orange-50 text-orange-700 ring-1 ring-orange-200"
-          : "border-gray-200 bg-white text-gray-600 hover:bg-gray-50"
-      )}
-    >
-      <Gift className={cn("size-3.5", active ? "text-orange-600" : "text-gray-400")} />
-      제휴 혜택
-    </button>
+    <>
+      <style>{`@keyframes reset-filters-spin { to { transform: rotate(360deg); } }`}</style>
+      <button
+        type="button"
+        onClick={() => {
+          setSpinKey((prev) => prev + 1);
+          onClick();
+        }}
+        className="flex h-7 items-center gap-1 rounded-full border border-gray-200 bg-gray-50 px-2.5 text-xs font-medium text-gray-600 transition-colors hover:border-gray-300 hover:bg-gray-100 focus-visible:ring-2 focus-visible:ring-gray-300 focus-visible:outline-none"
+      >
+        <RefreshCw
+          key={spinKey}
+          className="size-3.5"
+          style={spinKey > 0 ? { animation: "reset-filters-spin 0.35s ease-in-out" } : undefined}
+        />
+        초기화
+      </button>
+    </>
   );
 }
 

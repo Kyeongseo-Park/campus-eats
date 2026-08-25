@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { ChevronDown, Star } from "lucide-react";
+import { ChevronDown, Gift, Star } from "lucide-react";
 import { useState, type KeyboardEvent } from "react";
 
 import { Badge } from "@/components/ui/badge";
@@ -70,9 +70,18 @@ export function RestaurantListPanel({
     setSortPanelOpen(false);
   }
 
+  const partnershipOnly = searchParams.get("partnership_only") === "true";
+
+  function handlePartnershipToggle() {
+    const params = new URLSearchParams(searchParams.toString());
+    if (partnershipOnly) params.delete("partnership_only");
+    else params.set("partnership_only", "true");
+    router.push(`${pathname}?${params.toString()}`);
+  }
+
   const header = (
     <div className="sticky top-0 z-10 flex flex-col gap-2 bg-background py-2">
-      <div className="flex items-center">
+      <div className="flex items-center justify-between gap-2">
         <Button
           type="button"
           variant={sortPanelOpen ? "secondary" : "outline"}
@@ -83,6 +92,7 @@ export function RestaurantListPanel({
           정렬: {currentSortLabel}
           <ChevronDown className={cn("size-3.5 transition-transform", sortPanelOpen && "rotate-180")} />
         </Button>
+        <PartnershipChip active={partnershipOnly} onClick={handlePartnershipToggle} />
       </div>
       {sortPanelOpen && (
         <div className="flex flex-wrap gap-1.5 rounded-md border border-border/60 bg-muted/20 p-3">
@@ -174,5 +184,26 @@ export function RestaurantListPanel({
         ))}
       </div>
     </>
+  );
+}
+
+// 시트 헤더 우측의 제휴 혜택 토글 (구 restaurant-filters.tsx에서 이동). 눌릴 때마다 제휴 매장만
+// 보이는 조건이 켜지고/꺼지고, 목록이 그 즉시 다시 필터링된다.
+function PartnershipChip({ active, onClick }: { active: boolean; onClick: () => void }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-pressed={active}
+      className={cn(
+        "flex min-h-8 items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-semibold transition-colors focus-visible:ring-2 focus-visible:ring-orange-300 focus-visible:outline-none sm:text-sm",
+        active
+          ? "border-orange-500 bg-orange-50 text-orange-700 ring-1 ring-orange-200"
+          : "border-gray-200 bg-white text-gray-600 hover:bg-gray-50"
+      )}
+    >
+      <Gift className={cn("size-3.5", active ? "text-orange-600" : "text-gray-400")} />
+      제휴 혜택
+    </button>
   );
 }
