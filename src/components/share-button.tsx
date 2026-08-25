@@ -20,12 +20,17 @@ export function ShareButton({
   category,
   avgRating,
   reviewCount,
+  variant = "icon",
+  label = "카카오톡으로 공유하기",
 }: {
   title: string;
   path?: string;
   category: string;
   avgRating: number | null;
   reviewCount: number;
+  /// "icon"(기본, 아이콘만) | "text"(텍스트 링크 — 룰렛 결과 화면 "결과 공유하기" 등에서 사용).
+  variant?: "icon" | "text";
+  label?: string;
 }) {
   const [isSdkReady, setIsSdkReady] = useState(false);
   const appKey = process.env.NEXT_PUBLIC_KAKAO_MAP_APP_KEY;
@@ -63,17 +68,31 @@ export function ShareButton({
   return (
     <>
       {appKey && <Script src={KAKAO_SDK_SRC} strategy="afterInteractive" onReady={() => setIsSdkReady(true)} />}
-      <Button
-        type="button"
-        variant="ghost"
-        size="icon"
-        aria-label="카카오톡으로 공유하기"
-        disabled={!appKey}
-        title={appKey ? undefined : "카카오톡 공유를 사용하려면 NEXT_PUBLIC_KAKAO_MAP_APP_KEY 환경변수가 필요합니다"}
-        onClick={handleShare}
-      >
-        <Share2 className="size-4" />
-      </Button>
+      {variant === "text" ? (
+        <Button
+          type="button"
+          variant="link"
+          disabled={!appKey}
+          title={appKey ? undefined : "카카오톡 공유를 사용하려면 NEXT_PUBLIC_KAKAO_MAP_APP_KEY 환경변수가 필요합니다"}
+          onClick={handleShare}
+          className="gap-1.5 text-muted-foreground"
+        >
+          <Share2 className="size-3.5" />
+          {label}
+        </Button>
+      ) : (
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon"
+          aria-label="카카오톡으로 공유하기"
+          disabled={!appKey}
+          title={appKey ? undefined : "카카오톡 공유를 사용하려면 NEXT_PUBLIC_KAKAO_MAP_APP_KEY 환경변수가 필요합니다"}
+          onClick={handleShare}
+        >
+          <Share2 className="size-4" />
+        </Button>
+      )}
     </>
   );
 }

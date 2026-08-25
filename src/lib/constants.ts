@@ -4,6 +4,30 @@ export type Zone = (typeof ZONES)[number];
 export const CATEGORIES = ["한식", "중식", "일식", "양식", "분식", "카페", "패스트푸드", "기타"] as const;
 export type Category = (typeof CATEGORIES)[number];
 
+// 룰렛 결과 화면의 카테고리 뱃지 컬러 (디자인 시안 6번 표). map-explorer.tsx의 CATEGORY_EMOJI(지도 마커용)와는
+// 별개로, 룰렛 전용 브랜드 컬러·문구만 여기 둔다.
+export const CATEGORY_COLOR: Record<string, string> = {
+  한식: "#E4572E",
+  중식: "#8B4A2B",
+  일식: "#2F6F6B",
+  양식: "#C9A227",
+  분식: "#D6336C",
+  카페: "#6F4E37",
+  패스트푸드: "#F2A61A",
+  기타: "#6B7280",
+};
+
+export const CATEGORY_ROULETTE_MESSAGE: Record<string, string> = {
+  한식: "든든하고 정겨운 한 끼가 생각날 때 딱이에요!",
+  중식: "얼큰하고 든든하게 먹고 싶을 때 좋은 선택이에요!",
+  일식: "깔끔하고 정갈한 한 끼를 원한다면 이곳이에요!",
+  양식: "특별한 기분을 내고 싶은 날 잘 어울려요!",
+  분식: "가볍고 든든하게, 부담 없이 즐기기 좋아요!",
+  카페: "잠깐 쉬어가며 여유를 즐기기 좋은 곳이에요!",
+  패스트푸드: "빠르고 든든하게 한 끼 해결하기 좋아요!",
+  기타: "새로운 메뉴가 궁금하다면 도전해보세요!",
+};
+
 // 카카오톡 공유 카드(Feed 템플릿)에 쓰는 카테고리별 일러스트. 800×400px, public/images/kakao-share/
 // 아래 이 경로 그대로 이미지 파일을 넣어야 한다(디자인 스펙: docs 카카오 공유 카드 스펙 참고).
 export const CATEGORY_SHARE_IMAGE: Record<string, string> = {
