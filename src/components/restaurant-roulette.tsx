@@ -87,8 +87,8 @@ function WheelIcon({
           top: -size * 0.12,
           borderLeftWidth: size * 0.09,
           borderRightWidth: size * 0.09,
-          borderBottomWidth: size * 0.14,
-          borderBottomColor: "#EA580C",
+          borderTopWidth: size * 0.14,
+          borderTopColor: "#EA580C",
           borderLeftColor: "transparent",
           borderRightColor: "transparent",
         }}
@@ -597,7 +597,7 @@ function SpinningWheel({ rotation }: { rotation: number }) {
 
       <span
         className="absolute left-1/2 h-0 w-0 -translate-x-1/2 -translate-y-1/2 border-x-transparent"
-        style={{ top: -4, borderLeftWidth: 9, borderRightWidth: 9, borderBottomWidth: 14, borderBottomColor: "#EA580C" }}
+        style={{ top: -4, borderLeftWidth: 9, borderRightWidth: 9, borderTopWidth: 14, borderTopColor: "#EA580C" }}
       />
 
       <div className="absolute top-1/2 left-1/2 flex size-14 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-white text-xl shadow-md dark:bg-gray-800">
