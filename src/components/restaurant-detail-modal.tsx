@@ -1,7 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { ChevronDown, ChevronUp, Clock, Handshake, Map, MapPin, Navigation, X } from "lucide-react";
+import { toast } from "sonner";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -97,11 +99,9 @@ export function RestaurantDetailModal({
 
         {isCurrent && data && (
           <>
-            <header className="flex items-center justify-between border-b border-gray-100 bg-white/95 px-5 py-3.5 backdrop-blur-md">
-              <span className="text-xs font-semibold text-gray-500">
-                {data.zone} · {data.category}
-              </span>
-              <div className="flex items-center gap-1">
+            <header className="flex items-center justify-between gap-2 border-b border-gray-100 bg-white/95 px-5 py-3.5 backdrop-blur-md">
+              <span className="min-w-0 truncate text-xs font-semibold text-gray-500">{data.category}</span>
+              <div className="flex shrink-0 items-center gap-1">
                 <FavoriteButton restaurantId={data.id} initialFavorited={data.isFavorited} isLoggedIn={isLoggedIn} />
                 <ShareButton
                   title={data.name}
@@ -117,24 +117,28 @@ export function RestaurantDetailModal({
             </header>
 
             <div className="flex-1 overflow-y-auto px-5 py-4">
-              <div>
+              <div className="flex items-start justify-between gap-3">
                 <div className="flex flex-wrap items-center gap-2">
                   <h2 className="text-xl font-extrabold tracking-tight text-gray-900 sm:text-2xl">{data.name}</h2>
                   {data.isPartnershipActive && <Badge variant="secondary">제휴</Badge>}
                   <OpenStatusBadge status={data.openStatus} />
                 </div>
-                <p className="mt-1 flex flex-wrap items-center gap-1 text-sm font-medium text-gray-600">
-                  <span>
-                    {data.zone} · {data.category}
-                  </span>
-                  {data.avgRating !== null && (
-                    <span className="flex items-center gap-0.5">
-                      <span className="font-bold text-amber-500">★</span>
-                      <span className="font-semibold text-gray-900">{data.avgRating.toFixed(1)}</span>
-                      <span className="text-gray-500">({data.reviewCount})</span>
-                    </span>
-                  )}
-                </p>
+                <Button
+                  nativeButton={false}
+                  render={
+                    <a
+                      href={`https://map.kakao.com/link/to/${encodeURIComponent(data.name)},${data.latitude},${data.longitude}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    />
+                  }
+                  variant="outline"
+                  size="sm"
+                  className="shrink-0"
+                >
+                  <Navigation className="size-3.5" />
+                  길찾기
+                </Button>
               </div>
 
               <div className="mt-3 flex flex-col gap-2.5">
@@ -146,12 +150,8 @@ export function RestaurantDetailModal({
                   longitude={data.longitude}
                 />
                 <HoursAccordion businessHours={data.businessHours} openStatus={data.openStatus} />
-                <AddressRow
-                  name={data.name}
-                  address={data.address}
-                  latitude={data.latitude}
-                  longitude={data.longitude}
-                />
+                <CorrectionSuggestLink isLoggedIn={isLoggedIn} />
+                <AddressRow address={data.address} />
               </div>
 
               <div className="my-4 border-t border-gray-100" />
@@ -274,17 +274,27 @@ function HoursAccordion({
   );
 }
 
-function AddressRow({
-  name,
-  address,
-  latitude,
-  longitude,
-}: {
-  name: string;
-  address: string;
-  latitude: number;
-  longitude: number;
-}) {
+// 로그인 상태면 정보수정 제안 모달을 열고, 아니면 로그인 페이지로 보낸다.
+// 정보수정 제안 모달은 별도 작업(restaurant-correction)으로 준비 중이라 지금은 자리만 잡아둔다.
+function CorrectionSuggestLink({ isLoggedIn }: { isLoggedIn: boolean }) {
+  const className = "w-fit text-xs font-semibold text-green-600 transition-colors hover:text-green-700";
+
+  if (!isLoggedIn) {
+    return (
+      <Link href="/login" className={className}>
+        정보수정 제안
+      </Link>
+    );
+  }
+
+  return (
+    <button type="button" onClick={() => toast("정보수정 제안 기능은 준비 중이에요.")} className={className}>
+      정보수정 제안
+    </button>
+  );
+}
+
+function AddressRow({ address }: { address: string }) {
   const [copied, setCopied] = useState(false);
 
   async function handleCopy() {
@@ -298,29 +308,11 @@ function AddressRow({
   }
 
   return (
-    <div className="flex items-center justify-between gap-2">
-      <button type="button" onClick={handleCopy} className="flex min-w-0 items-center gap-1.5 text-left">
-        <MapPin className="size-4 shrink-0 text-gray-400" />
-        <span className="truncate font-medium text-gray-600 hover:text-gray-900">{address}</span>
-        {copied && <span className="shrink-0 text-[11px] font-bold text-orange-600">복사완료!</span>}
-      </button>
-      <Button
-        nativeButton={false}
-        render={
-          <a
-            href={`https://map.kakao.com/link/to/${encodeURIComponent(name)},${latitude},${longitude}`}
-            target="_blank"
-            rel="noopener noreferrer"
-          />
-        }
-        variant="outline"
-        size="sm"
-        className="shrink-0"
-      >
-        <Navigation className="size-3.5" />
-        길찾기
-      </Button>
-    </div>
+    <button type="button" onClick={handleCopy} className="flex min-w-0 items-center gap-1.5 text-left">
+      <MapPin className="size-4 shrink-0 text-gray-400" />
+      <span className="truncate font-medium text-gray-600 hover:text-gray-900">{address}</span>
+      {copied && <span className="shrink-0 text-[11px] font-bold text-orange-600">복사완료!</span>}
+    </button>
   );
 }
 
