@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useMemo, useRef, useState } from "react";
+import { Suspense, useMemo, useRef, useState, useTransition } from "react";
 import { MapPin, Navigation, Pencil, Phone, Star, X } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
@@ -69,6 +69,10 @@ export function MapExplorer({
   // 목록 바텀시트 상태: "expanded"(전체화면) / "default"(지도+목록 반반) / "collapsed"(핸들바만).
   // 핸들바를 드래그하거나 탭해서 세 상태를 오갈 수 있다.
   const [sheetState, setSheetState] = useState<SheetState>("default");
+
+  // 필터/검색/정렬 변경은 searchParams를 바꾸는 서버 네비게이션이라, useTransition으로 감싸
+  // 새 목록이 도착할 때까지 목록 영역에만 스켈레톤을 보여준다 (지도는 그대로 유지).
+  const [isListPending, startListTransition] = useTransition();
 
   const mapHeightVh = sheetState === "collapsed" ? MAP_HEIGHT_LIST_COLLAPSED_VH : MAP_RESTING_VH;
 
@@ -142,7 +146,11 @@ export function MapExplorer({
         <div className="max-h-[60vh] overflow-y-auto rounded-xl bg-background/95 p-2 shadow-md backdrop-blur">
           {/* 요약카드 ↔ 목록 전환 시 리마운트되어 열려 있던 필터 패널이 자동으로 닫힌다. */}
           <Suspense>
-            <RestaurantFilters key={previewId ? "preview" : "list"} onZoneChange={handleZoneChange} />
+            <RestaurantFilters
+              key={previewId ? "preview" : "list"}
+              onZoneChange={handleZoneChange}
+              startTransition={startListTransition}
+            />
           </Suspense>
         </div>
       </div>
@@ -173,6 +181,8 @@ export function MapExplorer({
               q={q}
               selectedId={selectedRestaurantId}
               onSelect={handleListSelect}
+              pending={isListPending}
+              startTransition={startListTransition}
             />
           </Suspense>
         )}

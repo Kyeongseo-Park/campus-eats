@@ -104,6 +104,9 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     }),
   ],
   session: { strategy: "jwt" },
+  // 로그인 화면과 인증 오류를 next-auth 기본 페이지 대신 우리 /login 화면으로 보낸다.
+  // (오류 시 /login?error=... 로 되돌아와 login/page.tsx가 실패 안내를 표시)
+  pages: { signIn: "/login", error: "/login" },
   callbacks: {
     async signIn({ user, account }) {
       if (!account) return false;

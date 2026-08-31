@@ -29,9 +29,10 @@ export async function requireUser(returnTo?: string): Promise<CurrentUser> {
   return user;
 }
 
-// 서버 컴포넌트에서 사용: 관리자가 아니면 메인으로 리다이렉트한다.
+// 서버 컴포넌트에서 사용: 미로그인 시 로그인 페이지로, 로그인했지만 관리자가 아니면
+// 403 안내 화면(/forbidden)으로 보낸다.
 export async function requireAdmin(returnTo?: string): Promise<CurrentUser> {
   const user = await requireUser(returnTo);
-  if (user.role !== "admin") redirect("/");
+  if (user.role !== "admin") redirect("/forbidden");
   return user;
 }

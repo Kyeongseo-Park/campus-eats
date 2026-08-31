@@ -5,6 +5,7 @@ import { Check, X } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import { SessionExpiredDialog } from "@/components/session-expired-dialog";
 import { StarPicker } from "@/components/star-rating";
 import { ReviewImageUpload } from "@/components/review-image-upload";
 import { REVIEW_TAG_MAX_COUNT } from "@/lib/constants";
@@ -40,6 +41,7 @@ export function ReviewWriteModal({
   const [showLimitHint, setShowLimitHint] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [sessionExpired, setSessionExpired] = useState(false);
 
   useEffect(() => {
     if (!open) return;
@@ -97,6 +99,13 @@ export function ReviewWriteModal({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ restaurantId, rating, content, images, tagIds: selectedTagIds }),
       });
+
+      if (res.status === 401) {
+        // 작성 중 세션이 끊긴 경우 — 입력 내용은 그대로 두고 만료 모달을 띄운다.
+        setSessionExpired(true);
+        return;
+      }
+
       const data = await res.json();
 
       if (!res.ok) {
@@ -114,6 +123,8 @@ export function ReviewWriteModal({
   }
 
   return (
+    <>
+    <SessionExpiredDialog open={sessionExpired} onClose={() => setSessionExpired(false)} />
     <Dialog open={open} onOpenChange={(next) => !next && handleClose()}>
       <DialogContent
         showCloseButton={false}
@@ -215,5 +226,6 @@ export function ReviewWriteModal({
         </div>
       </DialogContent>
     </Dialog>
+    </>
   );
 }

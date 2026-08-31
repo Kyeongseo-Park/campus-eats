@@ -2,8 +2,9 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import Script from "next/script";
-import { LocateFixed } from "lucide-react";
+import { LocateFixed, MapPin } from "lucide-react";
 
+import { Skeleton } from "@/components/ui/skeleton";
 import { SCHOOL_MAIN_GATE } from "@/lib/constants";
 
 export type RestaurantMapPoint = {
@@ -133,7 +134,15 @@ export function RestaurantMap({
 
   const [isSdkReady, setIsSdkReady] = useState(false);
   const [isMapReady, setIsMapReady] = useState(false);
+  // 로딩이 2초 이상 지속될 때만 스켈레톤을 노출한다 (빠르게 뜨면 깜빡임만 남으므로 — 디자인 시안 6번).
+  const [showSlowLoading, setShowSlowLoading] = useState(false);
   const appKey = process.env.NEXT_PUBLIC_KAKAO_MAP_APP_KEY;
+
+  useEffect(() => {
+    if (isMapReady) return;
+    const timer = setTimeout(() => setShowSlowLoading(true), 2000);
+    return () => clearTimeout(timer);
+  }, [isMapReady]);
 
   // FavoriteButton의 router.refresh() 등으로 restaurants가 새 배열 참조로 바뀌어도
   // 실제 id 구성이 같으면 마커를 재생성/재-fit하지 않기 위한 안정적인 키.
@@ -349,6 +358,13 @@ export function RestaurantMap({
         onReady={() => setIsSdkReady(true)}
       />
       <div ref={containerRef} className="h-full w-full" />
+      {!isMapReady && showSlowLoading && (
+        <div className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-2 overflow-hidden">
+          <Skeleton className="absolute inset-0 rounded-none" />
+          <MapPin className="relative size-8 text-muted-foreground/30" aria-hidden />
+          <p className="relative text-sm text-muted-foreground">지도를 불러오는 중</p>
+        </div>
+      )}
       {isMapReady && (
         <button
           type="button"

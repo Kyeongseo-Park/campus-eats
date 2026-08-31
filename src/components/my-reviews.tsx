@@ -4,8 +4,12 @@ import { useState, type FormEvent } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
+import { PenLine } from "lucide-react";
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { EmptyState } from "@/components/empty-state";
+import { SessionExpiredDialog } from "@/components/session-expired-dialog";
 import { StarPicker, StaticStars } from "@/components/star-rating";
 import { ReviewImageUpload } from "@/components/review-image-upload";
 import { ReviewImageGallery } from "@/components/review-image-gallery";
@@ -29,6 +33,7 @@ export function MyReviewsSection({ reviews }: { reviews: MyReviewItem[] }) {
   const [editRating, setEditRating] = useState(5);
   const [editContent, setEditContent] = useState("");
   const [editImages, setEditImages] = useState<string[]>([]);
+  const [sessionExpired, setSessionExpired] = useState(false);
 
   function startEditing(review: MyReviewItem) {
     setEditingId(review.id);
@@ -47,6 +52,10 @@ export function MyReviewsSection({ reviews }: { reviews: MyReviewItem[] }) {
       body: JSON.stringify({ rating: editRating, content: editContent, images: editImages }),
     });
 
+    if (res.status === 401) {
+      setSessionExpired(true);
+      return;
+    }
     if (res.ok) {
       setEditingId(null);
       router.refresh();
@@ -57,18 +66,36 @@ export function MyReviewsSection({ reviews }: { reviews: MyReviewItem[] }) {
     if (!confirm("리뷰를 삭제할까요?")) return;
 
     const res = await fetch(`/api/reviews/${reviewId}`, { method: "DELETE" });
+    if (res.status === 401) {
+      setSessionExpired(true);
+      return;
+    }
     if (res.ok) {
       router.refresh();
     }
   }
 
   if (reviews.length === 0) {
-    return <p className="mt-2 text-sm text-muted-foreground">작성한 리뷰가 없어요.</p>;
+    return (
+      <EmptyState
+        className="mt-2"
+        icon={PenLine}
+        title="작성한 리뷰가 없어요"
+        description="다녀온 식당에 리뷰를 남겨보세요."
+        action={
+          <Button nativeButton={false} render={<Link href="/" />} size="sm" variant="outline">
+            식당 둘러보기
+          </Button>
+        }
+      />
+    );
   }
 
   return (
-    <ul className="mt-2 flex flex-col gap-3">
-      {reviews.map((review) => (
+    <>
+      <SessionExpiredDialog open={sessionExpired} onClose={() => setSessionExpired(false)} />
+      <ul className="mt-2 flex flex-col gap-3">
+        {reviews.map((review) => (
         <li key={review.id} className="rounded-md border p-3">
           {editingId === review.id ? (
             <form onSubmit={(event) => handleEditSubmit(event, review.id)} className="flex flex-col gap-2">
@@ -114,6 +141,7 @@ export function MyReviewsSection({ reviews }: { reviews: MyReviewItem[] }) {
           )}
         </li>
       ))}
-    </ul>
+      </ul>
+    </>
   );
 }

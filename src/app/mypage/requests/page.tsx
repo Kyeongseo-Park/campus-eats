@@ -1,10 +1,12 @@
 import Link from "next/link";
+import { ClipboardList, SearchX } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { AdminPager } from "@/components/admin-pager";
+import { EmptyState } from "@/components/empty-state";
 import { MyRequestCancelButton } from "@/components/my-request-cancel-button";
 import { requireUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
@@ -97,9 +99,20 @@ export default async function MyRequestsPage({
         </p>
 
         {requests.length === 0 ? (
-          <p className="text-sm text-muted-foreground">
-            {q ? "검색 결과가 없어요." : "제보한 식당이 없어요."}
-          </p>
+          q ? (
+            <EmptyState icon={SearchX} title="검색 결과가 없어요" description="다른 검색어로 다시 찾아보세요." />
+          ) : (
+            <EmptyState
+              icon={ClipboardList}
+              title="제보한 식당이 없어요"
+              description="학교 근처 숨은 맛집을 제보해보세요."
+              action={
+                <Button nativeButton={false} render={<Link href="/restaurant-requests/new" />} size="sm">
+                  식당 제보하기
+                </Button>
+              }
+            />
+          )
         ) : (
           <ul className="flex flex-col gap-1">
             {requests.map((req) => (

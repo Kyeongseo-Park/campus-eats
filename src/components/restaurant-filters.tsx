@@ -19,7 +19,14 @@ function parseMulti(value: string | null): string[] {
   return value ? value.split(",").filter(Boolean) : [];
 }
 
-export function RestaurantFilters({ onZoneChange }: { onZoneChange?: (zones: string[]) => void }) {
+export function RestaurantFilters({
+  onZoneChange,
+  startTransition,
+}: {
+  onZoneChange?: (zones: string[]) => void;
+  // 넘어오면 목록 네비게이션을 이 transition으로 감싸 목록 스켈레톤을 띄운다 (map-explorer에서 주입).
+  startTransition?: React.TransitionStartFunction;
+}) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -32,7 +39,9 @@ export function RestaurantFilters({ onZoneChange }: { onZoneChange?: (zones: str
       if (value === null || value === "") params.delete(key);
       else params.set(key, value);
     }
-    router.push(`${pathname}?${params.toString()}`);
+    const run = () => router.push(`${pathname}?${params.toString()}`);
+    if (startTransition) startTransition(run);
+    else run();
   }
 
   function togglePanel(key: FilterKey) {

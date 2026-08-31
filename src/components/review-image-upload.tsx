@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { upload } from "@vercel/blob/client";
 
+import { InlineError } from "@/components/error-state";
 import { REVIEW_IMAGE_ALLOWED_TYPES, REVIEW_IMAGE_MAX_COUNT, REVIEW_IMAGE_MAX_SIZE_MB } from "@/lib/constants";
 import { isHeic, preloadHeicConverter, resizeImageForUpload } from "@/lib/image-resize";
 
@@ -133,7 +134,7 @@ export function ReviewImageUpload({
 
       <input ref={inputRef} type="file" accept="image/*" multiple className="hidden" onChange={handleFilesSelect} />
       <p className="text-xs text-muted-foreground">* 환경에 따라 업로드에 시간이 조금 걸릴 수 있어요.</p>
-      {error && <p className="text-xs text-destructive">{error}</p>}
+      {error && <InlineError>{error}</InlineError>}
     </div>
   );
 }

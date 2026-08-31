@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { SessionExpiredDialog } from "@/components/session-expired-dialog";
 import { CATEGORIES } from "@/lib/constants";
 
 export function RestaurantRequestForm() {
@@ -17,6 +18,7 @@ export function RestaurantRequestForm() {
   const [menuInfo, setMenuInfo] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [sessionExpired, setSessionExpired] = useState(false);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -34,6 +36,12 @@ export function RestaurantRequestForm() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ restaurantName, address, category, menuInfo }),
       });
+
+      if (res.status === 401) {
+        setSessionExpired(true);
+        return;
+      }
+
       const data = await res.json();
 
       if (!res.ok) {
@@ -51,6 +59,8 @@ export function RestaurantRequestForm() {
   }
 
   return (
+    <>
+    <SessionExpiredDialog open={sessionExpired} onClose={() => setSessionExpired(false)} />
     <form onSubmit={handleSubmit} className="flex flex-col gap-4">
       <div className="flex flex-col gap-1.5">
         <Label htmlFor="restaurantName">식당명 *</Label>
@@ -100,5 +110,6 @@ export function RestaurantRequestForm() {
         {isSubmitting ? "제보 중..." : "제보하기"}
       </Button>
     </form>
+    </>
   );
 }

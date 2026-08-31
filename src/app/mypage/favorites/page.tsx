@@ -1,9 +1,11 @@
 import Link from "next/link";
+import { Heart, SearchX } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { AdminPager } from "@/components/admin-pager";
+import { EmptyState } from "@/components/empty-state";
 import { FavoriteButton } from "@/components/favorite-button";
 import { requireUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
@@ -79,7 +81,20 @@ export default async function MyFavoritesPage({
         </form>
 
         {favorites.length === 0 ? (
-          <p className="text-sm text-muted-foreground">{q ? "검색 결과가 없어요." : "즐겨찾기한 식당이 없어요."}</p>
+          q ? (
+            <EmptyState icon={SearchX} title="검색 결과가 없어요" description="다른 식당명으로 다시 찾아보세요." />
+          ) : (
+            <EmptyState
+              icon={Heart}
+              title="즐겨찾기한 식당이 없어요"
+              description="마음에 드는 식당을 눌러 담아보세요."
+              action={
+                <Button nativeButton={false} render={<Link href="/" />} size="sm" variant="outline">
+                  식당 둘러보기
+                </Button>
+              }
+            />
+          )
         ) : (
           <ul className="flex flex-col gap-1">
             {favorites.map((favorite) => (

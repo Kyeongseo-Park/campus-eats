@@ -2,11 +2,13 @@
 
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { ChevronDown, Gift, Star } from "lucide-react";
+import { ChevronDown, Gift, SearchX, Star } from "lucide-react";
 import { useState, type KeyboardEvent } from "react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { EmptyState } from "@/components/empty-state";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { FavoriteButton } from "@/components/favorite-button";
 import { OpenStatusBadge } from "@/components/open-status-badge";
@@ -22,6 +24,8 @@ export function RestaurantListPanel({
   q,
   selectedId,
   onSelect,
+  pending,
+  startTransition,
 }: {
   restaurants: RestaurantListItem[];
   favoriteIds: Set<string>;
@@ -30,6 +34,9 @@ export function RestaurantListPanel({
   q?: string;
   selectedId: string | null;
   onSelect: (id: string) => void;
+  // 필터/정렬 변경으로 새 목록을 불러오는 중이면 목록 자리에 스켈레톤을 보여준다 (map-explorer 주입).
+  pending?: boolean;
+  startTransition?: React.TransitionStartFunction;
 }) {
   const router = useRouter();
   const pathname = usePathname();
@@ -37,6 +44,11 @@ export function RestaurantListPanel({
   const [sortPanelOpen, setSortPanelOpen] = useState(false);
 
   const currentSortLabel = SORT_OPTIONS.find((option) => option.value === sort)?.label ?? "평점순";
+
+  function pushUrl(url: string) {
+    if (startTransition) startTransition(() => router.push(url));
+    else router.push(url);
+  }
 
   function handleKeyDown(event: KeyboardEvent<HTMLDivElement>, id: string) {
     if (event.key === "Enter" || event.key === " ") {
@@ -55,12 +67,12 @@ export function RestaurantListPanel({
           params.set("sort", "distance");
           params.set("lat", String(position.coords.latitude));
           params.set("lng", String(position.coords.longitude));
-          router.push(`${pathname}?${params.toString()}`);
+          pushUrl(`${pathname}?${params.toString()}`);
         },
         () => {
           // 권한 거부 시 좌표 없이 이동 → 서버가 학교 정문 좌표로 대체
           params.set("sort", "distance");
-          router.push(`${pathname}?${params.toString()}`);
+          pushUrl(`${pathname}?${params.toString()}`);
         }
       );
     } else {
@@ -113,22 +125,42 @@ export function RestaurantListPanel({
     </div>
   );
 
+  if (pending) {
+    return (
+      <>
+        {header}
+        <div className="grid grid-cols-1 gap-3 pb-2 sm:grid-cols-2">
+          {[0, 1, 2].map((i) => (
+            <div key={i} className="rounded-md border p-4 shadow-sm ring-1 ring-black/5">
+              <Skeleton className="h-4 w-2/3" />
+              <Skeleton className="mt-2 h-3 w-1/2" />
+            </div>
+          ))}
+        </div>
+      </>
+    );
+  }
+
   if (restaurants.length === 0) {
     return (
       <>
         {header}
-        <p className="py-6 text-center text-sm text-muted-foreground">
-          {q ? (
-            <>
-              검색 결과가 없어요. 새로운{" "}
-              <Link href="/restaurant-requests/new" className="text-primary underline-offset-4 hover:underline">
-                식당을 제보해보세요!
-              </Link>
-            </>
-          ) : (
-            "조건에 맞는 식당이 없어요."
-          )}
-        </p>
+        <EmptyState
+          icon={SearchX}
+          title={q ? "검색 결과가 없어요" : "조건에 맞는 식당이 없어요"}
+          description={
+            q ? (
+              <>
+                다른 검색어로 찾아보거나, 새로운{" "}
+                <Link href="/restaurant-requests/new" className="text-primary underline-offset-4 hover:underline">
+                  식당을 제보해보세요!
+                </Link>
+              </>
+            ) : (
+              "필터 조건을 바꾸거나 초기화해보세요."
+            )
+          }
+        />
       </>
     );
   }
