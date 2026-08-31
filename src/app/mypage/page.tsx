@@ -1,55 +1,32 @@
 import Link from "next/link";
-import { ChevronRight } from "lucide-react";
+import { ChevronRight, Menu, Pen, SquarePlus, type LucideIcon } from "lucide-react";
 
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { StaticStars } from "@/components/star-rating";
 import { LogoutButton } from "@/components/logout-button";
 import { requireUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { REQUEST_STATUS_BADGE_VARIANT } from "@/lib/constants";
-import { getDisplayContent } from "@/lib/profanity";
-
-const PREVIEW_COUNT = 3;
+import { cn } from "@/lib/utils";
 
 export default async function MyPage() {
   const user = await requireUser("/mypage");
 
-  const [reviews, reviewCount, requests, requestCount, favorites, favoriteCount] = await Promise.all([
-    prisma.review.findMany({
-      where: { userId: user.id },
-      orderBy: { createdAt: "desc" },
-      take: PREVIEW_COUNT,
-      include: { restaurant: { select: { id: true, name: true } } },
-    }),
+  const [reviewCount, requestCount, pendingRequestCount] = await Promise.all([
     prisma.review.count({ where: { userId: user.id } }),
-    prisma.restaurantRequest.findMany({
-      where: { userId: user.id },
-      orderBy: { createdAt: "desc" },
-      take: PREVIEW_COUNT,
-    }),
     prisma.restaurantRequest.count({ where: { userId: user.id } }),
-    prisma.favorite.findMany({
-      where: { userId: user.id },
-      orderBy: { createdAt: "desc" },
-      take: PREVIEW_COUNT,
-      include: { restaurant: { select: { id: true, name: true, zone: true, category: true } } },
-    }),
-    prisma.favorite.count({ where: { userId: user.id } }),
+    prisma.restaurantRequest.count({ where: { userId: user.id, status: "대기" } }),
   ]);
 
   return (
     <main className="flex flex-1 flex-col gap-6 p-8">
-      <div className="flex items-start justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-semibold">마이페이지</h1>
-          <p className="mt-2 text-muted-foreground">{user.nickname}님</p>
+      <div className="flex items-center gap-3">
+        <div className="flex size-[52px] shrink-0 items-center justify-center rounded-full bg-orange-100 text-[15px] font-bold text-orange-700">
+          {user.nickname.slice(0, 1)}
         </div>
-        <div className="flex shrink-0 items-center gap-1">
+        <p className="text-[17px] font-bold text-gray-900">{user.nickname}님</p>
+        <div className="ml-auto flex shrink-0 items-center gap-1">
           {user.role === "admin" && (
             <Link
               href="/admin"
-              className="rounded-md px-3 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:text-primary"
+              className="rounded-lg px-2.5 py-1.5 text-xs font-semibold text-gray-500 transition-colors hover:text-primary"
             >
               관리자
             </Link>
@@ -58,90 +35,80 @@ export default async function MyPage() {
         </div>
       </div>
 
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle>내 리뷰 ({reviewCount})</CardTitle>
-          <Link href="/mypage/reviews" className="flex items-center text-sm text-primary hover:underline">
-            전체보기 <ChevronRight className="size-4" />
-          </Link>
-        </CardHeader>
-        <CardContent>
-          {reviews.length === 0 ? (
-            <p className="text-sm text-muted-foreground">작성한 리뷰가 없어요.</p>
-          ) : (
-            <ul className="flex flex-col gap-1">
-              {reviews.map((review) => (
-                <li key={review.id} className="flex items-center justify-between rounded-md border p-3">
-                  <Link href={`/restaurants/${review.restaurant.id}`} className="text-sm font-medium hover:underline">
-                    {review.restaurant.name}
-                  </Link>
-                  <div className="flex items-center gap-2">
-                    <StaticStars rating={review.rating} />
-                    <span className="max-w-[10rem] truncate text-sm text-muted-foreground">
-                      {getDisplayContent(review.content, review.containsProfanity)}
-                    </span>
-                  </div>
-                </li>
-              ))}
-            </ul>
-          )}
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle>내 제보 ({requestCount})</CardTitle>
-          <Link href="/mypage/requests" className="flex items-center text-sm text-primary hover:underline">
-            전체보기 <ChevronRight className="size-4" />
-          </Link>
-        </CardHeader>
-        <CardContent>
-          {requests.length === 0 ? (
-            <p className="text-sm text-muted-foreground">제보한 식당이 없어요.</p>
-          ) : (
-            <ul className="flex flex-col gap-1">
-              {requests.map((req) => (
-                <li key={req.id} className="flex items-center justify-between rounded-md border p-3">
-                  <span className="text-sm">
-                    {req.restaurantName}
-                    <span className="ml-1 text-muted-foreground">
-                      ({req.address} · {req.category})
-                    </span>
-                  </span>
-                  <Badge variant={REQUEST_STATUS_BADGE_VARIANT[req.status] ?? "outline"}>{req.status}</Badge>
-                </li>
-              ))}
-            </ul>
-          )}
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle>즐겨찾기 ({favoriteCount})</CardTitle>
-          <Link href="/mypage/favorites" className="flex items-center text-sm text-primary hover:underline">
-            전체보기 <ChevronRight className="size-4" />
-          </Link>
-        </CardHeader>
-        <CardContent>
-          {favorites.length === 0 ? (
-            <p className="text-sm text-muted-foreground">즐겨찾기한 식당이 없어요.</p>
-          ) : (
-            <ul className="flex flex-col gap-1">
-              {favorites.map((favorite) => (
-                <li key={favorite.id} className="flex items-center justify-between rounded-md border p-3">
-                  <Link href={`/restaurants/${favorite.restaurant.id}`} className="text-sm hover:underline">
-                    {favorite.restaurant.name}
-                    <span className="ml-1 text-muted-foreground">
-                      ({favorite.restaurant.zone} · {favorite.restaurant.category})
-                    </span>
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          )}
-        </CardContent>
-      </Card>
+      <section className="flex flex-col gap-2">
+        <h2 className="pl-0.5 text-xs font-semibold text-gray-400">내 활동</h2>
+        <div className="overflow-hidden rounded-xl border border-gray-200">
+          <ActivityRow href="/mypage/reviews" icon={Pen} label="내 리뷰" value={reviewCount} />
+          <RowDivider />
+          <ActivityRow
+            href="/mypage/requests"
+            icon={Menu}
+            label="내 제보 내역"
+            value={requestCount}
+            badge={pendingRequestCount >= 1 ? `대기 ${pendingRequestCount}` : undefined}
+          />
+          <RowDivider />
+          <ActivityRow
+            href="/restaurant-requests/new"
+            icon={SquarePlus}
+            label="식당 제보하기"
+            description="지도에 없는 가게를 알려주세요"
+            highlight
+          />
+        </div>
+      </section>
     </main>
+  );
+}
+
+function RowDivider() {
+  return <div className="ml-[45px] border-t border-[#f0f0f0]" />;
+}
+
+function ActivityRow({
+  href,
+  icon: Icon,
+  label,
+  value,
+  badge,
+  description,
+  highlight = false,
+}: {
+  href: string;
+  icon: LucideIcon;
+  label: string;
+  value?: number;
+  badge?: string;
+  description?: string;
+  highlight?: boolean;
+}) {
+  return (
+    <Link
+      href={href}
+      className={cn(
+        "flex min-h-11 items-center gap-[11px] px-[14px] py-[15px] transition-colors duration-100",
+        highlight
+          ? "bg-[#fffaf5] hover:bg-orange-50 active:bg-orange-100"
+          : "hover:bg-gray-50 active:bg-gray-100"
+      )}
+    >
+      <Icon
+        className={cn("size-5 shrink-0", highlight ? "text-orange-500" : "text-gray-600")}
+        strokeWidth={1.8}
+      />
+      <div className="min-w-0 flex-1">
+        <p className={cn("text-sm", highlight ? "font-bold text-orange-700" : "font-semibold text-gray-800")}>
+          {label}
+        </p>
+        {description && <p className="text-[11px] text-gray-400">{description}</p>}
+      </div>
+      {badge && (
+        <span className="rounded-[5px] bg-orange-50 px-1.5 py-0.5 text-[11px] font-bold text-orange-700">
+          {badge}
+        </span>
+      )}
+      {value !== undefined && <span className="text-[13px] text-gray-400">{value}</span>}
+      <ChevronRight className="size-4 shrink-0 text-gray-400" />
+    </Link>
   );
 }
