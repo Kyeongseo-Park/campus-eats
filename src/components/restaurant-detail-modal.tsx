@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { ChevronDown, ChevronUp, Clock, Handshake, Map, MapPin, Navigation, X } from "lucide-react";
-import { toast } from "sonner";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -12,6 +11,7 @@ import { FavoriteButton } from "@/components/favorite-button";
 import { ShareButton } from "@/components/share-button";
 import { OpenStatusBadge } from "@/components/open-status-badge";
 import { RestaurantMap } from "@/components/restaurant-map";
+import { RestaurantCorrectionModal } from "@/components/restaurant-correction-modal";
 import { ReviewSection } from "@/components/review-section";
 import {
   DAY_KEYS,
@@ -61,6 +61,7 @@ export function RestaurantDetailModal({
   // 실패한 요청이 어느 restaurantId에 대한 것이었는지 함께 저장해, 식당을 바꿔 다시 열었을 때
   // 이전 에러가 새 요청의 로딩 상태를 가리지 않도록 한다.
   const [error, setError] = useState<{ id: string; message: string } | null>(null);
+  const [correctionOpen, setCorrectionOpen] = useState(false);
 
   useEffect(() => {
     if (!restaurantId) return;
@@ -80,6 +81,12 @@ export function RestaurantDetailModal({
     return () => {
       cancelled = true;
     };
+  }, [restaurantId]);
+
+  useEffect(() => {
+    // 상세 모달이 닫히거나 다른 식당으로 바뀌면 정보수정 제안 모달도 닫는다.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setCorrectionOpen(false);
   }, [restaurantId]);
 
   const isCurrent = data?.id === restaurantId;
@@ -150,7 +157,7 @@ export function RestaurantDetailModal({
                   longitude={data.longitude}
                 />
                 <HoursAccordion businessHours={data.businessHours} openStatus={data.openStatus} />
-                <CorrectionSuggestLink isLoggedIn={isLoggedIn} />
+                <CorrectionSuggestLink isLoggedIn={isLoggedIn} onSuggest={() => setCorrectionOpen(true)} />
                 <AddressRow address={data.address} />
               </div>
 
@@ -175,6 +182,12 @@ export function RestaurantDetailModal({
                 openReviewForm={openReviewForm}
               />
             </div>
+
+            <RestaurantCorrectionModal
+              restaurantId={data.id}
+              open={correctionOpen}
+              onClose={() => setCorrectionOpen(false)}
+            />
           </>
         )}
       </DialogContent>
@@ -274,9 +287,14 @@ function HoursAccordion({
   );
 }
 
-// 로그인 상태면 정보수정 제안 모달을 열고, 아니면 로그인 페이지로 보낸다.
-// 정보수정 제안 모달은 별도 작업(restaurant-correction)으로 준비 중이라 지금은 자리만 잡아둔다.
-function CorrectionSuggestLink({ isLoggedIn }: { isLoggedIn: boolean }) {
+// 로그인 상태면 정보수정 제안 모달을 열고(onSuggest), 아니면 로그인 페이지로 보낸다.
+function CorrectionSuggestLink({
+  isLoggedIn,
+  onSuggest,
+}: {
+  isLoggedIn: boolean;
+  onSuggest: () => void;
+}) {
   const className = "w-fit text-xs font-semibold text-green-600 transition-colors hover:text-green-700";
 
   if (!isLoggedIn) {
@@ -288,7 +306,7 @@ function CorrectionSuggestLink({ isLoggedIn }: { isLoggedIn: boolean }) {
   }
 
   return (
-    <button type="button" onClick={() => toast("정보수정 제안 기능은 준비 중이에요.")} className={className}>
+    <button type="button" onClick={onSuggest} className={className}>
       정보수정 제안
     </button>
   );
