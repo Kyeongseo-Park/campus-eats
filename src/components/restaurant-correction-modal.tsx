@@ -23,6 +23,8 @@ export function RestaurantCorrectionModal({
   const [content, setContent] = useState("");
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  // 같은 식당에 이미 검토 중인 제안이 있어 제출이 막힌 상태(409). 취소 후 재제출 버튼을 노출한다.
+  const [blockedByPending, setBlockedByPending] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [sessionExpired, setSessionExpired] = useState(false);
 
@@ -30,6 +32,7 @@ export function RestaurantCorrectionModal({
     setContent("");
     setSubmitted(false);
     setError(null);
+    setBlockedByPending(false);
     setIsSubmitting(false);
     onClose();
   }
@@ -38,6 +41,7 @@ export function RestaurantCorrectionModal({
 
   async function handleSubmit() {
     setError(null);
+    setBlockedByPending(false);
     setIsSubmitting(true);
     try {
       const res = await fetch(`/api/restaurants/${restaurantId}/corrections`, {
@@ -56,6 +60,7 @@ export function RestaurantCorrectionModal({
 
       if (!res.ok) {
         setError(data.error ?? "제출에 실패했습니다.");
+        if (res.status === 409) setBlockedByPending(true);
         return;
       }
 
@@ -65,6 +70,32 @@ export function RestaurantCorrectionModal({
     } finally {
       setIsSubmitting(false);
     }
+  }
+
+  // 검토 중인 기존 제안을 취소한 뒤, 지금 입력한 내용으로 다시 제출한다.
+  async function handleCancelAndResubmit() {
+    setError(null);
+    setIsSubmitting(true);
+    try {
+      const res = await fetch(`/api/restaurants/${restaurantId}/corrections`, { method: "DELETE" });
+
+      if (res.status === 401) {
+        setSessionExpired(true);
+        return;
+      }
+      if (!res.ok) {
+        setError("기존 제안을 취소하지 못했어요. 잠시 후 다시 시도해주세요.");
+        return;
+      }
+    } catch {
+      setError("네트워크 오류가 발생했습니다. 다시 시도해주세요.");
+      return;
+    } finally {
+      setIsSubmitting(false);
+    }
+
+    setBlockedByPending(false);
+    await handleSubmit();
   }
 
   return (
@@ -113,6 +144,18 @@ export function RestaurantCorrectionModal({
                 </div>
 
                 {error && <p className="mt-1 text-sm text-destructive">{error}</p>}
+                {blockedByPending && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={handleCancelAndResubmit}
+                    disabled={isSubmitting || content.trim().length === 0}
+                    className="mt-2"
+                  >
+                    기존 제안 취소하고 이 내용으로 다시 보내기
+                  </Button>
+                )}
               </div>
 
               <div className="border-t border-gray-100 p-4">

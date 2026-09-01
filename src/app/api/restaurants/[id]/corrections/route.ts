@@ -45,3 +45,25 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
 
   return NextResponse.json({ created: true }, { status: 201 });
 }
+
+// 아직 검토(대기) 중인 내 제안을 취소한다. 관리자가 처리한 제안은 취소 대상이 아니다.
+export async function DELETE(_request: Request, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+
+  const user = await getCurrentUser();
+  if (!user) {
+    return NextResponse.json({ error: "로그인이 필요합니다." }, { status: 401 });
+  }
+
+  const pending = await prisma.restaurantCorrection.findFirst({
+    where: { restaurantId: id, userId: user.id, status: "대기" },
+    select: { id: true },
+  });
+  if (!pending) {
+    return NextResponse.json({ error: "취소할 제안이 없어요." }, { status: 404 });
+  }
+
+  await prisma.restaurantCorrection.delete({ where: { id: pending.id } });
+
+  return NextResponse.json({ ok: true });
+}
