@@ -157,8 +157,8 @@ export function RestaurantDetailModal({
                   longitude={data.longitude}
                 />
                 <HoursAccordion businessHours={data.businessHours} openStatus={data.openStatus} />
-                <CorrectionSuggestLink isLoggedIn={isLoggedIn} onSuggest={() => setCorrectionOpen(true)} />
                 <AddressRow address={data.address} />
+                <CorrectionSuggestLink isLoggedIn={isLoggedIn} onSuggest={() => setCorrectionOpen(true)} />
               </div>
 
               <div className="my-4 border-t border-gray-100" />
