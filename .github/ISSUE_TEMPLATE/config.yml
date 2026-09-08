@@ -1,0 +1,5 @@
+blank_issues_enabled: true
+contact_links:
+  - name: 기능 제안 전 논의 (노션)
+    url: https://www.notion.so
+    about: 아직 채택이 확정되지 않은 아이디어는 노션 기능제안DB에서 먼저 논의해주세요.
