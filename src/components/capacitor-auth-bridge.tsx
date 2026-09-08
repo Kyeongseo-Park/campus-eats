@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Capacitor } from "@capacitor/core";
+import { Browser } from "@capacitor/browser";
 import { signIn } from "next-auth/react";
 import { toast } from "sonner";
 
@@ -31,6 +32,11 @@ export function CapacitorAuthBridge() {
         const rawReturnTo = parsed.searchParams.get("returnTo");
         const returnTo = rawReturnTo && rawReturnTo.startsWith("/") ? rawReturnTo : "/";
         if (!code) return;
+
+        // 딥링크로 앱에 복귀했으면 OAuth는 이미 끝났다. 뒤에 남아 있는 시스템 브라우저를
+        // 닫는다 — 특히 iOS(SFSafariViewController)는 딥링크만으로는 자동으로 닫히지 않는다.
+        // (Android Custom Tabs / 웹에서는 no-op이거나 무해)
+        Browser.close().catch(() => {});
 
         const result = await signIn("mobile-exchange", { code, redirect: false });
         if (result?.ok) {
