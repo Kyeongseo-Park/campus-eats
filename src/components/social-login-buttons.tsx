@@ -19,9 +19,11 @@ export function SocialLoginButtons({ callbackUrl }: { callbackUrl: string }) {
     setPending(provider);
     try {
       if (Capacitor.isNativePlatform()) {
+        // Auth.js v5의 GET /api/auth/signin/:provider 는 OAuth를 시작하지 않고 로그인
+        // 페이지만 렌더링해서, 앱에서 바로 열면 첫 탭이 먹지 않는다. 대신 /mobile-login
+        // 페이지를 열어 브라우저 쪽에서 signIn()(POST)으로 OAuth를 시작하게 한다.
         const returnTo = encodeURIComponent(callbackUrl);
-        const bridgeCallback = encodeURIComponent(`/mobile-auth-bridge?returnTo=${returnTo}`);
-        const signInUrl = `${window.location.origin}/api/auth/signin/${provider}?callbackUrl=${bridgeCallback}`;
+        const signInUrl = `${window.location.origin}/mobile-login?provider=${provider}&returnTo=${returnTo}`;
         await Browser.open({ url: signInUrl });
       } else {
         await signIn(provider, { callbackUrl });
