@@ -65,7 +65,7 @@ export default async function ReviewsFeedPage({
     displayContent: getDisplayContent(review.content, review.containsProfanity),
     isEdited: review.updatedAt.getTime() !== review.createdAt.getTime(),
     createdAt: review.createdAt.toISOString().slice(0, 10),
-    nickname: review.user.nickname,
+    nickname: review.user?.nickname ?? "탈퇴한 사용자",
     restaurant: review.restaurant,
     images: review.images.map((image) => ({ id: image.id, url: image.url, order: image.order })),
     helpfulCount: review._count.helpfulVotes,

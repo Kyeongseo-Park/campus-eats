@@ -18,7 +18,7 @@ import { cn } from "@/lib/utils";
 
 export type ReviewItem = {
   id: string;
-  userId: string;
+  userId: string | null;
   rating: number;
   content: string;
   displayContent: string;

@@ -178,7 +178,7 @@ export default async function AdminReviewsPage({
               <tbody>
                 {reviews.map((review) => (
                   <tr key={review.id} className="border-t">
-                    <td className="p-3 whitespace-nowrap">{review.user.nickname}</td>
+                    <td className="p-3 whitespace-nowrap">{review.user?.nickname ?? "탈퇴한 사용자"}</td>
                     <td className="p-3 whitespace-nowrap">
                       <Link href={`/restaurants/${review.restaurant.id}`} className="text-primary hover:underline">
                         {review.restaurant.name}
