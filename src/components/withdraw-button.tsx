@@ -42,7 +42,9 @@ export function WithdrawButton() {
           <AlertTriangle className="size-10 text-destructive" strokeWidth={1.5} aria-hidden />
           <DialogTitle>정말 탈퇴하시겠습니까?</DialogTitle>
           <p className="text-sm text-muted-foreground">
-            작성한 리뷰는 남지만 즐겨찾기·제보 내역은 모두 삭제되며 되돌릴 수 없습니다.
+            작성한 리뷰는 남지만
+            <br />
+            즐겨찾기·제보 내역은 모두 삭제되며 되돌릴 수 없습니다.
           </p>
           {error && <p className="text-sm text-destructive">{error}</p>}
           <div className="mt-2 flex w-full flex-col gap-2">
