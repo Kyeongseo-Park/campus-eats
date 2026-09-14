@@ -76,7 +76,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
     displayContent: getDisplayContent(review.content, review.containsProfanity),
     createdAt: review.createdAt,
     updatedAt: review.updatedAt,
-    user: review.user,
+    user: review.user ?? { nickname: "탈퇴한 사용자" },
     images: review.images,
     tags: review.reviewTags.map((rt) => ({ id: rt.tag.id, label: rt.tag.label })),
     helpfulCount: review._count.helpfulVotes,

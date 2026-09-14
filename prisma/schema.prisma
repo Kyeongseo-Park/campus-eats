@@ -123,9 +123,10 @@ model Menu {
 }
 
 model Review {
-  id           String @id @default(uuid()) @db.Uuid
-  userId       String @map("user_id") @db.Uuid
-  restaurantId String @map("restaurant_id") @db.Uuid
+  id           String  @id @default(uuid()) @db.Uuid
+  /// 작성자가 탈퇴하면 null이 된다 (리뷰 자체는 보존됨).
+  userId       String? @map("user_id") @db.Uuid
+  restaurantId String  @map("restaurant_id") @db.Uuid
   /// 1~5 정수
   rating       Int
   content      String
@@ -135,7 +136,7 @@ model Review {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  user       User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user       User?      @relation(fields: [userId], references: [id], onDelete: SetNull)
   restaurant Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
   images       ReviewImage[]
   helpfulVotes ReviewHelpful[]

@@ -2,6 +2,7 @@ import Link from "next/link";
 import { ChevronRight, Menu, Pen, SquarePlus, type LucideIcon } from "lucide-react";
 
 import { LogoutButton } from "@/components/logout-button";
+import { WithdrawButton } from "@/components/withdraw-button";
 import { requireUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { cn } from "@/lib/utils";
@@ -32,6 +33,7 @@ export default async function MyPage() {
             </Link>
           )}
           <LogoutButton />
+          {user.role !== "admin" && <WithdrawButton />}
         </div>
       </div>
 
