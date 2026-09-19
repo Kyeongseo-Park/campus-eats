@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ChevronRight, Menu, Pen, SquarePlus, type LucideIcon } from "lucide-react";
+import { ChevronRight, HelpCircle, Menu, Pen, Shield, SquarePlus, type LucideIcon } from "lucide-react";
 
 import { LogoutButton } from "@/components/logout-button";
 import { WithdrawButton } from "@/components/withdraw-button";
@@ -57,6 +57,15 @@ export default async function MyPage() {
             description="지도에 없는 가게를 알려주세요"
             highlight
           />
+        </div>
+      </section>
+
+      <section className="flex flex-col gap-2">
+        <h2 className="pl-0.5 text-xs font-semibold text-gray-400">정보</h2>
+        <div className="overflow-hidden rounded-xl border border-gray-200">
+          <ActivityRow href="/support" icon={HelpCircle} label="고객 지원" />
+          <RowDivider />
+          <ActivityRow href="/privacy" icon={Shield} label="개인정보처리방침" />
         </div>
       </section>
     </main>
